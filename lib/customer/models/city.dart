@@ -9,7 +9,7 @@ class City {
 
   City.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    deliveryCost = json['deliveryCost'];
+    deliveryCost = double.parse(json["deliveryCost"].toString());
     minOrder = json['min_order'];
     createdAt = json['created_at'];
     name = json['name'];

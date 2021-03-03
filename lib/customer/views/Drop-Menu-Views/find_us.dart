@@ -1,10 +1,18 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
+import 'package:http/http.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FindUS extends StatefulWidget {
   @override
@@ -12,26 +20,66 @@ class FindUS extends StatefulWidget {
 }
 
 class _FindUSState extends State<FindUS> {
+  bool load = true;
+  String facebook, twitter, instagram;
+  String whatsapp, email, website;
+
+  getSettings() async {
+    var request =
+        await get(ApiHelper.api + 'getSetting', headers: ApiHelper.headers);
+    var response = json.decode(request.body)['items'];
+    setState(() {
+      facebook = response['facebook'];
+      twitter = response['twitter'];
+      instagram = response['instagram'];
+      whatsapp = response['phone'];
+      email = response['info_email'];
+      website = response['url'];
+      load = false;
+    });
+  }
+  String url() {
+    if (Platform.isAndroid) {
+      // add the [https]
+      return "https://wa.me/$whatsapp}"; // new line
+    } else {
+      // add the [https]
+      return "https://api.whatsapp.com/send?phone=$whatsapp"; // new line
+    }
+  }
+
+  @override
+  void initState() {
+    getSettings();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     List<_FindUSConnection> _socialMedia = [
       _FindUSConnection(
         iconPath: Constants.facebookIcon,
-        handler: () {
-          print("facebookIcon");
+        handler: () async {
+          await canLaunch(facebook)
+              ? await launch(facebook)
+              : Fluttertoast.showToast(msg: 'Cannot Launch $facebook');
         },
       ),
       _FindUSConnection(
         iconPath: Constants.twitterIcon,
-        handler: () {
-          print("twitterIcon");
+        handler: () async {
+          await canLaunch(twitter)
+              ? await launch(twitter)
+              : Fluttertoast.showToast(msg: 'Cannot Launch $twitter');
         },
       ),
       _FindUSConnection(
         iconPath: Constants.instagramIcon,
-        handler: () {
-          print("instagramIcon");
+        handler: () async {
+          await canLaunch(instagram)
+              ? await launch(instagram)
+              : Fluttertoast.showToast(msg: 'Cannot Launch $instagram');
         },
       ),
     ];
@@ -40,24 +88,30 @@ class _FindUSState extends State<FindUS> {
         title: "WhatsApp",
         iconPath: Constants.whatsappIcon,
         titleStyle: TextStyle(color: Colors.green),
-        handler: () {
-          print("whatsappIcon");
+        handler: () async {
+          await canLaunch(url())
+              ? await launch(url())
+              : Fluttertoast.showToast(msg: 'Cannot Launch $url');
         },
       ),
       _FindUSConnection(
-        title: "info@harvest.com",
+        title: email,
         iconPath: Constants.mailIcon,
-        titleStyle: TextStyle(color: CColors.lightOrange),
-        handler: () {
-          print("mailIcon");
+        titleStyle: TextStyle(color: CColors.darkOrange),
+        handler: () async {
+          await canLaunch('mailto:$email')
+              ? await launch('mailto:$email')
+              : Fluttertoast.showToast(msg: 'Cannot Launch $email');
         },
       ),
       _FindUSConnection(
-        title: "www.harvest.com",
+        title: website,
         iconPath: Constants.webSiteIcon,
         titleStyle: TextStyle(color: CColors.headerText),
-        handler: () {
-          print("webSiteIcon");
+        handler: () async {
+          await canLaunch('https:$website')
+              ? await launch('https:$website')
+              : Fluttertoast.showToast(msg: 'Cannot Launch $website');
         },
       ),
     ];
@@ -66,9 +120,7 @@ class _FindUSState extends State<FindUS> {
         leading: SizedBox.fromSize(size: Size.zero),
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
-        actions: [
-          HomePopUpMenu()
-        ],
+        actions: [HomePopUpMenu()],
       ),
       body: SafeArea(
         child: ListView(
@@ -102,33 +154,36 @@ class _FindUSState extends State<FindUS> {
               ),
             ),
             SizedBox(height: size.height * 0.1),
-            Column(
-              children: List.generate(
-                _hyperLinks.length,
-                (index) {
-                  final _hyperLink = _hyperLinks[index];
-                  return _CSupportContainer(
-                    size: Size(size.width * 0.5, 50),
-                    onTap: _hyperLink.handler,
-                    margin: EdgeInsets.only(bottom: 20),
-                    child: Row(
-                      children: [
-                        Expanded(child: SvgPicture.asset(_hyperLink.iconPath)),
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            _hyperLink.title,
-                            style: TextStyle(
-                              fontSize: 14,
-                            ).merge(_hyperLink.titleStyle),
+            load
+                ? Center(child: Loader())
+                : Column(
+                    children: List.generate(
+                      _hyperLinks.length,
+                      (index) {
+                        final _hyperLink = _hyperLinks[index];
+                        return _CSupportContainer(
+                          size: Size(size.width * 0.5, 50),
+                          onTap: _hyperLink.handler,
+                          margin: EdgeInsets.only(bottom: 20),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  child: SvgPicture.asset(_hyperLink.iconPath)),
+                              Expanded(
+                                flex: 3,
+                                child: Text(
+                                  _hyperLink.title,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                  ).merge(_hyperLink.titleStyle),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
-            )
+                  )
           ],
         ),
       ),
@@ -156,6 +211,7 @@ class _CSupportContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry margin;
+
   const _CSupportContainer({
     Key key,
     this.onTap,
@@ -164,6 +220,7 @@ class _CSupportContainer extends StatelessWidget {
     this.padding,
     this.margin,
   }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final Color _kKeyUmbraOpacity = Color(0x20000000); // alpha = 0.2

@@ -11,12 +11,13 @@ class CColors {
   static const Color fadeOrange = Color(0xffFFF7EF);
   static const Color lightOrangeAccent = Color(0xffFAAA0B);
   static const Color darkOrange = Color(0xffF88518);
-  static const Color lightOrange = Color(0x15F15F26);
+  static const Color lightOrange = Color(0xffFFF7EF);
   static const Color darkGrey = Color(0xff3C4959);
   static const Color darkGreyAccent = Color(0xffcccccc);
   static const Color grey = Color(0xff888A8D);
   static const Color skyBlue = Color(0xff9dc1eb);
   static const Color lightGrey = Color(0xffE9E9E9);
+  static const Color lightBlue = Color(0xffEAF4FF);
   static const Color transparent = Colors.transparent;
   static const Color white = Colors.white;
   static const Color bloodRed = Color(0xFFFF0000);

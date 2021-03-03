@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:harvest/customer/models/orders.dart';
 
 import 'package:harvest/helpers/api.dart';
+import 'package:harvest/widgets/Loader.dart';
 import 'package:http/http.dart';
 
 class OldOrders extends StatefulWidget {
@@ -33,12 +34,14 @@ class _OldOrdersState extends State<OldOrders> {
     });
   }
 
-   _showButtonPanel(Order order) {
+  _showButtonPanel(Order order) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => OrderDetailsPanel(),
+      builder: (context) => OrderDetailsPanel(
+        order: order,
+      ),
     );
   }
 
@@ -50,19 +53,21 @@ class _OldOrdersState extends State<OldOrders> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      itemCount: _orders.length,
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      separatorBuilder: (context, index) => SizedBox(height: 20),
-      itemBuilder: (context, index) {
-        return OrderListTile(
-          onTap: ()=>_showButtonPanel(_orders[index]),
-          billNumber:_orders[index].id,
-          billTotal: _orders[index].totalPrice,
-          billDate: _orders[index].createdAt,
-        );
-      },
-    );
+    return loadOrders
+        ? Container(height: 200, child: Center(child: Loader()))
+        : ListView.separated(
+            itemCount: _orders.length,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            separatorBuilder: (context, index) => SizedBox(height: 20),
+            itemBuilder: (context, index) {
+              return OrderListTile(
+                onTap: () => _showButtonPanel(_orders[index]),
+                billNumber: _orders[index].id,
+                billTotal: _orders[index].totalPrice,
+                billDate: _orders[index].createdAt,
+              );
+            },
+          );
   }
 }

@@ -44,7 +44,7 @@ class OrderItemListTile extends StatelessWidget {
               ],
             ),
             child: ListTile(
-              leading: Image.asset(
+              leading: Image.network(
                 image,
                 width: 50,
                 height: 50,
@@ -87,7 +87,7 @@ class OrderItemListTile extends StatelessWidget {
                       text: " \$",
                       style: TextStyle(
                         fontSize: 13,
-                        color: CColors.lightOrange,
+                        color: CColors.darkOrange,
                       ),
                       children: [
                         TextSpan(

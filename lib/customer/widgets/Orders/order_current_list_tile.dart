@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:harvest/customer/models/orders.dart';
 
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
@@ -50,7 +51,7 @@ class OrderCurrentListTile extends StatelessWidget {
         width: size.width,
         height: 57,
         decoration: BoxDecoration(
-          color: backgroundColor ?? Color(0xffF9F9F9),
+          color: Color(0xffF9F9F9),
           borderRadius: BorderRadius.circular(15),
           boxShadow: _buildListTileShadows(),
         ),
@@ -63,7 +64,7 @@ class OrderCurrentListTile extends StatelessWidget {
                 height: 37,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8.0),
-                  color: const Color(0xfffff7ef),
+                  color: backgroundColor,
                 ),
               ),
             ),

@@ -1,13 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:harvest/customer/models/order-details.dart';
 import 'package:harvest/customer/models/orders.dart';
 
 import 'package:harvest/helpers/Localization/localization.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/helpers/variables.dart';
 import 'order_item_list_tile.dart';
+import 'package:http/http.dart';
 
-class OrderDetailsPanel extends StatelessWidget {
+class OrderDetailsPanel extends StatefulWidget {
   final Order order;
 
   const OrderDetailsPanel({
@@ -15,8 +22,16 @@ class OrderDetailsPanel extends StatelessWidget {
     this.order,
   }) : super(key: key);
 
+  @override
+  _OrderDetailsPanelState createState() => _OrderDetailsPanelState();
+}
+
+class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
+  OrderDetails _order;
+  bool loadOrder = true;
+
   int step() {
-    switch (order.status) {
+    switch (widget.order.status) {
       case 1:
         return 0;
         break;
@@ -31,107 +46,155 @@ class OrderDetailsPanel extends StatelessWidget {
     }
   }
 
+  getOrderDetails() async {
+    var request = await get(ApiHelper.api + 'getOrderDetail/${widget.order.id}',
+        headers: ApiHelper.headersWithAuth);
+    var response = json.decode(request.body);
+    var value = response['Order Details'];
+    OrderDetails order = OrderDetails.fromJson(value);
+    setState(() {
+      _order = order;
+      loadOrder = false;
+    });
+  }
+
+  @override
+  void initState() {
+    getOrderDetails();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Container(
       height: size.height * 0.65,
       width: size.width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Align(
-            alignment: AlignmentDirectional(0.8, 0),
-            child: Card(
-              margin: EdgeInsets.zero,
-              color: Color.alphaBlend(
-                  CColors.lightOrange.withOpacity(0.95), CColors.boldBlack),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                child: Text(
-                  "2 pm - 4pm",
-                  style: TextStyle(
-                    color: CColors.white,
-                    fontSize: 13,
+      child: loadOrder
+          ? Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: size.height * 0.3,
+                width: size.width,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+                ),
+                child: Center(
+                  child: SpinKitFadingCircle(
+                    size: 25,
+                    color: kPrimaryColor,
                   ),
                 ),
               ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: size.height * 0.61,
-              width: size.width,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-              ),
-              child: Padding(
-                padding: EdgeInsets.only(
-                        bottom: MediaQuery.of(context).padding.bottom + 20)
-                    .add(
-                  EdgeInsets.symmetric(horizontal: 20),
-                ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 15, bottom: 5),
-                      child: Card(
-                        elevation: 0.0,
-                        color: Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(99)),
-                        child: SizedBox(width: size.width * 0.35, height: 6),
-                      ),
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: AlignmentDirectional(0.8, 0),
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    color: Color.alphaBlend(
+                        CColors.darkOrange.withOpacity(0.95),
+                        CColors.boldBlack),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(10)),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 9),
-                      child: _OrderStepper(
-                        currentStep: step(),
-                        titles: [
-                          "DPreparing".trs(context),
-                          "DOn_my_way".trs(context),
-                          "DDelivered".trs(context),
-                        ],
-                      ),
-                    ),
-                    _buildPanelHeader(),
-                    Expanded(
-                      child: Container(
-                        // color: Colors.teal,
-                        child: ListView.separated(
-                          itemCount: 5,
-                          shrinkWrap: true,
-                          padding:
-                              EdgeInsets.symmetric(vertical: 10, horizontal: 7),
-                          separatorBuilder: (context, index) =>
-                              SizedBox(height: 10),
-                          itemBuilder: (context, index) {
-                            return OrderItemListTile(
-                              name: "Orange",
-                              itemsNum: 2,
-                              image: "assets/images/orange.png",
-                              price: 10.55,
-                              pricePerKilo: 10,
-                            );
-                          },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 5),
+                      child: Text(
+                        "${_order.myOrder.deliveryTime.from} - ${_order.myOrder.deliveryTime.to}",
+                        style: TextStyle(
+                          color: CColors.white,
+                          fontSize: 13,
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
-                    _buildPanelFooter(context)
-                  ],
+                  ),
                 ),
-              ),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
+                    height: size.height * 0.61,
+                    width: size.width,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(25)),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                              bottom:
+                                  MediaQuery.of(context).padding.bottom + 20)
+                          .add(
+                        EdgeInsets.symmetric(horizontal: 20),
+                      ),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 15, bottom: 5),
+                            child: Card(
+                              elevation: 0.0,
+                              color: Colors.grey[300],
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(99)),
+                              child:
+                                  SizedBox(width: size.width * 0.35, height: 6),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 9),
+                            child: _OrderStepper(
+                              currentStep: step(),
+                              titles: [
+                                "DPreparing".trs(context),
+                                "DOn_my_way".trs(context),
+                                "DDelivered".trs(context),
+                              ],
+                            ),
+                          ),
+                          _buildPanelHeader(),
+                          Expanded(
+                            child: Container(
+                              // color: Colors.teal,
+                              child: ListView.separated(
+                                itemCount: _order.orderProduct.length,
+                                shrinkWrap: true,
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 7),
+                                separatorBuilder: (context, index) =>
+                                    SizedBox(height: 10),
+                                itemBuilder: (context, index) {
+                                  return OrderItemListTile(
+                                    name:
+                                        _order.orderProduct[index].product.name,
+                                    itemsNum:
+                                        _order.orderProduct[index].quantity,
+                                    image: _order
+                                        .orderProduct[index].product.image,
+                                    price: _order
+                                        .orderProduct[index].product.price
+                                        .toDouble(),
+                                    pricePerKilo: _order
+                                        .orderProduct[index].product.price
+                                        .toDouble(),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          _buildPanelFooter(context)
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -153,7 +216,7 @@ class OrderDetailsPanel extends StatelessWidget {
               ),
             ),
             Text(
-              order.id.toString(),
+              widget.order.id.toString(),
               style: TextStyle(
                 fontSize: 12,
                 color: CColors.headerText,
@@ -163,7 +226,7 @@ class OrderDetailsPanel extends StatelessWidget {
           ],
         ),
         Text(
-          "24 May 2020",
+          '${_order.myOrder.deliveryDate}',
           style: TextStyle(
             fontSize: 13,
             color: CColors.headerText,
@@ -194,7 +257,7 @@ class OrderDetailsPanel extends StatelessWidget {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  "\$1.99",
+                  "\$${_order.myOrder.deliveryCost}",
                   style: TextStyle(
                     color: CColors.headerText,
                     fontWeight: FontWeight.normal,
@@ -242,11 +305,11 @@ class OrderDetailsPanel extends StatelessWidget {
                     text: "\$",
                     style: TextStyle(
                       fontSize: 12,
-                      color: CColors.lightOrange,
+                      color: CColors.darkOrange,
                     ),
                     children: [
                       TextSpan(
-                        text: "65.50",
+                        text: "${_order.myOrder.totalPrice}",
                         style: TextStyle(
                           fontSize: 15,
                           color: CColors.headerText,
@@ -260,21 +323,25 @@ class OrderDetailsPanel extends StatelessWidget {
             )
           ],
         ),
-        FlatButton.icon(
-          onPressed: () => Navigator.pop(context),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          color: CColors.lightGreen,
-          icon: Icon(FontAwesomeIcons.redo, size: 13, color: CColors.white),
-          label: Text(
-            "re_order".trs(context),
-            style: TextStyle(
-              color: CColors.white,
-              fontSize: 13,
-              fontWeight: FontWeight.normal,
-            ),
-          ),
-        ),
+        widget.order.status == 3 || widget.order.status == 4
+            ? FlatButton.icon(
+                onPressed: () => Navigator.pop(context),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5)),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                color: CColors.lightGreen,
+                icon:
+                    Icon(FontAwesomeIcons.redo, size: 13, color: CColors.white),
+                label: Text(
+                  "re_order".trs(context),
+                  style: TextStyle(
+                    color: CColors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              )
+            : Container(),
       ],
     );
   }

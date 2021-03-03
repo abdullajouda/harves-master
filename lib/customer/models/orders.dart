@@ -15,7 +15,7 @@ class Order {
   Null note;
   int isPaid;
   String transId;
-  Null driverId;
+  int driverId;
   Null deliveryDate;
   String createdAt;
   String statusName;
@@ -27,26 +27,26 @@ class Order {
 
   Order(
       {this.id,
-        this.userId,
-        this.deliveryAddress,
-        this.deliveryCost,
-        this.codeName,
-        this.productsTotal,
-        this.totalPrice,
-        this.status,
-        this.payment,
-        this.note,
-        this.isPaid,
-        this.transId,
-        this.driverId,
-        this.deliveryDate,
-        this.createdAt,
-        this.statusName,
-        this.discount,
-        this.user,
-        this.deliveryDay,
-        this.deliveryTime,
-        this.address});
+      this.userId,
+      this.deliveryAddress,
+      this.deliveryCost,
+      this.codeName,
+      this.productsTotal,
+      this.totalPrice,
+      this.status,
+      this.payment,
+      this.note,
+      this.isPaid,
+      this.transId,
+      this.driverId,
+      this.deliveryDate,
+      this.createdAt,
+      this.statusName,
+      this.discount,
+      this.user,
+      this.deliveryDay,
+      this.deliveryTime,
+      this.address});
 
   Order.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -54,8 +54,12 @@ class Order {
     deliveryAddress = json['delivery_address'];
     deliveryCost = json['delivery_cost'];
     codeName = json['code_name'];
-    productsTotal = json['products_total'];
-    totalPrice = json['total_price'];
+    productsTotal = json['products_total'] != null
+        ? double.parse(json["products_total"].toString())
+        : null;
+    totalPrice = json['products_total'] != null
+        ? double.parse(json["total_price"].toString())
+        : null;
     status = json['status'];
     payment = json['payment'];
     note = json['note'];
@@ -112,5 +116,3 @@ class Order {
     return data;
   }
 }
-
-

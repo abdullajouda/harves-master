@@ -12,6 +12,7 @@ import 'package:harvest/customer/views/home/home.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/my-opacity.dart';
 import 'package:http/http.dart';
 
@@ -178,14 +179,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
             ),
-            load
-                ? Center(
-                    child: SpinKitFadingCircle(
-                      size: 35,
-                      color: kPrimaryColor,
-                    ),
-                  )
-                : Container(),
+            load ? Center(child: Loader()) : Container(),
             Positioned(
               bottom: 0,
               child: Stack(

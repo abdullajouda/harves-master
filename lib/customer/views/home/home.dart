@@ -20,6 +20,7 @@ import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/category_selector.dart';
 import 'package:harvest/widgets/favorite_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
@@ -200,10 +201,7 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     loadOffers
-                        ? SpinKitFadingCircle(
-                            size: 25,
-                            color: kPrimaryColor,
-                          )
+                        ? Loader()
                         : Container()
                   ],
                 ),

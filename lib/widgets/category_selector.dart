@@ -46,7 +46,7 @@ class _CategorySelectorState extends State<CategorySelector> {
           child: GestureDetector(
             onTap: () {
               setState(() => _selectedIndex = widget.categories[index]);
-              helper.setCat(_selectedIndex);
+              // helper.setCat(_selectedIndex);
               _controller.scrollToIndex(index);
             },
             child: Container(
