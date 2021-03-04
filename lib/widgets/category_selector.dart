@@ -28,7 +28,7 @@ class _CategorySelectorState extends State<CategorySelector> {
 
   @override
   Widget build(BuildContext context) {
-    ApiHelper helper = Provider.of<ApiHelper>(context);
+    // ApiHelper helper = Provider.of<ApiHelper>(context);
     const Radius _chipBorderRadius = const Radius.circular(12.5);
     return ListView.builder(
       shrinkWrap: true,

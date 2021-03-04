@@ -64,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> {
             MyOpacity(
               load: load,
               child: Padding(
-                padding: const EdgeInsets.only(top: 150),
+                padding: const EdgeInsets.only(top: 50),
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: Container(

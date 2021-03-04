@@ -38,6 +38,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      enableDrag: true,
       builder: (context) => OrderDetailsPanel(
         order: order,
       ),

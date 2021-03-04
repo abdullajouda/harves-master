@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/customer/models/fruit.dart';
+import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart';
@@ -9,7 +10,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class FavoriteButton extends StatefulWidget {
-  final Fruit fruit;
+  final Products fruit;
 
   const FavoriteButton({Key key, this.fruit}) : super(key: key);
 
@@ -35,7 +36,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     // Fluttertoast.showToast(msg: response['message']);
     // if (response['status'] == true) {
     setState(() {
-      widget.fruit.isFavorite = true;
+      widget.fruit.isFavorite = 1;
       load = false;
     });
     // }
@@ -60,7 +61,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     // Fluttertoast.showToast(msg: response['message']);
     // if (response['status'] == true) {
     setState(() {
-      widget.fruit.isFavorite = false;
+      widget.fruit.isFavorite = 0;
       load = false;
     });
     // }
@@ -79,20 +80,22 @@ class _FavoriteButtonState extends State<FavoriteButton> {
           )
         : GestureDetector(
             onTap: () {
-              if (widget.fruit.isFavorite == true) {
+              if (widget.fruit.isFavorite == 0) {
                 removeFav();
               } else {
                 setFav();
               }
             },
-            child: widget.fruit.isFavorite!= null ?SvgPicture.asset(
-              widget.fruit.isFavorite
-                  ? 'assets/icons/full_heart.svg'
-                  : 'assets/icons/empty_heart.svg',
-              color: widget.fruit.isFavorite
-                  ? Color(0x0ffFF7C00)
-                  : Colors.grey,
-            ):Container(),
+            child: widget.fruit.isFavorite != null
+                ? SvgPicture.asset(
+                    widget.fruit.isFavorite == 1
+                        ? 'assets/icons/full_heart.svg'
+                        : 'assets/icons/empty_heart.svg',
+                    color: widget.fruit.isFavorite == -1
+                        ? Color(0x0ffFF7C00)
+                        : Colors.grey,
+                  )
+                : Container(),
           );
   }
 }

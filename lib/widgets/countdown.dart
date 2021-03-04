@@ -16,9 +16,8 @@ class Countdown extends AnimatedWidget {
       "$timerText",
       style: TextStyle(
         fontSize: 12,
-        color: const Color(0xff386eb5),
-        letterSpacing: 0.30000000000000004,
-        height: 2.0833333333333335,
+        color: const Color(0xccf88518),
+        fontWeight: FontWeight.w500,
       ),
     );
   }

@@ -11,6 +11,7 @@ import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/widgets/Loader.dart';
 import 'order_item_list_tile.dart';
 import 'package:http/http.dart';
 
@@ -81,10 +82,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
                 ),
                 child: Center(
-                  child: SpinKitFadingCircle(
-                    size: 25,
-                    color: kPrimaryColor,
-                  ),
+                  child: Loader(),
                 ),
               ),
             )

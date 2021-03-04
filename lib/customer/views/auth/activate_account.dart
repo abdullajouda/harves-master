@@ -1,15 +1,100 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/views/auth/login2.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/widgets/button_loader.dart';
+import 'package:harvest/widgets/countdown.dart';
+import 'package:http/http.dart';
 
 class AccountActivation extends StatefulWidget {
+  final String mobile;
+
+  const AccountActivation({Key key, this.mobile}) : super(key: key);
+
   @override
   _AccountActivationState createState() => _AccountActivationState();
 }
 
-class _AccountActivationState extends State<AccountActivation> {
+class _AccountActivationState extends State<AccountActivation>
+    with SingleTickerProviderStateMixin {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  AnimationController _controller;
+  Timer _timer;
+  int _start = 120;
+  bool load = false;
+  String code;
+
+  void startTimer() async {
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+      oneSec,
+      (Timer timer) => setState(
+        () {
+          if (_start < 1) {
+            timer.cancel();
+          } else {
+            _start = _start - 1;
+          }
+        },
+      ),
+    );
+  }
+
+  sendCode() async {
+    setState(() {
+      load = true;
+    });
+    if (_formKey.currentState.validate()) {
+      var request = await post(ApiHelper.api + 'verifyCode',
+          body: {
+            'code': code,
+            'mobile': widget.mobile,
+            'device_type': 'android',
+            'fcm_token': '78654132687'
+          },
+          headers: ApiHelper.headers);
+      var response = json.decode(request.body);
+      Fluttertoast.showToast(msg: response['message']);
+      if (response['status'] == true) {
+        Navigator.push(
+            context,
+            CustomPageRoute(
+              builder: (context) => Login2(),
+            ));
+      } else {
+        setState(() {
+          load = false;
+        });
+      }
+    }
+
+    setState(() {
+      load = false;
+    });
+  }
+
+  @override
+  void initState() {
+    startTimer();
+    _controller =
+        AnimationController(vsync: this, duration: Duration(minutes: 2));
+    _controller.forward();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _timer.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -77,7 +162,6 @@ class _AccountActivationState extends State<AccountActivation> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                height: 300,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
@@ -94,55 +178,57 @@ class _AccountActivationState extends State<AccountActivation> {
                   ],
                 ),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     Column(
                       children: [
-                        Container(
-                          height: 33,
-                          width: 56,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(11.0),
-                            color: const Color(0xffebf4ee),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '02:20',
-                              style: TextStyle(
-                                fontFamily: 'Dubai',
-                                fontSize: 12,
-                                color: const Color(0xccf88518),
-                                fontWeight: FontWeight.w500,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 25),
+                          child: Container(
+                            height: 33,
+                            width: 56,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(11.0),
+                              color: const Color(0xffebf4ee),
+                            ),
+                            child: Center(
+                              child: Countdown(
+                                animation: StepTween(
+                                  begin: 2 * 60,
+                                  end: 0,
+                                ).animate(_controller),
                               ),
-                              textAlign: TextAlign.left,
                             ),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 15),
-                          child: Container(
-                            height: 60,
-                            width: 260,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
-                              color: const Color(0xcce6f2ea),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 15),
+                          child: Form(
+                            key: _formKey,
+                            child: Container(
+                              width: 260,
                               child: Center(
                                 child: TextFormField(
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        code = newValue;
+                                      });
+                                    },
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return "* Required";
+                                      } else
+                                        return null;
+                                    },
                                     decoration:
-                                        inputDecoration('Activation Code')),
+                                        inputDecoration(' Activation Code')),
                               ),
                             ),
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Navigator.push(
-                              context,
-                              CustomPageRoute(
-                                builder: (context) => Login2(),
-                              )),
+                          onTap: () => sendCode(),
                           child: Container(
                             height: 60,
                             width: 260,
@@ -150,30 +236,34 @@ class _AccountActivationState extends State<AccountActivation> {
                               borderRadius: BorderRadius.circular(12.0),
                               color: const Color(0x0ff3C984F),
                             ),
-                            child: // Adobe XD layer: 'Continue' (text)
-                                Center(
-                              child: Text(
-                                'Continue ',
-                                style: TextStyle(
-                                  fontFamily: 'SF Pro Rounded',
-                                  fontSize: 16,
-                                  color: const Color(0xffffffff),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
+                            child: Center(
+                              child: load
+                                  ? LoadingBtn()
+                                  : Text(
+                                      'Activate ',
+                                      style: TextStyle(
+                                        fontFamily: 'SF Pro Rounded',
+                                        fontSize: 16,
+                                        color: const Color(0xffffffff),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
                             ),
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 25),
-                          child: Text(
-                            'Return ',
-                            style: TextStyle(
-                              fontFamily: 'SF Pro Rounded',
-                              fontSize: 12,
-                              color: const Color(0xfffdaa5c),
+                          padding: const EdgeInsets.only(top: 10,bottom: 15),
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(
+                              'Return ',
+                              style: TextStyle(
+                                fontFamily: 'SF Pro Rounded',
+                                fontSize: 12,
+                                color: const Color(0xfffdaa5c),
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ),
                       ],

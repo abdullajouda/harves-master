@@ -331,7 +331,7 @@ class _OrderCardState extends State<OrderCard> {
         return CColors.fadeGreen;
         break;
       case 3:
-        return CColors.fadeBlue;
+        return CColors.lightBlue;
         break;
       case 4:
         return CColors.fadeBeige;

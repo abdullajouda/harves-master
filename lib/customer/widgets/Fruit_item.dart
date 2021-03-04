@@ -51,14 +51,14 @@ class FruitItem extends StatelessWidget {
               ),
             ),
           ),
-          // Positioned(
-          //   right: 12,
-          //   top: 13,
-          //   child: FavoriteButton(
-          //     // fruit: fruit,
-          //   ),
-          // ),
-          product.discount>0
+          Positioned(
+            right: 12,
+            top: 13,
+            child: FavoriteButton(
+              fruit: product,
+            ),
+          ),
+          product.discount > 0
               ? Positioned(
                   top: 0,
                   left: 0,
@@ -88,13 +88,13 @@ class FruitItem extends StatelessWidget {
               : Container(),
           Positioned(
             left: 20,
-            bottom: product.inCart!='0' ? 40 : 13,
+            bottom: product.inCart != '0' ? 40 : 13,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.name??'',
+                  product.name ?? '',
                   style: TextStyle(
                     fontFamily: 'SF Pro Rounded',
                     fontSize: 12,
@@ -106,7 +106,7 @@ class FruitItem extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   child: Text(
-                    product.description??'',
+                    product.description ?? '',
                     style: TextStyle(
                       fontFamily: 'SF Pro Rounded',
                       fontSize: 10,
@@ -142,7 +142,9 @@ class FruitItem extends StatelessWidget {
                 ),
                 color: const Color(0xff3c984f),
               ),
-              child: Center(child: SvgPicture.asset('assets/icons/add.svg'),),
+              child: Center(
+                child: SvgPicture.asset('assets/icons/add.svg'),
+              ),
             ),
           ),
           product.inCart != '0'
@@ -174,7 +176,9 @@ class FruitItem extends StatelessWidget {
                       ),
                       color: const Color(0xffe3e7eb),
                     ),
-                    child: Center(child: SvgPicture.asset('assets/icons/remove.svg'),),
+                    child: Center(
+                      child: SvgPicture.asset('assets/icons/remove.svg'),
+                    ),
                   ),
                 )
               : Container()

@@ -36,8 +36,8 @@ class _OrderDetailsState extends State<OrderDetails> {
     );
   }
 
-  LinearGradient gradient(){
-    switch(widget.order.statusId){
+  LinearGradient gradient() {
+    switch (widget.order.statusId) {
       case 1:
         return CColors.orangeAppBarGradient();
         break;
@@ -193,21 +193,21 @@ class _OrderDetailsState extends State<OrderDetails> {
                       width: 124,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5.0),
-                        color: const Color(0xffe4f0e6),
+                        color: barColor(),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SvgPicture.asset(
                             'assets/icons/mobile.svg',
-                            color: CColors.darkGreen,
+                            color: color(),
                           ),
                           Text(
                             ' Call Hala',
                             style: TextStyle(
                               fontFamily: 'SF Pro Rounded',
                               fontSize: 12,
-                              color: CColors.darkGreen,
+                              color: color(),
                               fontWeight: FontWeight.w500,
                             ),
                             textAlign: TextAlign.left,
@@ -223,21 +223,21 @@ class _OrderDetailsState extends State<OrderDetails> {
                       width: 124,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5.0),
-                        color: const Color(0xffe4f0e6),
+                        color: barColor(),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SvgPicture.asset(
                             'assets/icons/map-pin.svg',
-                            color: CColors.darkGreen,
+                            color: color(),
                           ),
                           Text(
                             '  Go To Map',
                             style: TextStyle(
                               fontFamily: 'SF Pro Rounded',
                               fontSize: 12,
-                              color: CColors.darkGreen,
+                              color: color(),
                               fontWeight: FontWeight.w500,
                             ),
                             textAlign: TextAlign.left,
@@ -281,14 +281,14 @@ class _OrderDetailsState extends State<OrderDetails> {
                       width: 147,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(7.0),
-                          border: Border.all(color: Color(0xff3c984f))),
+                          border: Border.all(color: color())),
                       child: Center(
                           child: Text(
                         'Cancel',
                         style: TextStyle(
                           fontFamily: 'SF Pro Rounded',
                           fontSize: 16,
-                          color: const Color(0xff3c984f),
+                          color: color(),
                           fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.left,
@@ -305,7 +305,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                       width: 147,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(7.0),
-                        color: const Color(0xff3c984f),
+                        color: color(),
                       ),
                       child: Center(
                         child: Text(
@@ -329,4 +329,43 @@ class _OrderDetailsState extends State<OrderDetails> {
       ),
     );
   }
+
+  Color color() {
+    switch (widget.order.statusId) {
+      case 1:
+        return CColors.darkOrange;
+        break;
+      case 2:
+        return CColors.darkGreen;
+        break;
+      case 3:
+        return CColors.skyBlue;
+        break;
+      case 4:
+        return CColors.grey;
+        break;
+      default:
+        return CColors.darkOrange;
+    }
+  }
+
+  Color barColor() {
+    switch (widget.order.statusId) {
+      case 1:
+        return CColors.fadeOrange;
+        break;
+      case 2:
+        return CColors.fadeGreen;
+        break;
+      case 3:
+        return CColors.lightBlue;
+        break;
+      case 4:
+        return CColors.fadeBeige;
+        break;
+      default:
+        return CColors.fadeOrange;
+    }
+  }
+
 }

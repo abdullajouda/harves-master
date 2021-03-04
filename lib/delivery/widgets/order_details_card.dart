@@ -319,7 +319,7 @@ class _OrderDetailsCardState extends State<OrderDetailsCard> {
               width: 250,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10.0),
-                color: const Color(0xffebf4ee),
+                color: barColor(),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
@@ -369,7 +369,7 @@ class _OrderDetailsCardState extends State<OrderDetailsCard> {
         return CColors.fadeGreen;
         break;
       case 3:
-        return CColors.fadeBlue;
+        return CColors.lightBlue;
         break;
       case 4:
         return CColors.fadeBeige;

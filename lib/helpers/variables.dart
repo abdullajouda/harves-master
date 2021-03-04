@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:intl/intl.dart';
 
 // import 'services/app_localization.dart';
 
@@ -9,7 +10,7 @@ const String api = 'http://plus.plr.sa/api/V1/';
 const String appName = 'Harvest';
 const String appStoreId = 'com.example.harvest';
 
-const kPrimaryColor = Color(0xff3C984F);
+const kPrimaryColor = CColors.darkOrange;
 const kSecondaryColor = Color(0xffc99200);
 const kDarkPrimaryColor = Color(0xffecb7bf);
 const kFontRoboto = 'Roboto';
@@ -58,7 +59,7 @@ InputDecoration searchDecoration(hint, icon) {
 InputDecoration inputDecoration(hint) {
   return InputDecoration(
     filled: true,
-    contentPadding: EdgeInsets.symmetric(vertical: 20),
+    contentPadding: EdgeInsets.symmetric(vertical: 20,horizontal: 17),
     hintText: hint,
     fillColor: CColors.fadeBlue,
     hintStyle: TextStyle(
@@ -67,9 +68,13 @@ InputDecoration inputDecoration(hint) {
       borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide.none,
     ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12.0),
+      borderSide: BorderSide(width: 2.0, color: const Color(0xccd85656)),
+    ),
     errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
-      borderSide: BorderSide(color: Colors.red, width: 1),
+      borderRadius: BorderRadius.circular(12.0),
+      borderSide: BorderSide(width: 2.0, color: const Color(0xccd85656)),
     ),
   );
 }
@@ -77,14 +82,18 @@ InputDecoration inputDecoration(hint) {
 InputDecoration inputDecorationWithIcon(hint, icon) {
   return InputDecoration(
     filled: true,
+    fillColor: CColors.fadeBlue,
     prefixIcon: Container(
         width: 20,
         child: Center(
           child: icon,
         )),
     contentPadding: EdgeInsets.symmetric(vertical: 20),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12.0),
+      borderSide: BorderSide(width: 2.0, color: const Color(0xccd85656)),
+    ),
     hintText: hint,
-    fillColor: CColors.fadeBlue,
     hintStyle: TextStyle(
         color: CColors.grey, fontWeight: FontWeight.w400, fontSize: 14),
     border: OutlineInputBorder(
@@ -92,8 +101,8 @@ InputDecoration inputDecorationWithIcon(hint, icon) {
       borderSide: BorderSide.none,
     ),
     errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
-      borderSide: BorderSide(color: Colors.red, width: 1),
+      borderRadius: BorderRadius.circular(12.0),
+      borderSide: BorderSide(width: 2.0, color: const Color(0xccd85656)),
     ),
   );
 }

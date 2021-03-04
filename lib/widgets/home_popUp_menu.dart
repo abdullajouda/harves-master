@@ -3,8 +3,12 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/Profile/user_profile.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/Wallet/wallet.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/about_us.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/privacy.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/Localization/app_translations.dart';
@@ -69,6 +73,13 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
       HomePopUpMenuModel(
         iconPath: 'assets/icons/info.svg',
         title: 'About Us',
+        onPressed: () => Navigator.push(
+          context,
+          platformPageRoute(
+            context: context,
+            builder: (context) => AboutUs(),
+          ),
+        ),
       ),
       HomePopUpMenuModel(
         iconPath: Constants.mailMenuIcon,
@@ -90,14 +101,36 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
       HomePopUpMenuModel(
         iconPath: Constants.termsMenuIcon,
         title: 'Terms of use',
+        onPressed: () => Navigator.push(
+          context,
+          platformPageRoute(
+            context: context,
+            builder: (context) => Terms(),
+          ),
+        ),
       ),
       HomePopUpMenuModel(
         iconPath: Constants.privacyMenuIcon,
         title: 'Privacy',
+        onPressed: () => Navigator.push(
+          context,
+          platformPageRoute(
+            context: context,
+            builder: (context) => Privacy(),
+          ),
+        ),
       ),
       HomePopUpMenuModel(
         iconPath: Constants.logoutMenuIcon,
         title: 'Sign out',
+        onPressed: () {
+          Navigator.popUntil(context, (route) => route.isFirst);
+          Navigator.of(context, rootNavigator: true)
+              .push(platformPageRoute(
+            context: context,
+            builder: (context) => SplashScreen(),
+          ));
+        },
       ),
     ];
     return PopupMenuButton<int>(
@@ -119,13 +152,19 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
             value: index,
             enabled: _option.onPressed != null,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 3),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (_option.iconPath != null)
-                    SvgPicture.asset(_option.iconPath,
-                        color: Color(0x0ff525768), width: 15, height: 15),
+                    Container(
+                      height: 15,
+                      width: 15,
+                      child: Center(
+                        child: SvgPicture.asset(_option.iconPath,
+                            color: Color(0x0ff525768), width: 15, height: 15),
+                      ),
+                    ),
                   SizedBox(width: 6),
                   Text(
                     _option.title.trs(context),

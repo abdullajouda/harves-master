@@ -10,6 +10,7 @@ class Products {
   int type;
   int order;
   int isFeatured;
+  int isFavorite;
   int qty;
   int minQty;
   int unitRate;
@@ -23,6 +24,7 @@ class Products {
   String name;
   String description;
 
+
   Products(
       {this.id,
         this.categoryId,
@@ -35,6 +37,7 @@ class Products {
         this.type,
         this.order,
         this.isFeatured,
+        this.isFavorite,
         this.qty,
         this.minQty,
         this.unitRate,

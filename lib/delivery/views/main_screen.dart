@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/components/home_tab.dart';
+import 'package:harvest/customer/models/category.dart';
 import 'package:harvest/delivery/models/order.dart';
 import 'package:harvest/delivery/views/order_details.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/widgets/category_selector.dart';
+import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:harvest/delivery/widgets/order_card.dart';
 
@@ -50,18 +52,14 @@ class _MainScreenState extends State<MainScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: CategorySelector(
-              // categories: [
-              //   'All',
-              //   'Pending',
-              //   'Delivered',
-              //   'Cancelled',
-              //   'Rejected',
-              // ],
+              categories: [
+                Category()
+              ],
             ),
           ),
         ),
         actions: [
-          SvgPicture.asset(Constants.menuIcon),
+          HomePopUpMenu()
         ],
         leading:
         // Container(

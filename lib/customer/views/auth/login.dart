@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/views/auth/activate_account.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/widgets/button_loader.dart';
+import 'package:http/http.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -10,6 +16,37 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool load = false;
+  String mobile;
+
+  signIn() async {
+    setState(() {
+      load = true;
+    });
+    if (_formKey.currentState.validate()) {
+      var request = await post(ApiHelper.api + 'sendLoginCode',
+          body: {'mobile': mobile}, headers: ApiHelper.headers);
+      var response = json.decode(request.body);
+      Fluttertoast.showToast(msg: response['message']);
+      if (response['status'] == true) {
+        Navigator.pushReplacement(
+            context,
+            CustomPageRoute(
+              builder: (context) => AccountActivation(mobile: mobile,),
+            ));
+      }else{
+        setState(() {
+          load = false;
+        });
+      }
+    }
+
+    setState(() {
+      load = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -73,7 +110,6 @@ class _LoginState extends State<Login> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                height: 300,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
@@ -91,34 +127,41 @@ class _LoginState extends State<Login> {
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          child: Container(
-                            height: 60,
-                            width: 260,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
-                              color: const Color(0xcce6f2ea),
-                            ),
-                            child: Center(
-                              child: TextFormField(
-                                  decoration: inputDecorationWithIcon(
-                                'Phone Number',
-                                SvgPicture.asset('assets/icons/mobile.svg'),
-                              )),
+                          padding: const EdgeInsets.only(bottom: 15,top: 41),
+                          child: Form(
+                            key: _formKey,
+                            child: Container(
+                              width: 260,
+                              child: Center(
+                                child: TextFormField(
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        mobile = newValue;
+                                      });
+                                    },
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return "* Required";
+                                      } else
+                                        return null;
+                                    },
+                                    keyboardType: TextInputType.number,
+                                    decoration: inputDecorationWithIcon(
+                                      'Phone Number',
+                                      SvgPicture.asset(
+                                          'assets/icons/mobile.svg'),
+                                    )),
+                              ),
                             ),
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Navigator.push(
-                              context,
-                              CustomPageRoute(
-                                builder: (context) => AccountActivation(),
-
-                              )),
+                          onTap: () => signIn(),
                           child: Container(
                             height: 60,
                             width: 260,
@@ -126,68 +169,69 @@ class _LoginState extends State<Login> {
                               borderRadius: BorderRadius.circular(12.0),
                               color: const Color(0x0ff3C984F),
                             ),
-                            child: // Adobe XD layer: 'Continue' (text)
-                                Center(
-                              child: Text(
-                                'Continue ',
-                                style: TextStyle(
-                                  fontFamily: 'SF Pro Rounded',
-                                  fontSize: 16,
-                                  color: const Color(0xffffffff),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
+                            child: Center(
+                              child: load
+                                  ? LoadingBtn()
+                                  : Text(
+                                      'Continue ',
+                                      style: TextStyle(
+                                        fontFamily: 'SF Pro Rounded',
+                                        fontSize: 16,
+                                        color: const Color(0xffffffff),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    Container(width: MediaQuery.of(context).size.width,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'If You Don\'t Have An Existed Account?',
-                                style: TextStyle(
-                                  fontFamily: 'SF Pro Rounded',
-                                  fontSize: 10,
-                                  color: const Color(0xff888a8d),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              TextButton(
-                                onPressed: () {
-
-                                },
-                                child: Text(
-                                  'Register',
+                    Padding(
+                      padding: const EdgeInsets.only(top: 28,bottom: 91),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'If You Don\'t Have An Existed Account?',
                                   style: TextStyle(
                                     fontFamily: 'SF Pro Rounded',
                                     fontSize: 10,
-                                    color: const Color(0xff3c984f),
+                                    color: const Color(0xff888a8d),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                              ),
-                            ],
-                          ),
-                          TextButton(
-                            onPressed: () {
-
-                            },
-                            child: Text(
-                              'Skip',
-                              style: TextStyle(
-                                fontFamily: 'SF Pro Rounded',
-                                fontSize: 10,
-                                color: const Color(0xfffdaa5c),
-                              ),
-                              textAlign: TextAlign.center,
+                                TextButton(
+                                  onPressed: () {},
+                                  child: Text(
+                                    'Register',
+                                    style: TextStyle(
+                                      fontFamily: 'SF Pro Rounded',
+                                      fontSize: 10,
+                                      color: const Color(0xff3c984f),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
                             ),
-                          )
-                        ],
+                            TextButton(
+                              onPressed: () {},
+                              child: Text(
+                                'Skip',
+                                style: TextStyle(
+                                  fontFamily: 'SF Pro Rounded',
+                                  fontSize: 10,
+                                  color: const Color(0xfffdaa5c),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     )
                   ],
