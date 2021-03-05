@@ -11,6 +11,9 @@ import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/button_loader.dart';
 import 'package:harvest/widgets/countdown.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../root_screen.dart';
 
 class AccountActivation extends StatefulWidget {
   final String mobile;
@@ -47,6 +50,7 @@ class _AccountActivationState extends State<AccountActivation>
   }
 
   sendCode() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       load = true;
     });
@@ -62,11 +66,20 @@ class _AccountActivationState extends State<AccountActivation>
       var response = json.decode(request.body);
       Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
-        Navigator.push(
-            context,
-            CustomPageRoute(
-              builder: (context) => Login2(),
-            ));
+        if (response['user'] != null) {
+          prefs.setString('userToken', response['user']['access_token']);
+          Navigator.push(
+              context,
+              CustomPageRoute(
+                builder: (context) => RootScreen(),
+              ));
+        }
+
+        // Navigator.push(
+        //     context,
+        //     CustomPageRoute(
+        //       builder: (context) => Login2(),
+        //     ));
       } else {
         setState(() {
           load = false;
@@ -252,7 +265,7 @@ class _AccountActivationState extends State<AccountActivation>
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 10,bottom: 15),
+                          padding: const EdgeInsets.only(top: 10, bottom: 15),
                           child: TextButton(
                             onPressed: () => Navigator.pop(context),
                             child: Text(

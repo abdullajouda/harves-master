@@ -1,13 +1,22 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
+import 'package:harvest/customer/models/favorite.dart';
+import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/customer/widgets/favorite_item.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/customer/models/fruit.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../product_details.dart';
 
 class FavoritesTab extends StatefulWidget {
@@ -16,58 +25,55 @@ class FavoritesTab extends StatefulWidget {
 }
 
 class _FavoritesTabState extends State<FavoritesTab> {
-  List<Fruit> _fruits = [
-    Fruit(
-        isFavorite: true,
-        isOnSale: true,
-        title: 'Orange',
-        description: 'description',
-        image: 'assets/images/orange.png',
-        inCart: true,
-        price: 10,
-        quantity: 5,
-        sale: '25'),
-    Fruit(
-        isFavorite: true,
-        isOnSale: false,
-        title: 'Kiwi',
-        description: 'description',
-        image: 'assets/images/kiwi.png',
-        inCart: false,
-        price: 10,
-        quantity: 0,
-        sale: ''),
-    Fruit(
-        isFavorite: false,
-        isOnSale: true,
-        title: 'BlueBerry',
-        description: 'description',
-        image: 'assets/images/blueb.png',
-        inCart: false,
-        price: 10,
-        quantity: 0,
-        sale: '10'),
-    Fruit(
-        isFavorite: false,
-        isOnSale: false,
-        title: 'BlueBerry',
-        description: 'description',
-        image: 'assets/images/blueb.png',
-        inCart: false,
-        price: 10,
-        quantity: 0,
-        sale: ''),
-    Fruit(
-        isFavorite: false,
-        isOnSale: false,
-        title: 'Orange',
-        description: 'description',
-        image: 'assets/images/orange.png',
-        inCart: false,
-        price: 15,
-        quantity: 0,
-        sale: ''),
-  ];
+  bool load = true;
+  bool loadButton = false;
+  List<FavoriteModel> _fruits = [];
+
+  getFavorite() async {
+    var request = await get(ApiHelper.api + 'getMyFavorites',
+        headers: ApiHelper.headersWithAuth);
+    var response = json.decode(request.body);
+    List values = response['items'];
+    values.forEach((element) {
+      FavoriteModel products = FavoriteModel.fromJson(element);
+      _fruits.add(products);
+    });
+    setState(() {
+      load = false;
+    });
+  }
+
+  Future removeFav(FavoriteModel fruit) async {
+    setState(() {
+      loadButton = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await get(
+        ApiHelper.api + 'deleteFromFavorit/${fruit.product.id}',
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Language': 'en',
+          'Authorization': 'Bearer ${prefs.getString('userToken')}'
+        });
+    var response = json.decode(request.body);
+    Fluttertoast.showToast(msg: response['message']);
+    if (response['status'] == true) {
+      setState(() {
+        fruit.product.isFavorite = '0';
+        _fruits.remove(fruit);
+        loadButton = false;
+      });
+    }
+    setState(() {
+      loadButton = false;
+    });
+  }
+
+  @override
+  void initState() {
+    getFavorite();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +82,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
       body: WaveAppBarBody(
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
-        actions: [
-          HomePopUpMenu()
-        ],
+        actions: [HomePopUpMenu()],
         leading: SvgPicture.asset(Constants.basketIcon),
         bottomView: _buildSearchTextField(size),
         children: [
@@ -93,31 +97,33 @@ class _FavoritesTabState extends State<FavoritesTab> {
               ),
             ),
           ),
-          SingleChildScrollView(
-            physics: NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.only(top: 10, bottom: 40)
-                .add(EdgeInsets.symmetric(horizontal: 20)),
-            child: Wrap(
-              runSpacing: 30,
-              spacing: 30,
-              children: List.generate(_fruits.length, (index) {
-                return InkWell(
-                  onTap: () {
-                    Navigator.of(context, rootNavigator: true)
-                        .push(platformPageRoute(
-                      context: context,
-                      builder: (context) => ProductDetails(
-                        // product: _fruits[index],
+          load
+              ? Center(child: Loader())
+              : GridView.builder(
+            shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.only(top: 10, bottom: 40)
+                      .add(EdgeInsets.symmetric(horizontal: 20)),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      childAspectRatio: 1,
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 0,
+                      mainAxisSpacing: 0),
+                  itemCount: _fruits.length,
+                  itemBuilder: (context, index) => Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      FavoriteItem(
+                        remove: () {
+                          removeFav(_fruits[index]);
+                        },
+                        fruit: _fruits[index],
                       ),
-                    ));
-                  },
-                  child: FavoriteItem(
-                    fruit: _fruits[index],
+                      loadButton ? Loader() : Container()
+                    ],
                   ),
-                );
-              }),
-            ),
-          ),
+
+                ),
         ],
       ),
     );

@@ -59,200 +59,199 @@ class _SplashScreenState extends State<SplashScreen> {
       body: Container(
         height: size.height,
         width: size.width,
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+        child: Column(
+           mainAxisSize: MainAxisSize.min,
+            // alignment: Alignment.center,
+            children: [
+              Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 30),
-                    child: Column(
-                      children: [
-                        MyOpacity(
-                          load: load,
-                          child: Container(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CarouselSlider.builder(
-                                  itemCount: _list.length,
-                                  itemBuilder: (context, index, realIndex) {
-                                    return SliderItem(
-                                      slider: _list[index],
-                                    );
-                                  },
-                                  options: CarouselOptions(
-                                      viewportFraction: 1.0,
-                                      enlargeCenterPage: false,
-                                      autoPlayAnimationDuration:
-                                          Duration(milliseconds: 800),
-                                      // height: 400,
-                                      enlargeStrategy: CenterPageEnlargeStrategy.height,
-                                      enableInfiniteScroll:
-                                          _list.length == 1 ? false : true,
-                                      onPageChanged: (index, reason) {
-                                        setState(() {
-                                          _current = index;
-                                        });
-                                      }),
-                                  carouselController: _carouselController,
-                                ),
+                  MyOpacity(
+                    load: load,
+                    child: Container(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CarouselSlider.builder(
+                            itemCount: _list.length,
+                            itemBuilder: (context, index, realIndex) {
+                              return SliderItem(
+                                slider: _list[index],
+                              );
+                            },
+                            options: CarouselOptions(
+                                viewportFraction: 1.0,
+                                enlargeCenterPage: false,
+                                autoPlayAnimationDuration:
+                                    Duration(milliseconds: 800),
+                                // height: 400,
+                                enlargeStrategy: CenterPageEnlargeStrategy.height,
+                                enableInfiniteScroll:
+                                    _list.length == 1 ? false : true,
+                                onPageChanged: (index, reason) {
+                                  setState(() {
+                                    _current = index;
+                                  });
+                                }),
+                            carouselController: _carouselController,
+                          ),
 
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: size.width,
-                          child: Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceAround,
-                            children: [
-                              TextButton(
-                                onPressed: null,
-                                child: Text(
-                                  '   ',
-                                  style: TextStyle(
-                                    fontFamily: 'SF Pro Rounded',
-                                    fontSize: 17,
-                                    color: const Color(0xfffdaa5c),
-                                    letterSpacing: 0.4999999904632568,
-                                    height: 1.588235294117647,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Container(
-                                height: 15,
-                                child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: _list.length,
-                                  scrollDirection: Axis.horizontal,
-                                  itemBuilder: (context, index) {
-                                    return Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: _current == index
-                                          ? Padding(
-                                          padding:
-                                          const EdgeInsets.all(2.0),
-                                          child: Container(
-                                            height: 9,
-                                            width: 18,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                              BorderRadius.circular(
-                                                  5.0),
-                                              color: const Color(
-                                                  0xff3c4959),
-                                            ),
-                                          ))
-                                          : Padding(
-                                        padding:
-                                        const EdgeInsets.all(2.0),
-                                        child: Container(
-                                          height: 8,
-                                          width: 8,
-                                          decoration: BoxDecoration(
-                                              borderRadius:
-                                              BorderRadius
-                                                  .circular(5.0),
-                                              color: const Color(
-                                                  0x333c4959)),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.push(
-                                    context,
-                                    CustomPageRoute(
-                                      builder: (context) => RootScreen(),
-                                    )),
-                                child: Text(
-                                  'Skip',
-                                  style: TextStyle(
-                                    fontFamily: 'SF Pro Rounded',
-                                    fontSize: 17,
-                                    color: const Color(0xfffdaa5c),
-                                    letterSpacing: 0.4999999904632568,
-                                    height: 1.588235294117647,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   Container(
-                    child: Stack(
-                      alignment: Alignment.center,
+                    width: size.width,
+                    child: Row(
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceAround,
                       children: [
+                        TextButton(
+                          onPressed: null,
+                          child: Text(
+                            '   ',
+                            style: TextStyle(
+                              fontFamily: 'SF Pro Rounded',
+                              fontSize: 17,
+                              color: const Color(0xfffdaa5c),
+                              letterSpacing: 0.4999999904632568,
+                              height: 1.588235294117647,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                         Container(
-                            child: Image.asset(
-                                'assets/images/home/3.0x/splash_backGround.png')),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            GestureDetector(
-                              onTap: () {},
-                              child: Container(
-                                height: 48,
-                                width: 290,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5.0),
-                                  color: const Color(0xffffffff),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Get Started',
-                                    style: TextStyle(
-                                      fontFamily: 'SF Pro Rounded',
-                                      fontSize: 18,
-                                      color: const Color(0xff313131),
-                                    ),
-                                    textAlign: TextAlign.left,
+                          height: 15,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _list.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return Align(
+                                alignment: Alignment.bottomCenter,
+                                child: _current == index
+                                    ? Padding(
+                                    padding:
+                                    const EdgeInsets.all(2.0),
+                                    child: Container(
+                                      height: 9,
+                                      width: 18,
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius.circular(
+                                            5.0),
+                                        color: const Color(
+                                            0xff3c4959),
+                                      ),
+                                    ))
+                                    : Padding(
+                                  padding:
+                                  const EdgeInsets.all(2.0),
+                                  child: Container(
+                                    height: 8,
+                                    width: 8,
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                        BorderRadius
+                                            .circular(5.0),
+                                        color: const Color(
+                                            0x333c4959)),
                                   ),
                                 ),
-                              ),
+                              );
+                            },
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.push(
+                              context,
+                              CustomPageRoute(
+                                builder: (context) => RootScreen(),
+                              )),
+                          child: Text(
+                            'Skip',
+                            style: TextStyle(
+                              fontFamily: 'SF Pro Rounded',
+                              fontSize: 17,
+                              color: const Color(0xfffdaa5c),
+                              letterSpacing: 0.4999999904632568,
+                              height: 1.588235294117647,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 30),
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(CustomPageRoute(
-                                    builder: (context) {
-                                      return Login();
-                                    },
-                                  ));
-                                },
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        height: 300,
+                          width: size.width,
+                          child: Image.asset(
+                              'assets/images/home/3.0x/splash_backGround.png',fit: BoxFit.fill,)),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: () {},
+                            child: Container(
+                              height: 48,
+                              width: 290,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: const Color(0xffffffff),
+                              ),
+                              child: Center(
                                 child: Text(
-                                  'Log In',
+                                  'Get Started',
                                   style: TextStyle(
                                     fontFamily: 'SF Pro Rounded',
                                     fontSize: 18,
-                                    color: const Color(0xffffffff),
+                                    color: const Color(0xff313131),
                                   ),
                                   textAlign: TextAlign.left,
                                 ),
                               ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  )
-                ],
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 30),
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.of(context).push(CustomPageRoute(
+                                  builder: (context) {
+                                    return Login();
+                                  },
+                                ));
+                              },
+                              child: Text(
+                                'Log In',
+                                style: TextStyle(
+                                  fontFamily: 'SF Pro Rounded',
+                                  fontSize: 18,
+                                  color: const Color(0xffffffff),
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
               ),
-            ),
-            load ? Center(child: LoadingPhone()) : Container(),
-          ],
+              load ? Center(child: LoadingPhone()) : Container(),
+            ],
+          ),
         ),
       ),
     );

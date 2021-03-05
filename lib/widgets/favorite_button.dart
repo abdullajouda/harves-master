@@ -28,15 +28,18 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request =
-    await post(ApiHelper.api + 'addFavorite/${widget.fruit.id}', headers: ApiHelper.headersWithAuth);
+        await get(ApiHelper.api + 'addFavorite/${widget.fruit.id}', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': 'en',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
     var response = json.decode(request.body);
-    print(response['message']);
     Fluttertoast.showToast(msg: response['message']);
     if (response['status'] == true) {
-    setState(() {
-      widget.fruit.isFavorite = '1';
-      load = false;
-    });
+      setState(() {
+        widget.fruit.isFavorite = '1';
+        load = false;
+      });
     }
     setState(() {
       load = false;
@@ -48,16 +51,20 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       load = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var request = await post(
+    var request = await get(
         ApiHelper.api + 'deleteFromFavorit/${widget.fruit.id}',
-        headers: ApiHelper.headersWithAuth);
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Language': 'en',
+          'Authorization': 'Bearer ${prefs.getString('userToken')}'
+        });
     var response = json.decode(request.body);
     Fluttertoast.showToast(msg: response['message']);
     if (response['status'] == true) {
-    setState(() {
-      widget.fruit.isFavorite = '0';
-      load = false;
-    });
+      setState(() {
+        widget.fruit.isFavorite = '0';
+        load = false;
+      });
     }
     setState(() {
       load = false;
@@ -70,12 +77,11 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       height: 40,
       width: 40,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(19.0),
-          bottomLeft: Radius.circular(19.0),
-        ),
-        color: Colors.white
-      ),
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(19.0),
+            bottomLeft: Radius.circular(19.0),
+          ),
+          color: Colors.white),
       child: Center(
         child: load
             ? SpinKitFadingCircle(
@@ -85,7 +91,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
               )
             : GestureDetector(
                 onTap: () {
-                  if (widget.fruit.isFavorite == '0') {
+                  if (widget.fruit.isFavorite == '1') {
                     removeFav();
                   } else {
                     setFav();
