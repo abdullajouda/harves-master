@@ -49,7 +49,7 @@ class _HomeState extends State<Home> {
 
   getOffers() async {
     var request =
-        await get(ApiHelper.api + 'getSliders', headers: ApiHelper.headers);
+        await get(ApiHelper.api + 'getSliders', headers: ApiHelper.headersWithAuth);
     var response = json.decode(request.body);
     var items = response['items'];
     // Fluttertoast.showToast(msg: response['message']);
@@ -64,7 +64,7 @@ class _HomeState extends State<Home> {
 
   getProductsByCategories(Category category) async {
     var request = await get(ApiHelper.api + 'getProductsByCategoryId/${category.id}',
-        headers: ApiHelper.headers);
+        headers: ApiHelper.headersWithAuth);
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {
@@ -78,7 +78,7 @@ class _HomeState extends State<Home> {
 
   getFeaturedProducts() async {
     var request = await get(ApiHelper.api + 'getFeaturedProducts',
-        headers: ApiHelper.headers);
+        headers: ApiHelper.headersWithAuth);
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {

@@ -5,6 +5,7 @@ import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/helpers/Localization/appliction.dart';
+import 'package:harvest/splash.dart';
 import 'package:provider/provider.dart';
 import 'helpers/Localization/app_translations_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -67,7 +68,7 @@ class _MyAppState extends State<MyApp> {
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
-          home: SplashScreen(),
+          home: Splash(),
         ));
   }
 }

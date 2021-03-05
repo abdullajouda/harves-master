@@ -10,7 +10,7 @@ class Products {
   int type;
   int order;
   int isFeatured;
-  int isFavorite;
+  String isFavorite;
   int qty;
   int minQty;
   int unitRate;
@@ -63,6 +63,7 @@ class Products {
     type = json['type'];
     order = json['order'];
     isFeatured = json['is_featured'];
+    isFavorite = json['in_favorite'];
     qty = json['qty'];
     minQty = json['min_qty'];
     unitRate = json['unit_rate'];
@@ -90,6 +91,7 @@ class Products {
     data['type'] = this.type;
     data['order'] = this.order;
     data['is_featured'] = this.isFeatured;
+    data['in_favorite'] = this.isFavorite;
     data['qty'] = this.qty;
     data['min_qty'] = this.minQty;
     data['unit_rate'] = this.unitRate;

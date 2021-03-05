@@ -52,8 +52,8 @@ class FruitItem extends StatelessWidget {
             ),
           ),
           Positioned(
-            right: 12,
-            top: 13,
+            right: 0,
+            top: 0,
             child: FavoriteButton(
               fruit: product,
             ),

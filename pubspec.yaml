@@ -68,6 +68,8 @@ dependencies:
   http: ^0.12.2
   intl: 0.16.1
   flutter_html: ^1.0.2
+  rive: 0.6.8
+  flare_flutter: ^2.0.6
 
 dev_dependencies:
   flutter_test:
@@ -97,6 +99,7 @@ flutter:
     - assets/images/maps/
     - assets/images/vectors/
     - resources/langs/
+    - assets/animations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
