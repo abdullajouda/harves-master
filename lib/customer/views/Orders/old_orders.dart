@@ -9,7 +9,9 @@ import 'package:harvest/customer/models/orders.dart';
 
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/widgets/Loader.dart';
+import 'package:harvest/widgets/no_data.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OldOrders extends StatefulWidget {
   @override
@@ -21,8 +23,12 @@ class _OldOrdersState extends State<OldOrders> {
   List<Order> _orders = [];
 
   getOrders() async {
-    var request = await get(ApiHelper.api + 'getProductsByCategoryId/2',
-        headers: ApiHelper.headers);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await get(ApiHelper.api + 'getMyOrdersByStatus/2', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': 'en',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {
@@ -55,19 +61,21 @@ class _OldOrdersState extends State<OldOrders> {
   Widget build(BuildContext context) {
     return loadOrders
         ? Container(height: 200, child: Center(child: Loader()))
-        : ListView.separated(
-            itemCount: _orders.length,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            separatorBuilder: (context, index) => SizedBox(height: 20),
-            itemBuilder: (context, index) {
-              return OrderListTile(
-                onTap: () => _showButtonPanel(_orders[index]),
-                billNumber: _orders[index].id,
-                billTotal: _orders[index].totalPrice,
-                billDate: _orders[index].createdAt,
+        : _orders.length == 0
+            ? NoData()
+            : ListView.separated(
+                itemCount: _orders.length,
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                separatorBuilder: (context, index) => SizedBox(height: 20),
+                itemBuilder: (context, index) {
+                  return OrderListTile(
+                    onTap: () => _showButtonPanel(_orders[index]),
+                    billNumber: _orders[index].id,
+                    billTotal: _orders[index].totalPrice,
+                    billDate: _orders[index].createdAt,
+                  );
+                },
               );
-            },
-          );
   }
 }

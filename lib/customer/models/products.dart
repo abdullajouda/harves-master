@@ -2,11 +2,11 @@ class Products {
   int id;
   int categoryId;
   int havePrice;
-  int price;
+  double price;
   String image;
   int discount;
-  Null offerFrom;
-  Null offerTo;
+  String offerFrom;
+  String offerTo;
   int type;
   int order;
   int isFeatured;
@@ -24,38 +24,38 @@ class Products {
   String name;
   String description;
 
-
   Products(
       {this.id,
-        this.categoryId,
-        this.havePrice,
-        this.price,
-        this.image,
-        this.discount,
-        this.offerFrom,
-        this.offerTo,
-        this.type,
-        this.order,
-        this.isFeatured,
-        this.isFavorite,
-        this.qty,
-        this.minQty,
-        this.unitRate,
-        this.parentId,
-        this.createdAt,
-        this.availableOffer,
-        this.priceOffer,
-        this.typeName,
-        this.available,
-        this.inCart,
-        this.name,
-        this.description});
+      this.categoryId,
+      this.havePrice,
+      this.price,
+      this.image,
+      this.discount,
+      this.offerFrom,
+      this.offerTo,
+      this.type,
+      this.order,
+      this.isFeatured,
+      this.isFavorite,
+      this.qty,
+      this.minQty,
+      this.unitRate,
+      this.parentId,
+      this.createdAt,
+      this.availableOffer,
+      this.priceOffer,
+      this.typeName,
+      this.available,
+      this.inCart,
+      this.name,
+      this.description});
 
   Products.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     categoryId = json['category_id'];
     havePrice = json['have_price'];
-    price = json['price'];
+    price =
+        json["price"] != null ? double.parse(json["price"].toString()) : null;
     image = json['image'];
     discount = json['discount'];
     offerFrom = json['offer_from'];

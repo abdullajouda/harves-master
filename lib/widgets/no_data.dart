@@ -1,0 +1,25 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+class NoData extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: SvgPicture.asset('assets/no-data.svg'),
+        ),
+        Text(
+          'No Data',
+          style: TextStyle(
+            fontSize: 24,
+            color: const Color(0xff000000),
+          ),
+          textAlign: TextAlign.center,
+        )
+      ],
+    );
+  }
+}

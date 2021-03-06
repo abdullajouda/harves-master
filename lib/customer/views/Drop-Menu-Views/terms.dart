@@ -12,6 +12,10 @@ import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:http/http.dart';
 
 class Terms extends StatefulWidget {
+  final String path;
+
+  const Terms({Key key, this.path}) : super(key: key);
+
   @override
   _TermsState createState() => _TermsState();
 }
@@ -22,7 +26,7 @@ class _TermsState extends State<Terms> {
 
   getSettings() async {
     var request =
-    await get(ApiHelper.api + 'getSetting', headers: ApiHelper.headers);
+        await get(ApiHelper.api + 'getSetting', headers: ApiHelper.headers);
     var response = json.decode(request.body)['items'];
     Pages model = Pages.fromJson(response['terms']);
     setState(() {
@@ -45,7 +49,7 @@ class _TermsState extends State<Terms> {
         leading: SizedBox.fromSize(size: Size.zero),
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
-        actions: [HomePopUpMenu()],
+        actions: [widget.path == null ? HomePopUpMenu() : Container()],
       ),
       body: SafeArea(
         child: Column(
@@ -71,14 +75,15 @@ class _TermsState extends State<Terms> {
                   load
                       ? Center(child: Loader())
                       : SingleChildScrollView(
-                    child: Container(
-                      width: size.width * .95,
-                      child: Html(
-                        data:
-                        _terms.description.replaceAll("\\r\\n", '') ?? '',
-                      ),
-                    ),
-                  ),
+                          child: Container(
+                            width: size.width * .95,
+                            child: Html(
+                              data:
+                                  _terms.description.replaceAll("\\r\\n", '') ??
+                                      '',
+                            ),
+                          ),
+                        ),
                 ],
               ),
             ),

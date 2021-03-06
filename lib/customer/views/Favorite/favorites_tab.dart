@@ -16,6 +16,7 @@ import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../product_details.dart';
 
@@ -27,40 +28,53 @@ class FavoritesTab extends StatefulWidget {
 class _FavoritesTabState extends State<FavoritesTab> {
   bool load = true;
   bool loadButton = false;
-  List<FavoriteModel> _fruits = [];
+  Products _selectedIndex;
+
+  // List<FavoriteModel> _fruits = [];
 
   getFavorite() async {
-    var request = await get(ApiHelper.api + 'getMyFavorites',
-        headers: ApiHelper.headersWithAuth);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    FavoriteOperations op =
+        Provider.of<FavoriteOperations>(context, listen: false);
+    var request = await get(ApiHelper.api + 'getMyFavorites', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': 'en',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {
       FavoriteModel products = FavoriteModel.fromJson(element);
-      _fruits.add(products);
+      op.addItem(products.product);
+      // _fruits.add(products);
     });
     setState(() {
       load = false;
     });
   }
 
-  Future removeFav(FavoriteModel fruit) async {
+  Future removeFav(Products fruit) async {
     setState(() {
       loadButton = true;
+      _selectedIndex = fruit;
     });
+    FavoriteOperations op =
+        Provider.of<FavoriteOperations>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var request = await get(
-        ApiHelper.api + 'deleteFromFavorit/${fruit.product.id}',
-        headers: {
-          'Accept': 'application/json',
-          'Accept-Language': 'en',
-          'Authorization': 'Bearer ${prefs.getString('userToken')}'
-        });
+    var request =
+        await get(ApiHelper.api + 'deleteFromFavorit/${fruit.id}', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': 'en',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
     var response = json.decode(request.body);
     Fluttertoast.showToast(msg: response['message']);
     if (response['status'] == true) {
       setState(() {
-        fruit.product.isFavorite = '0';
-        _fruits.remove(fruit);
+        fruit.isFavorite = '0';
+        // _fruits.remove(fruit);
+        op.removeFav(fruit);
         loadButton = false;
       });
     }
@@ -77,6 +91,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
 
   @override
   Widget build(BuildContext context) {
+    FavoriteOperations op = Provider.of<FavoriteOperations>(context);
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: WaveAppBarBody(
@@ -100,7 +115,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
           load
               ? Center(child: Loader())
               : GridView.builder(
-            shrinkWrap: true,
+                  shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   padding: EdgeInsets.only(top: 10, bottom: 40)
                       .add(EdgeInsets.symmetric(horizontal: 20)),
@@ -109,21 +124,23 @@ class _FavoritesTabState extends State<FavoritesTab> {
                       crossAxisCount: 2,
                       crossAxisSpacing: 0,
                       mainAxisSpacing: 0),
-                  itemCount: _fruits.length,
-                  itemBuilder: (context, index) => Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      FavoriteItem(
-                        remove: () {
-                          removeFav(_fruits[index]);
-                        },
-                        fruit: _fruits[index],
-                      ),
-                      loadButton ? Loader() : Container()
-                    ],
-                  ),
-
-                ),
+                  itemCount: op.items.length,
+                  itemBuilder: (context, index) {
+                    final bool _isSelected =
+                        _isIndexSelected(op.items.values.toList()[index]);
+                    return Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        FavoriteItem(
+                          remove: () {
+                            removeFav(op.items.values.toList()[index]);
+                          },
+                          fruit: op.items.values.toList()[index],
+                        ),
+                        _isSelected ? Loader() : Container()
+                      ],
+                    );
+                  }),
         ],
       ),
     );
@@ -154,4 +171,6 @@ class _FavoritesTabState extends State<FavoritesTab> {
       ),
     );
   }
+
+  bool _isIndexSelected(Products index) => _selectedIndex == index;
 }

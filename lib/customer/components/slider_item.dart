@@ -21,7 +21,7 @@ class SliderItem extends StatelessWidget {
             child: SizedBox(
               height: size.width * 0.7,
               width: size.width * 0.7,
-              child: SvgPicture.asset(slider.image, fit: BoxFit.fitWidth),
+              child: Image.network(slider.image, fit: BoxFit.fitWidth),
             ),
           ),
           // SizedBox(height: size.height * 0.02),

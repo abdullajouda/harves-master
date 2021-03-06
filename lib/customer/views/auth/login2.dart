@@ -1,23 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
+import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/auth_widgets/location_sheet.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 
 class Login2 extends StatefulWidget {
+  final String mobile;
+
+  const Login2({Key key, this.mobile}) : super(key: key);
   @override
   _Login2State createState() => _Login2State();
 }
 
 class _Login2State extends State<Login2> {
+  final GlobalKey<FormState> _login2Key = GlobalKey<FormState>();
+  bool load = false;
+  String name;
+
+
   onContinue() {
-    showModalBottomSheet(
+    if (_login2Key.currentState.validate()) {
+      showModalBottomSheet(
       context: context,
       enableDrag: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => LocationSheet(),
+      builder: (context) => LocationSheet(name: name,mobile:widget.mobile)
     );
+  }
   }
 
   @override
@@ -31,7 +43,6 @@ class _Login2State extends State<Login2> {
           alignment: Alignment.center,
           children: [
             SvgPicture.asset('assets/Dots.svg'),
-
             Positioned(
               top: 100,
               child: Column(
@@ -107,23 +118,32 @@ class _Login2State extends State<Login2> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 15),
-                          child: Container(
-                            height: 60,
-                            width: 260,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
-                              color: const Color(0xcce6f2ea),
-                            ),
-                            child: Center(
-                              child: TextFormField(
-                                decoration: inputDecorationWithIcon(
-                                  'Your Name',
-                                  Container(
-                                    height: 20,
-                                    width: 20,
-                                    child: Center(
-                                      child: SvgPicture.asset(
-                                          'assets/icons/profile.svg'),
+                          child: Form(
+                            key: _login2Key,
+                            child: Container(
+                              width: 260,
+                              child: Center(
+                                child: TextFormField(
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      name = newValue;
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value.isEmpty) {
+                                      return "* Required";
+                                    } else
+                                      return null;
+                                  },
+                                  decoration: inputDecorationWithIcon(
+                                    'Your Name',
+                                    Container(
+                                      height: 20,
+                                      width: 20,
+                                      child: Center(
+                                        child: SvgPicture.asset(
+                                            'assets/icons/profile.svg'),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -155,49 +175,62 @@ class _Login2State extends State<Login2> {
                         ),
                       ],
                     ),
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                'If You Don\'t Have An Existed Account?',
-                                style: TextStyle(
-                                  fontFamily: 'SF Pro Rounded',
-                                  fontSize: 10,
-                                  color: const Color(0xff888a8d),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              TextButton(
-                                onPressed: () {},
-                                child: Text(
-                                  'Register',
+                    Padding(
+                      padding: const EdgeInsets.only(top: 28, bottom: 50),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'By Continuing you agree to our',
                                   style: TextStyle(
                                     fontFamily: 'SF Pro Rounded',
                                     fontSize: 10,
-                                    color: const Color(0xff3c984f),
+                                    color: const Color(0xff888a8d),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
-                              ),
-                            ],
-                          ),
-                          TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              'Skip',
-                              style: TextStyle(
-                                fontFamily: 'SF Pro Rounded',
-                                fontSize: 10,
-                                color: const Color(0xfffdaa5c),
-                              ),
-                              textAlign: TextAlign.center,
+                                TextButton(
+                                  onPressed: () {Navigator.push(
+                                      context,
+                                      CustomPageRoute(
+                                        builder: (context) => Terms(path: 'this',),
+                                      ));},
+                                  child: Text(
+                                    'Terms Of Use',
+                                    style: TextStyle(
+                                      fontFamily: 'SF Pro Rounded',
+                                      fontSize: 10,
+                                      color: const Color(0xff3c984f),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
                             ),
-                          )
-                        ],
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    CustomPageRoute(
+                                      builder: (context) => RootScreen(),
+                                    ));
+                              },
+                              child: Text(
+                                'Skip',
+                                style: TextStyle(
+                                  fontFamily: 'SF Pro Rounded',
+                                  fontSize: 10,
+                                  color: const Color(0xfffdaa5c),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     )
                   ],

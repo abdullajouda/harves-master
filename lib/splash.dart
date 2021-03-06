@@ -1,10 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:harvest/customer/views/root_screen.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/splash_screen.dart';
 import 'package:harvest/widgets/animated_splash.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'customer/models/city.dart';
 
 class Splash extends StatefulWidget {
   @override
@@ -24,18 +31,37 @@ class _SplashState extends State<Splash> {
   setLandingPage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('userToken');
-
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SplashScreen(),
-        ));
+    if (token != null) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RootScreen(),
+          ));
+    } else {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SplashScreen(),
+          ));
+    }
   }
 
+  getCities() async {
+    var op = Provider.of<CityOperations>(context, listen: false);
+    var request =
+    await get(ApiHelper.api + 'getCities', headers: ApiHelper.headers);
+    var response = json.decode(request.body);
+    var items = response['cities'];
+    items.forEach((element) {
+      City city = City.fromJson(element);
+      op.addItem(city);
+    });
+  }
   @override
   void initState() {
     // ApiServices().getSettings();
     startTime();
+    getCities();
     super.initState();
   }
 

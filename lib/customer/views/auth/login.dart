@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/customer/views/auth/activate_account.dart';
+import 'package:harvest/customer/views/auth/login2.dart';
+import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/variables.dart';
@@ -33,9 +36,11 @@ class _LoginState extends State<Login> {
         Navigator.pushReplacement(
             context,
             CustomPageRoute(
-              builder: (context) => AccountActivation(mobile: mobile,),
+              builder: (context) => AccountActivation(
+                mobile: mobile,
+              ),
             ));
-      }else{
+      } else{
         setState(() {
           load = false;
         });
@@ -132,7 +137,7 @@ class _LoginState extends State<Login> {
                     Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 15,top: 41),
+                          padding: const EdgeInsets.only(bottom: 15, top: 41),
                           child: Form(
                             key: _formKey,
                             child: Container(
@@ -187,7 +192,7 @@ class _LoginState extends State<Login> {
                       ],
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 28,bottom: 50),
+                      padding: const EdgeInsets.only(top: 28, bottom: 50),
                       child: Container(
                         width: MediaQuery.of(context).size.width,
                         child: Row(
@@ -196,7 +201,7 @@ class _LoginState extends State<Login> {
                             Row(
                               children: [
                                 Text(
-                                  'If You Don\'t Have An Existed Account?',
+                                  'By Continuing you agree to our',
                                   style: TextStyle(
                                     fontFamily: 'SF Pro Rounded',
                                     fontSize: 10,
@@ -205,9 +210,13 @@ class _LoginState extends State<Login> {
                                   textAlign: TextAlign.center,
                                 ),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () { Navigator.push(
+                                      context,
+                                      CustomPageRoute(
+                                        builder: (context) => Terms(path: 'this',),
+                                      ));},
                                   child: Text(
-                                    'Register',
+                                    'Terms Of Use',
                                     style: TextStyle(
                                       fontFamily: 'SF Pro Rounded',
                                       fontSize: 10,
@@ -219,7 +228,13 @@ class _LoginState extends State<Login> {
                               ],
                             ),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    CustomPageRoute(
+                                      builder: (context) => RootScreen(),
+                                    ));
+                              },
                               child: Text(
                                 'Skip',
                                 style: TextStyle(

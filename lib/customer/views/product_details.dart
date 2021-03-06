@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:harvest/customer/models/fruit.dart';
+import 'package:harvest/customer/models/favorite.dart';
 import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/customer/widgets/custom_main_button.dart';
 import 'package:harvest/customer/widgets/make_favorite_button.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
-
+import 'package:harvest/widgets/favorite_button.dart';
+import 'package:provider/provider.dart';
 
 class ProductDetails extends StatefulWidget {
-  final Products products;
-  ProductDetails({Key key, this.products}) : super(key: key);
+  final Products fruit;
+
+  ProductDetails({Key key, this.fruit}) : super(key: key);
 
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
@@ -18,16 +20,15 @@ class ProductDetails extends StatefulWidget {
 
 class _ProductDetailsState extends State<ProductDetails> {
   final color = const Color(0xffFDAA5C);
-  final _productDescription =
-      "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal";
 
   int _qty = 0;
-  bool _isFavorite = false;
+
+  // bool _isFavorite = false;
 
   @override
   void initState() {
     setState(() {
-      _qty = widget.products.minQty;
+      _qty = widget.fruit.minQty;
     });
     super.initState();
   }
@@ -35,6 +36,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    var op = Provider.of<FavoriteOperations>(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -54,14 +56,11 @@ class _ProductDetailsState extends State<ProductDetails> {
             children: [
               Expanded(
                 flex: 2,
-                child: Hero(
-                  tag: widget.products,
-                  child: Image.network(
-                    widget.products.image,
-                    height: 320,
-                    width: 320,
-                    fit: BoxFit.fitWidth,
-                  ),
+                child: Image.network(
+                  widget.fruit.image,
+                  height: 320,
+                  width: 320,
+                  fit: BoxFit.fitWidth,
                 ),
               ),
               SizedBox(height: 20),
@@ -71,7 +70,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                   width: size.width,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(40)),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black12,
@@ -81,7 +81,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                       ),
                     ],
                   ),
-                  padding: const EdgeInsets.only(left: 30, right: 30, top: 20, bottom: 20),
+                  padding: const EdgeInsets.only(
+                      left: 30, right: 30, top: 20, bottom: 20),
                   child: Column(
                     children: [
                       Align(
@@ -90,7 +91,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.products.name??'',
+                              widget.fruit.name ?? '',
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 color: CColors.headerText,
@@ -98,7 +99,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ),
                             ),
                             Text(
-                              "${widget.products.available} ${widget.products.typeName}",
+                              "${widget.fruit.available} ${widget.fruit.typeName}",
                               style: TextStyle(
                                 fontWeight: FontWeight.w400,
                                 color: CColors.headerText.withAlpha(150),
@@ -120,7 +121,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                                     if (_qty == 0) return;
                                     setState(() => _qty--);
                                   },
-                                  icon: Icon(Icons.remove, color: CColors.headerText, size: 25),
+                                  icon: Icon(Icons.remove,
+                                      color: CColors.headerText, size: 25),
                                 ),
                                 ConstrainedBox(
                                   constraints: BoxConstraints(
@@ -140,10 +142,13 @@ class _ProductDetailsState extends State<ProductDetails> {
                               ],
                               CIconButton(
                                 onTap: () => setState(() => _qty++),
-                                icon: Icon(Icons.add, color: CColors.headerText, size: 25),
+                                icon: Icon(Icons.add,
+                                    color: CColors.headerText, size: 25),
                               ),
                               if (_qty == 0)
-                                Text("add_to_basket".trs(context), style: TextStyle(fontSize: 13, color: CColors.grey)),
+                                Text("add_to_basket".trs(context),
+                                    style: TextStyle(
+                                        fontSize: 13, color: CColors.grey)),
                             ],
                           ),
                           Text(
@@ -174,7 +179,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 child: SingleChildScrollView(
                                   padding: EdgeInsets.only(bottom: 10),
                                   child: Text(
-                                    _productDescription,
+                                    widget.fruit.description??'',
                                     style: TextStyle(
                                       color: CColors.normalText,
                                       fontSize: 14,
@@ -190,14 +195,19 @@ class _ProductDetailsState extends State<ProductDetails> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          MakeFavoriteButton(
-                            activeColor: CColors.lightGreen,
-                            inActiveColor: CColors.lightGreen,
-                            padding: EdgeInsets.all(10.0),
-                            onValueChanged: () {
-                              setState(() => _isFavorite = !_isFavorite);
-                            },
-                            value: _isFavorite,
+                          Container(
+                            width: 56.0,
+                            height: 52.0,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14.0),
+                              border: Border.all(
+                                  width: 2.0, color: const Color(0xff3c984f)),
+                            ),
+                            child: Center(
+                                child: FavoriteButton(
+                              color: CColors.darkGreen,
+                              fruit: widget.fruit,
+                            )),
                           ),
                           SizedBox(width: 10),
                           Expanded(

@@ -6,18 +6,30 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:harvest/customer/models/city.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
+import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/delivery/views/login.dart';
+import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'dart:ui' as ui;
 
 import 'package:harvest/helpers/variables.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:provider/provider.dart';
 
 class SetLocationSheet extends StatefulWidget {
+  final String name;
+  final String mobile;
+
+  const SetLocationSheet({Key key, this.name, this.mobile}) : super(key: key);
+
   @override
   _SetLocationSheetState createState() => _SetLocationSheetState();
 }
 
 class _SetLocationSheetState extends State<SetLocationSheet> {
+  City city;
   GoogleMapController _controller;
   List<Marker> markers = [];
   CameraPosition _initialCameraPosition;
@@ -25,6 +37,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
   bool _visible = false;
   bool _load = true;
   bool _expand = false;
+  Coordinates coordinates;
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
@@ -59,6 +72,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
       _controller.animateCamera(CameraUpdate.newLatLngZoom(
           LatLng(position.latitude, position.longitude), 15));
       setState(() {
+        coordinates = new Coordinates(position.latitude, position.longitude);
         markers = [];
         markers.add(Marker(
             icon: BitmapDescriptor.fromBytes(markerIcon),
@@ -71,6 +85,33 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
       Navigator.pop(context);
     }
     return await Geolocator.getCurrentPosition();
+  }
+
+  save() async {
+    try {
+      var addresses =
+          await Geocoder.local.findAddressesFromCoordinates(coordinates);
+      if (addresses.first.addressLine != null) {
+        Navigator.of(context).pop({
+          'addressLine': addresses.first.addressLine,
+          'latitude': markers[0].position.latitude,
+          'longitude': markers[0].position.longitude,
+          'cityId': city.id
+        });
+      } else {
+        Navigator.of(context).pop({
+          'latitude': markers[0].position.latitude,
+          'longitude': markers[0].position.longitude,
+          'cityId': city.id
+        });
+      }
+    } on Exception catch (e) {
+      Navigator.of(context).pop({
+        'latitude': markers[0].position.latitude,
+        'longitude': markers[0].position.longitude,
+        'cityId': city.id
+      });
+    }
   }
 
   @override
@@ -86,6 +127,8 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    var op = Provider.of<CityOperations>(context);
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -171,7 +214,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                         duration: Duration(milliseconds: 600),
                         child: AnimatedContainer(
                           duration: Duration(milliseconds: 300),
-                          height: _expand ? 340 : 64,
+                          height: _expand ? 400 : 64,
                           width: 260,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(9.0),
@@ -190,28 +233,88 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          vertical: 15),
-                                      child: Container(
-                                        height: 38,
-                                        width: 220,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(12.0),
-                                          border: Border.all(
-                                              width: 1.0,
-                                              color: const Color(0xffe3e7eb)),
-                                        ),
+                                          vertical: 15, horizontal: 20),
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(12.0),
+                                              border: Border.all(
+                                                  width: 1.0,
+                                                  color:
+                                                      const Color(0xffe3e7eb)),
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 15),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    city != null
+                                                        ? city.name
+                                                        : 'City',
+                                                    style: TextStyle(
+                                                      fontFamily:
+                                                          'SF Pro Rounded',
+                                                      fontSize: 8,
+                                                      color: const Color(
+                                                          0xff525768),
+                                                    ),
+                                                  ),
+                                                  SvgPicture.asset(
+                                                      'assets/icons/arrow-down.svg')
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            height: 50,
+                                            width: size.width * .75,
+                                            child: DropdownButton<City>(
+                                              icon: Container(),
+                                              underline: Container(),
+                                              items: op.items.values
+                                                  .toList()
+                                                  .map((City value) {
+                                                return DropdownMenuItem<City>(
+                                                  value: value,
+                                                  child: Text(
+                                                    value.name,
+                                                    style: TextStyle(
+                                                      fontFamily:
+                                                          'SF Pro Rounded',
+                                                      fontSize: 8,
+                                                      color: const Color(
+                                                          0xff525768),
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  city = value;
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    Container(
-                                      height: 38,
-                                      width: 220,
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                        border: Border.all(
-                                            width: 1.0,
-                                            color: const Color(0xffe3e7eb)),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      child: Container(
+                                        child: TextFormField(
+                                            cursorColor: CColors.darkOrange,
+                                            cursorWidth: 1,
+                                            decoration: locationFieldDecoration(
+                                                'Full address')),
                                       ),
                                     ),
                                     Padding(
@@ -222,41 +325,52 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                             MainAxisAlignment.spaceEvenly,
                                         children: [
                                           Container(
-                                            height: 38,
-                                            width: 104,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12.0),
-                                              border: Border.all(
-                                                  width: 1.0,
-                                                  color:
-                                                      const Color(0xffe3e7eb)),
+                                            width: size.width * .25,
+                                            child: Center(
+                                              child: TextFormField(
+                                                  cursorColor:
+                                                      CColors.darkOrange,
+                                                  cursorWidth: 1,
+                                                  decoration:
+                                                      locationFieldDecoration(
+                                                          'Unit No.')),
                                             ),
                                           ),
                                           Container(
-                                            height: 38,
-                                            width: 104,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12.0),
-                                              border: Border.all(
-                                                  width: 1.0,
-                                                  color:
-                                                      const Color(0xffe3e7eb)),
+                                            width: size.width * .25,
+                                            child: Center(
+                                              child: TextFormField(
+                                                  cursorColor:
+                                                      CColors.darkOrange,
+                                                  cursorWidth: 1,
+                                                  decoration:
+                                                      locationFieldDecoration(
+                                                          'Building No.')),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    Container(
-                                      height: 90,
-                                      width: 220,
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(12.0),
-                                        border: Border.all(
-                                            width: 1.0,
-                                            color: const Color(0xffe3e7eb)),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20),
+                                      child: Container(
+                                        child: Stack(
+                                          children: [
+                                            TextFormField(
+                                                maxLines: 5,
+                                                cursorColor: CColors.darkOrange,
+                                                cursorWidth: 1,
+                                                decoration:
+                                                    locationFieldDecoration(
+                                                        'Additional Notes')),
+                                            Positioned(
+                                                bottom: 5,
+                                                right: 5,
+                                                child: SvgPicture.asset(
+                                                    'assets/icons/additional_icon.svg'))
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     Padding(
@@ -284,7 +398,8 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                                 style: TextStyle(
                                                   fontFamily: 'SF Pro Rounded',
                                                   fontSize: 12,
-                                                  color: const Color(0xffffffff),
+                                                  color:
+                                                      const Color(0xffffffff),
                                                   fontWeight: FontWeight.w500,
                                                 ),
                                                 textAlign: TextAlign.left,
@@ -330,7 +445,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                     ),
                                     GestureDetector(
                                       onTap: () {
-                                        Navigator.pop(context);
+                                        save();
                                       },
                                       child: Container(
                                         width: 58,
@@ -365,7 +480,11 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               GestureDetector(
-                onTap: () => Navigator.push(context, CustomPageRoute(builder: (context) => LoginDelivery(),)),
+                onTap: () => Navigator.push(
+                    context,
+                    CustomPageRoute(
+                      builder: (context) => LoginDelivery(),
+                    )),
                 child: Container(
                   height: 60,
                   width: 260,
@@ -373,8 +492,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                     borderRadius: BorderRadius.circular(12.0),
                     color: const Color(0x0ff3C984F),
                   ),
-                  child: // Adobe XD layer: 'Continue' (text)
-                      Center(
+                  child: Center(
                     child: Text(
                       'Continue ',
                       style: TextStyle(
@@ -388,7 +506,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15),
+                padding: const EdgeInsets.only(top: 28, bottom: 50),
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   child: Row(
@@ -397,7 +515,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                       Row(
                         children: [
                           Text(
-                            'If You Don\'t Have An Existed Account?',
+                            'By Continuing you agree to our',
                             style: TextStyle(
                               fontFamily: 'SF Pro Rounded',
                               fontSize: 10,
@@ -406,9 +524,17 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                             textAlign: TextAlign.center,
                           ),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  CustomPageRoute(
+                                    builder: (context) => Terms(
+                                      path: 'this',
+                                    ),
+                                  ));
+                            },
                             child: Text(
-                              'Register',
+                              'Terms Of Use',
                               style: TextStyle(
                                 fontFamily: 'SF Pro Rounded',
                                 fontSize: 10,
@@ -420,7 +546,13 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                         ],
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              CustomPageRoute(
+                                builder: (context) => RootScreen(),
+                              ));
+                        },
                         child: Text(
                           'Skip',
                           style: TextStyle(

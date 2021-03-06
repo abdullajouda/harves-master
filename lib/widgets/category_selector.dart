@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:harvest/customer/models/category.dart';
+import 'package:harvest/customer/models/favorite.dart';
+import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
@@ -15,14 +20,15 @@ class CategorySelector extends StatefulWidget {
 
 class _CategorySelectorState extends State<CategorySelector> {
   Category _selectedIndex ;
+  bool loadProducts = false;
   final _controller = AutoScrollController(
     axis: Axis.horizontal,
   );
 
-
   @override
   void initState() {
     _selectedIndex = widget.categories[0];
+    // getProductsByCategories(_selectedIndex);
     super.initState();
   }
 
@@ -47,6 +53,7 @@ class _CategorySelectorState extends State<CategorySelector> {
             onTap: () {
               setState(() => _selectedIndex = widget.categories[index]);
               // helper.setCat(_selectedIndex);
+              // getProductsByCategories(_selectedIndex);
               _controller.scrollToIndex(index);
             },
             child: Container(

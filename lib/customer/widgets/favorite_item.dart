@@ -1,18 +1,11 @@
-import 'dart:convert';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:harvest/customer/models/favorite.dart';
+import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/customer/views/product_details.dart';
-import 'package:harvest/helpers/api.dart';
-import 'package:harvest/helpers/colors.dart';
-import 'package:http/http.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoriteItem extends StatefulWidget {
-  final FavoriteModel fruit;
+  final Products fruit;
   final VoidCallback remove;
 
   const FavoriteItem({Key key, this.fruit, this.remove}) : super(key: key);
@@ -28,13 +21,13 @@ class _FavoriteItemState extends State<FavoriteItem> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context, rootNavigator: true)
-            .push(platformPageRoute(
-          context: context,
-          builder: (context) => ProductDetails(
-            products: widget.fruit.product,
+        Navigator.of(context, rootNavigator: true).push(
+          CupertinoPageRoute(
+            builder: (context) => ProductDetails(
+              fruit: widget.fruit,
+            ),
           ),
-        ));
+        );
       },
       child: Container(
         height: 160,
@@ -56,24 +49,21 @@ class _FavoriteItemState extends State<FavoriteItem> {
           children: [
             Positioned(
               top: 3,
-              child: Hero(
-                tag: widget.fruit.product,
-                child: Container(
-                  height: 84,
-                  width: 87,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(widget.fruit.product.image),
-                      fit: BoxFit.fill,
-                    ),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: const Color(0x0f000000),
-                    //     offset: Offset(0, 6),
-                    //     blurRadius: 8,
-                    //   ),
-                    // ],
+              child: Container(
+                height: 84,
+                width: 87,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(widget.fruit.image),
+                    fit: BoxFit.fill,
                   ),
+                  // boxShadow: [
+                  //   BoxShadow(
+                  //     color: const Color(0x0f000000),
+                  //     offset: Offset(0, 6),
+                  //     blurRadius: 8,
+                  //   ),
+                  // ],
                 ),
               ),
             ),
@@ -108,7 +98,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                 ),
               ),
             ),
-            widget.fruit.product.discount != 0
+            widget.fruit.discount != 0
                 ? Positioned(
                     top: 0,
                     left: 0,
@@ -124,7 +114,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                       ),
                       child: Center(
                         child: Text(
-                          '25% Off',
+                          '${widget.fruit.discount}% Off',
                           style: TextStyle(
                             fontFamily: 'SF Pro Rounded',
                             fontSize: 10,
@@ -138,13 +128,13 @@ class _FavoriteItemState extends State<FavoriteItem> {
                 : Container(),
             Positioned(
               left: 20,
-              bottom: widget.fruit.product.inCart == '1' ? 40 : 13,
+              bottom: widget.fruit.inCart == '1' ? 40 : 13,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.fruit.product.name,
+                    widget.fruit.name,
                     style: TextStyle(
                       fontFamily: 'SF Pro Rounded',
                       fontSize: 12,
@@ -156,7 +146,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3),
                     child: Text(
-                      widget.fruit.product.description ?? '',
+                      widget.fruit.description ?? '',
                       style: TextStyle(
                         fontFamily: 'SF Pro Rounded',
                         fontSize: 10,
@@ -167,7 +157,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                     ),
                   ),
                   Text(
-                    '${widget.fruit.product.price}\$/kilo',
+                    '${widget.fruit.price}\$/kilo',
                     style: TextStyle(
                       fontFamily: 'SF Pro Rounded',
                       fontSize: 12,
@@ -197,11 +187,11 @@ class _FavoriteItemState extends State<FavoriteItem> {
                 ),
               ),
             ),
-            widget.fruit.product.inCart == '1'
+            widget.fruit.inCart == '1'
                 ? Positioned(
                     bottom: 7,
                     child: Text(
-                      widget.fruit.product.qty.toString(),
+                      widget.fruit.qty.toString(),
                       style: TextStyle(
                         fontFamily: 'SF Pro Rounded',
                         fontSize: 16,
@@ -212,7 +202,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                     ),
                   )
                 : Container(),
-            widget.fruit.product.inCart == '1'
+            widget.fruit.inCart == '1'
                 ? Positioned(
                     bottom: 0,
                     left: 0,

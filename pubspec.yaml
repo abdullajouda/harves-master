@@ -70,6 +70,8 @@ dependencies:
   flutter_html: ^1.0.2
   rive: 0.6.8
   flare_flutter: ^2.0.6
+  geocoder: ^0.2.1
+
 
 dev_dependencies:
   flutter_test:

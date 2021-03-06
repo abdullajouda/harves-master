@@ -103,14 +103,14 @@ class _RootScreenState extends State<RootScreen> {
       popActionScreens: PopActionScreensType.all,
       itemAnimationProperties: ItemAnimationProperties(
         // Navigation Bar's items animation properties.
-        duration: Duration(milliseconds: 200),
+        duration: Duration(milliseconds: 300),
         curve: Curves.ease,
       ),
       screenTransitionAnimation: ScreenTransitionAnimation(
         // Screen transition animation on change of selected tab.
         animateTabTransition: true,
         curve: Curves.ease,
-        duration: Duration(milliseconds: 200),
+        duration: Duration(milliseconds: 400),
       ),
       navBarStyle: NavBarStyle.style7,
     );

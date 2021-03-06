@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:harvest/customer/models/category.dart';
+import 'package:harvest/customer/models/favorite.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/offers_slider.dart';
 import 'package:harvest/customer/models/products.dart';
@@ -25,8 +27,11 @@ import 'package:harvest/widgets/category_selector.dart';
 import 'package:harvest/widgets/favorite_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:harvest/widgets/my-opacity.dart';
+import 'package:harvest/widgets/my_animation.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -34,13 +39,17 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  Category _selectedIndex;
+  final _controller = AutoScrollController(
+    axis: Axis.horizontal,
+  );
   int _current = 0;
-  Category _selectedCategory;
   final CarouselController _carouselController = CarouselController();
   List _list = [];
   List<Offers> _offers = [];
   List<Category> _categories = [];
-  List<Products> _products = [];
+
+  // List<Products> _products = [];
   List<Products> _featuredProducts = [];
   bool loadOffers = true;
   bool loadProducts = true;
@@ -48,8 +57,12 @@ class _HomeState extends State<Home> {
   bool loadCategories = true;
 
   getOffers() async {
-    var request =
-        await get(ApiHelper.api + 'getSliders', headers: ApiHelper.headersWithAuth);
+    SharedPreferences prefs =await SharedPreferences.getInstance();
+    var request = await get(ApiHelper.api + 'getSliders', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': 'en',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
     var response = json.decode(request.body);
     var items = response['items'];
     // Fluttertoast.showToast(msg: response['message']);
@@ -62,23 +75,24 @@ class _HomeState extends State<Home> {
     });
   }
 
-  getProductsByCategories(Category category) async {
-    var request = await get(ApiHelper.api + 'getProductsByCategoryId/${category.id}',
-        headers: ApiHelper.headersWithAuth);
+  Future getCategories() async {
+    var request =
+        await get(ApiHelper.api + 'getCategories', headers: ApiHelper.headers);
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {
-      Products products = Products.fromJson(element);
-      _products.add(products);
+      Category category = Category.fromJson(element);
+      _categories.add(category);
     });
     setState(() {
-      loadProducts = false;
+      _selectedIndex = _categories[0];
+      loadCategories = false;
     });
   }
 
   getFeaturedProducts() async {
     var request = await get(ApiHelper.api + 'getFeaturedProducts',
-        headers: ApiHelper.headersWithAuth);
+        headers: ApiHelper.headers);
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {
@@ -90,25 +104,45 @@ class _HomeState extends State<Home> {
     });
   }
 
+  getProductsByCategories(Category category) async {
+    SharedPreferences prefs =await SharedPreferences.getInstance();
+    setState(() {
+      loadProducts = true;
+    });
+    FavoriteOperations op =
+        Provider.of<FavoriteOperations>(context, listen: false);
+    op.clearHome();
+    var request = await get(
+        ApiHelper.api + 'getProductsByCategoryId/${category.id}',
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Language': 'en',
+          'Authorization': 'Bearer ${prefs.getString('userToken')}'
+        });
+    var response = json.decode(request.body);
+    List values = response['items'];
+    values.forEach((element) {
+      Products products = Products.fromJson(element);
+      op.addHomeItem(products);
+    });
+    setState(() {
+      loadProducts = false;
+    });
+  }
+
   @override
   void initState() {
     getOffers();
-    ApiHelper().getCategories().then((value) {
-      setState(() {
-        _categories = value;
-        loadCategories = false;
-        _selectedCategory = _categories[0];
-      });
-      // ApiHelper helper = Provider.of<ApiHelper>(context);
-    });
-    getProductsByCategories(Category(id: 1));
+    getCategories().then((value) => getProductsByCategories(_selectedIndex));
     getFeaturedProducts();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // ApiHelper helper = Provider.of<ApiHelper>(context);
+    FavoriteOperations op = Provider.of<FavoriteOperations>(context);
+    const Radius _chipBorderRadius = const Radius.circular(12.5);
+
     return Scaffold(
       body: WaveAppBarBody(
         backgroundGradient: CColors.greenAppBarGradient(),
@@ -200,9 +234,7 @@ class _HomeState extends State<Home> {
                         carouselController: _carouselController,
                       ),
                     ),
-                    loadOffers
-                        ? Loader()
-                        : Container()
+                    loadOffers ? Loader() : Container()
                   ],
                 ),
                 Positioned(
@@ -278,8 +310,8 @@ class _HomeState extends State<Home> {
                         ),
                       )),
                   child: SpecialItem(
-                fruit: _featuredProducts[index],
-              )),
+                    fruit: _featuredProducts[index],
+                  )),
             ),
           ),
           Padding(
@@ -288,37 +320,86 @@ class _HomeState extends State<Home> {
               load: loadCategories,
               child: Container(
                   height: 30,
-                  child: CategorySelector(
-                    categories: _categories,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: _controller,
+                    padding: EdgeInsetsDirectional.only(start: 23),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _categories.length,
+                    itemBuilder: (context, index) {
+                      final _category = _categories[index];
+                      final bool _isSelected =
+                          _isIndexSelected(_categories[index]);
+                      return AutoScrollTag(
+                        controller: _controller,
+                        index: index,
+                        key: ValueKey(index),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() => _selectedIndex = _categories[index]);
+                            // helper.setCat(_selectedIndex);
+                            getProductsByCategories(_selectedIndex);
+                            _controller.scrollToIndex(index);
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(right: 5),
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: _isSelected
+                                  ? CColors.darkOrange
+                                  : CColors.transparent,
+                              borderRadius: BorderRadiusDirectional.only(
+                                topStart: _chipBorderRadius,
+                                bottomStart: _chipBorderRadius,
+                                topEnd: _chipBorderRadius,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                _category.name ?? '',
+                                style: TextStyle(
+                                  color: _isSelected
+                                      ? CColors.white
+                                      : CColors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   )),
             ),
           ),
-          MyOpacity(
-            load: loadProducts,
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  childAspectRatio: 1,
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 18,
-                  mainAxisSpacing: 18),
-              itemCount: _products.length,
-              shrinkWrap: true,
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) => GestureDetector(
-                onTap: () => Navigator.of(context, rootNavigator: true).push(
-                  MaterialPageRoute(
-                    builder: (context) => ProductDetails(
-                      products: _products[index],
+          loadProducts
+              ? Center(
+                  child:
+                      Container(height: 200, width: 200, child: LoadingPhone()))
+              : GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      childAspectRatio: 1,
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 18,
+                      mainAxisSpacing: 18),
+                  itemCount: op.homeItems.length,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) => GestureDetector(
+                    onTap: () =>
+                        Navigator.of(context, rootNavigator: true).push(
+                      CupertinoPageRoute(
+                        builder: (context) => ProductDetails(
+                          fruit: op.homeItems.values.toList()[index],
+                        ),
+                      ),
+                    ),
+                    child: FruitItem(
+                      fruit: op.homeItems.values.toList()[index],
                     ),
                   ),
                 ),
-                child: FruitItem(
-                  product: _products[index],
-                ),
-              ),
-            ),
-          ),
           SizedBox(
             height: 50,
           )
@@ -326,4 +407,6 @@ class _HomeState extends State<Home> {
       ),
     );
   }
+
+  bool _isIndexSelected(Category index) => _selectedIndex == index;
 }

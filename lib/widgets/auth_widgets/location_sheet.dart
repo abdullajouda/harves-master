@@ -1,24 +1,101 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
+import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/delivery/views/login.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/widgets/auth_widgets/set_location_sheet.dart';
+import 'package:harvest/widgets/button_loader.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationSheet extends StatefulWidget {
+  final String name;
+  final String mobile;
+
+  const LocationSheet({Key key, this.name, this.mobile}) : super(key: key);
+
   @override
   _LocationSheetState createState() => _LocationSheetState();
 }
 
 class _LocationSheetState extends State<LocationSheet> {
+  double lat, lng;
+  var _locationResponse;
+  int cityId;
+  bool load = false;
+
+  onContinue() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      load = true;
+    });
+    if (lat != null && lng != null) {
+      var request = await post(ApiHelper.api + 'signUp',
+          body: {
+            'name': widget.name,
+            'mobile': widget.mobile,
+            'device_type': 'android',
+            'fcm_token': '236565576',
+            'lat': '$lat',
+            'lan': '$lng',
+            'full_address': '$_locationResponse',
+            'city': '$cityId'
+          },
+          headers: ApiHelper.headers);
+      var response = json.decode(request.body);
+      Fluttertoast.showToast(msg: response['message']);
+      if (response['status'] == true) {
+        prefs.setString('userToken', response['user']['access_token']);
+        Navigator.push(
+            context,
+            CustomPageRoute(
+              builder: (context) => RootScreen(),
+            ));
+      }
+    } else {
+      Fluttertoast.showToast(msg: 'Please set your location');
+    }
+    setState(() {
+      load = false;
+    });
+  }
+
   openMap() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => SetLocationSheet(),
-    );
+    ).then((value) {
+      if (value is Map<String, dynamic>) {
+        if (value['addressLine'] == null) {
+          setState(() {
+            lat = value['latitude'];
+            lng = value['longitude'];
+            cityId = value['cityId'];
+          });
+          return;
+        }
+        setState(() {
+          _locationResponse = value['addressLine'];
+          lat = value['latitude'];
+          lng = value['longitude'];
+          cityId = value['cityId'];
+        });
+      }
+    });
   }
 
+  // Navigator.of(context).pop({
+  // 'dataLocation': addresses.first.addressLine,
+  // 'latitude': markers[0].position.latitude,
+  // 'longitude': markers[0].position.longitude
+  // });
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -60,84 +137,87 @@ class _LocationSheetState extends State<LocationSheet> {
               ),
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15),
-                    child: Container(
-                      height: 68,
-                      width: 218,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 200,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10.0),
-                              color: const Color(0xfffff7ef),
-                            ),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  SvgPicture.asset('assets/images/Pin.svg'),
-                                  Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'AlQahera, Jamal 43st',
-                                        style: TextStyle(
-                                          fontFamily: 'SF Pro Rounded',
-                                          fontSize: 13,
-                                          color: const Color(0xff3c4959),
-                                        ),
-                                        textAlign: TextAlign.left,
+                  _locationResponse != null || (lat != null && lng != null)
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 15),
+                          child: Container(
+                            height: 68,
+                            width: 218,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Container(
+                                  width: 200,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    color: const Color(0xfffff7ef),
+                                  ),
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        SvgPicture.asset(
+                                            'assets/images/Pin.svg'),
+                                        Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              _locationResponse ?? '',
+                                              style: TextStyle(
+                                                fontFamily: 'SF Pro Rounded',
+                                                fontSize: 13,
+                                                color: const Color(0xff3c4959),
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                            Text(
+                                              lat.toString(),
+                                              style: TextStyle(
+                                                fontFamily: 'SF Pro Rounded',
+                                                fontSize: 10,
+                                                color: const Color(0xff888a8d),
+                                                fontWeight: FontWeight.w300,
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: () => openMap(),
+                                    child: Container(
+                                      height: 18,
+                                      width: 18,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.elliptical(9999.0, 9999.0)),
+                                        color: const Color(0xfff88518),
+                                        border: Border.all(
+                                            width: 1.0,
+                                            color: const Color(0xffffffff)),
                                       ),
-                                      Text(
-                                        'CD 43, 4 floor',
-                                        style: TextStyle(
-                                          fontFamily: 'SF Pro Rounded',
-                                          fontSize: 10,
-                                          color: const Color(0xff888a8d),
-                                          fontWeight: FontWeight.w300,
-                                        ),
-                                        textAlign: TextAlign.left,
-                                      )
-                                    ],
-                                  )
-                                ],
-                              ),
+                                      child: Center(
+                                        child: SvgPicture.asset(
+                                            'assets/icons/edit.svg'),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
                           ),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: () => openMap(),
-                              child: Container(
-                                height: 18,
-                                width: 18,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.all(
-                                      Radius.elliptical(9999.0, 9999.0)),
-                                  color: const Color(0xfff88518),
-                                  border: Border.all(
-                                      width: 1.0,
-                                      color: const Color(0xffffffff)),
-                                ),
-                                child: Center(
-                                  child:
-                                      SvgPicture.asset('assets/icons/edit.svg'),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
+                        )
+                      : Container(),
                   Padding(
                     padding: const EdgeInsets.only(top: 15),
                     child: Text(
@@ -153,7 +233,7 @@ class _LocationSheetState extends State<LocationSheet> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     child: GestureDetector(
-                      onTap: () =>openMap(),
+                      onTap: () => openMap(),
                       child: Container(
                         height: 31,
                         width: 147,
@@ -184,7 +264,7 @@ class _LocationSheetState extends State<LocationSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               GestureDetector(
-                onTap: () => Navigator.push(context, CustomPageRoute(builder: (context) => LoginDelivery(),)),
+                onTap: () => onContinue(),
                 child: Container(
                   height: 60,
                   width: 260,
@@ -193,20 +273,22 @@ class _LocationSheetState extends State<LocationSheet> {
                     color: const Color(0x0ff3C984F),
                   ),
                   child: Center(
-                    child: Text(
-                      'Continue ',
-                      style: TextStyle(
-                        fontFamily: 'SF Pro Rounded',
-                        fontSize: 16,
-                        color: const Color(0xffffffff),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                    child: load
+                        ? LoadingBtn()
+                        : Text(
+                            'Continue ',
+                            style: TextStyle(
+                              fontFamily: 'SF Pro Rounded',
+                              fontSize: 16,
+                              color: const Color(0xffffffff),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15),
+                padding: const EdgeInsets.only(top: 28, bottom: 50),
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   child: Row(
@@ -215,7 +297,7 @@ class _LocationSheetState extends State<LocationSheet> {
                       Row(
                         children: [
                           Text(
-                            'If You Don\'t Have An Existed Account?',
+                            'By Continuing you agree to our',
                             style: TextStyle(
                               fontFamily: 'SF Pro Rounded',
                               fontSize: 10,
@@ -224,9 +306,17 @@ class _LocationSheetState extends State<LocationSheet> {
                             textAlign: TextAlign.center,
                           ),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  CustomPageRoute(
+                                    builder: (context) => Terms(
+                                      path: 'this',
+                                    ),
+                                  ));
+                            },
                             child: Text(
-                              'Register',
+                              'Terms Of Use',
                               style: TextStyle(
                                 fontFamily: 'SF Pro Rounded',
                                 fontSize: 10,
@@ -238,7 +328,13 @@ class _LocationSheetState extends State<LocationSheet> {
                         ],
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              CustomPageRoute(
+                                builder: (context) => RootScreen(),
+                              ));
+                        },
                         child: Text(
                           'Skip',
                           style: TextStyle(

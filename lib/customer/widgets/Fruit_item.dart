@@ -5,9 +5,8 @@ import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/widgets/favorite_button.dart';
 
 class FruitItem extends StatelessWidget {
-  final Products product;
-
-  const FruitItem({Key key, this.product}) : super(key: key);
+  final Products fruit;
+  const FruitItem({Key key, this.fruit}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,24 +29,21 @@ class FruitItem extends StatelessWidget {
         children: [
           Positioned(
             top: 3,
-            child: Hero(
-              tag: product,
-              child: Container(
-                height: 84,
-                width: 87,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(product.image),
-                    fit: BoxFit.fill,
-                  ),
-                  // boxShadow: [
-                  //   BoxShadow(
-                  //     color: const Color(0x0f000000),
-                  //     offset: Offset(0, 6),
-                  //     blurRadius: 8,
-                  //   ),
-                  // ],
+            child: Container(
+              height: 84,
+              width: 87,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(fruit.image),
+                  fit: BoxFit.fill,
                 ),
+                // boxShadow: [
+                //   BoxShadow(
+                //     color: const Color(0x0f000000),
+                //     offset: Offset(0, 6),
+                //     blurRadius: 8,
+                //   ),
+                // ],
               ),
             ),
           ),
@@ -55,10 +51,10 @@ class FruitItem extends StatelessWidget {
             right: 0,
             top: 0,
             child: FavoriteButton(
-              fruit: product,
+              fruit: fruit,
             ),
           ),
-          product.discount > 0
+          fruit.discount > 0
               ? Positioned(
                   top: 0,
                   left: 0,
@@ -74,7 +70,7 @@ class FruitItem extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        '${product.discount}% Off',
+                        '${fruit.discount}% Off',
                         style: TextStyle(
                           fontFamily: 'SF Pro Rounded',
                           fontSize: 10,
@@ -88,13 +84,13 @@ class FruitItem extends StatelessWidget {
               : Container(),
           Positioned(
             left: 20,
-            bottom: product.inCart != '0' ? 40 : 13,
+            bottom: fruit.inCart != '0' ? 40 : 13,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  product.name ?? '',
+                  fruit.name ?? '',
                   style: TextStyle(
                     fontFamily: 'SF Pro Rounded',
                     fontSize: 12,
@@ -106,7 +102,7 @@ class FruitItem extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   child: Text(
-                    product.description ?? '',
+                    fruit.description ?? '',
                     style: TextStyle(
                       fontFamily: 'SF Pro Rounded',
                       fontSize: 10,
@@ -117,7 +113,7 @@ class FruitItem extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${product.price}\$/kilo',
+                  '${fruit.price}\$/kilo',
                   style: TextStyle(
                     fontFamily: 'SF Pro Rounded',
                     fontSize: 12,
@@ -147,11 +143,11 @@ class FruitItem extends StatelessWidget {
               ),
             ),
           ),
-          product.inCart != '0'
+          fruit.inCart != '0'
               ? Positioned(
                   bottom: 7,
                   child: Text(
-                    '${product.qty}',
+                    '${fruit.qty}',
                     style: TextStyle(
                       fontFamily: 'SF Pro Rounded',
                       fontSize: 16,
@@ -162,7 +158,7 @@ class FruitItem extends StatelessWidget {
                   ),
                 )
               : Container(),
-          product.inCart != '0'
+          fruit.inCart != '0'
               ? Positioned(
                   bottom: 0,
                   left: 0,

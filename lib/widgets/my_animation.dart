@@ -17,6 +17,7 @@ class _LoadingPhoneState extends State<LoadingPhone> {
 
   Artboard _riveArtboard;
   RiveAnimationController _controller;
+
   @override
   void initState() {
     super.initState();
@@ -24,7 +25,7 @@ class _LoadingPhoneState extends State<LoadingPhone> {
     // Load the animation file from the bundle, note that you could also
     // download this. The RiveFile just expects a list of bytes.
     rootBundle.load('assets/animations/bouncing_load.riv').then(
-          (data) async {
+      (data) async {
         final file = RiveFile();
 
         // Load the RiveFile from the binary data.
@@ -43,12 +44,6 @@ class _LoadingPhoneState extends State<LoadingPhone> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: _riveArtboard == null
-            ? const SizedBox()
-            : Container(height: 200,width: 200,child: Rive(artboard: _riveArtboard)),
-      ),
-    );
+    return Rive(artboard: _riveArtboard);
   }
 }

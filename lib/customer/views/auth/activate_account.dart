@@ -80,6 +80,15 @@ class _AccountActivationState extends State<AccountActivation>
         //     CustomPageRoute(
         //       builder: (context) => Login2(),
         //     ));
+      }else if (response['code'] == 203) {
+        Navigator.pushReplacement(
+            context,
+            CustomPageRoute(
+              builder: (context) => Login2(
+                mobile: widget.mobile,
+              ),
+            ));
+
       } else {
         setState(() {
           load = false;

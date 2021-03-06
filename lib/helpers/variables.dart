@@ -56,6 +56,37 @@ InputDecoration searchDecoration(hint, icon) {
   );
 }
 
+
+
+InputDecoration locationFieldDecoration(hint) {
+  return InputDecoration(
+    contentPadding: EdgeInsets.symmetric(vertical: 2,horizontal: 15),
+    hintText: hint,
+    hintStyle: TextStyle(
+      fontSize: 8,
+      color: const Color(0xff525768),
+    ),
+    enabledBorder: OutlineInputBorder(
+        borderRadius:
+        BorderRadius.circular(12.0),
+        borderSide: BorderSide( width: 1.0,
+            color: const Color(0xffe3e7eb))
+    ),
+    focusedBorder: OutlineInputBorder(
+        borderRadius:
+        BorderRadius.circular(12.0),
+        borderSide: BorderSide( width: 1.0,
+            color: const Color(0xffe3e7eb))
+    ),
+    border: OutlineInputBorder(
+      borderRadius:
+      BorderRadius.circular(12.0),
+      borderSide: BorderSide( width: 1.0,
+          color: const Color(0xffe3e7eb))
+    ),
+  );
+}
+
 InputDecoration inputDecoration(hint) {
   return InputDecoration(
     filled: true,

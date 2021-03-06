@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class City {
   int id;
   double deliveryCost;
@@ -24,4 +26,38 @@ class City {
     data['name'] = this.name;
     return data;
   }
+}
+class CityOperations with ChangeNotifier {
+  Map<String, City> _items = {};
+
+  Map<String, City> get items {
+    return {..._items};
+  }
+
+  int get itemCount {
+    return _items.length;
+  }
+
+
+
+  void addItem(City model) {
+    if (_items.containsKey(model.id)) {
+      _items.update(model.id.toString(), (existing) => model);
+    } else {
+      _items.putIfAbsent(model.id.toString(), () => model);
+    }
+    notifyListeners();
+  }
+
+  void removeFav(City model) {
+    _items.removeWhere((key, value) => key == model.id.toString());
+    notifyListeners();
+  }
+
+  void clearFav() {
+    _items = {};
+    notifyListeners();
+  }
+
+
 }

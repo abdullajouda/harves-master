@@ -8,7 +8,9 @@ import 'package:harvest/customer/widgets/Orders/order_current_list_tile.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/widgets/Loader.dart';
+import 'package:harvest/widgets/no_data.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CurrentOrders extends StatefulWidget {
   @override
@@ -20,8 +22,13 @@ class _CurrentOrdersState extends State<CurrentOrders> {
   List<Order> _orders = [];
 
   getOrders() async {
-    var request = await get(ApiHelper.api + 'getProductsByCategoryId/1',
-        headers: ApiHelper.headers);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await get(ApiHelper.api + 'getMyOrdersByStatus/1',
+        headers:{
+          'Accept': 'application/json',
+          'Accept-Language': 'en',
+          'Authorization': 'Bearer ${prefs.getString('userToken')}'
+        });
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {
@@ -93,7 +100,9 @@ class _CurrentOrdersState extends State<CurrentOrders> {
   Widget build(BuildContext context) {
     return loadOrders
         ? Container(height: 200, child: Center(child: Loader()))
-        : ListView.separated(
+        :  _orders.length == 0
+        ? NoData()
+        :ListView.separated(
             itemCount: _orders.length,
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
