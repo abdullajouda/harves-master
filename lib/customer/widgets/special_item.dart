@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:harvest/customer/models/featured_product.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/products.dart';
+import 'package:harvest/helpers/color_converter.dart';
 
 class SpecialItem extends StatelessWidget {
-  final Products fruit;
+  final FeaturedProduct fruit;
 
   const SpecialItem({Key key, this.fruit}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -15,6 +18,7 @@ class SpecialItem extends StatelessWidget {
         width: 125,
         child: Stack(
           alignment: Alignment.center,
+          overflow: Overflow.visible,
           children: [
             Positioned(
               left: 0,
@@ -23,7 +27,9 @@ class SpecialItem extends StatelessWidget {
                 width: 115,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14.0),
-                  color: const Color(0xfffdaa5c),
+                  color: HexColor.fromHex(fruit.specialFoodBg != ''
+                      ? fruit.specialFoodBg
+                      : '#5ECC74'),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0x17000000),
@@ -35,19 +41,12 @@ class SpecialItem extends StatelessWidget {
               ),
             ),
             Positioned(
-              right: 0,
-              bottom: 10,
+              right: -5,
+              bottom: 5,
               child: Hero(
                 tag: fruit.image,
                 child: Container(
-                  width: 108.0,
-                  height: 104.0,
                   decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image:
-                       NetworkImage(fruit.image),
-                      fit: BoxFit.cover,
-                    ),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0x1a000000),
@@ -56,6 +55,12 @@ class SpecialItem extends StatelessWidget {
                       ),
                     ],
                   ),
+                  child: Image.network(
+                    fruit.image,
+                    fit: BoxFit.fitWidth,
+                    width: 136.0,
+                    height: 136.0,
+                  ),
                 ),
               ),
             ),
@@ -63,7 +68,8 @@ class SpecialItem extends StatelessWidget {
               left: 8,
               top: 15,
               child: Column(
-                mainAxisSize: MainAxisSize.min,crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     fruit.name,

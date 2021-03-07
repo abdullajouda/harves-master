@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harvest/customer/models/featured_product.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/customer/widgets/custom_icon_button.dart';
@@ -6,10 +7,11 @@ import 'package:harvest/customer/widgets/custom_main_button.dart';
 import 'package:harvest/customer/widgets/make_favorite_button.dart';
 
 import 'package:harvest/helpers/Localization/localization.dart';
+import 'package:harvest/helpers/color_converter.dart';
 import 'package:harvest/helpers/colors.dart';
 
 class ProductBundleDetails extends StatefulWidget {
-  final Products fruit;
+  final FeaturedProduct fruit;
 
   ProductBundleDetails({
     Key key,
@@ -21,11 +23,12 @@ class ProductBundleDetails extends StatefulWidget {
 }
 
 class _ProductBundleDetailsState extends State<ProductBundleDetails> {
-  final color = const Color(0xffEAF4FF);
   final _productDescription =
       "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.";
   bool _isFavorite = false;
   int _qty = 0;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +37,9 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
       body: SafeArea(
         top: false,
         child: Container(
-          color: color,
+          color: HexColor.fromHex(widget.fruit.specialFoodBg != ''
+              ? widget.fruit.specialFoodBg
+              : '#5ECC74'),
           width: size.width,
           height: size.height,
           child: Column(
@@ -58,7 +63,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
               ),
               // SizedBox(height: 20),
               Expanded(
-                flex: 4,
+                flex: widget.fruit.basketItem.length != 0 ? 2 : 1,
                 child: Container(
                   width: size.width,
                   decoration: BoxDecoration(
@@ -83,7 +88,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                         child: Row(
                           children: [
                             Text(
-                              "Fruit Basket",
+                              widget.fruit.name,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 color: CColors.headerText,
@@ -92,7 +97,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                             ),
                             SizedBox(width: 10),
                             Text(
-                              "1 Kilo",
+                              "${widget.fruit.qty} ${widget.fruit.typeName}",
                               style: TextStyle(
                                 fontWeight: FontWeight.w400,
                                 color: CColors.headerText.withAlpha(150),
@@ -108,13 +113,14 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                         children: [
                           Row(
                             children: [
-                              if (_qty > 0) ...[
+                              if (widget.fruit.minQty > 0) ...[
                                 CIconButton(
                                   onTap: () {
-                                    if (_qty == 0) return;
-                                    setState(() => _qty--);
+                                    if (widget.fruit.minQty == 0) return;
+                                    setState(() => widget.fruit.minQty--);
                                   },
-                                  icon: Icon(Icons.remove, color: CColors.headerText, size: 25),
+                                  icon: Icon(Icons.remove,
+                                      color: CColors.headerText, size: 25),
                                 ),
                                 ConstrainedBox(
                                   constraints: BoxConstraints(
@@ -122,7 +128,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      _qty.toString(),
+                                      widget.fruit.minQty.toString(),
                                       style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         color: CColors.headerText,
@@ -133,15 +139,18 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                 ),
                               ],
                               CIconButton(
-                                onTap: () => setState(() => _qty++),
-                                icon: Icon(Icons.add, color: CColors.headerText, size: 25),
+                                onTap: () => setState(() => widget.fruit.minQty++),
+                                icon: Icon(Icons.add,
+                                    color: CColors.headerText, size: 25),
                               ),
-                              if (_qty == 0)
-                                Text("add_to_basket".trs(context), style: TextStyle(fontSize: 13, color: CColors.grey)),
+                              if (widget.fruit.minQty == 0)
+                                Text("add_to_basket".trs(context),
+                                    style: TextStyle(
+                                        fontSize: 13, color: CColors.grey)),
                             ],
                           ),
                           Text(
-                            "\$10.5",
+                            "\$${widget.fruit.price}",
                             style: TextStyle(
                               color: CColors.headerText,
                               fontSize: 22,
@@ -166,16 +175,27 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                   ),
                                 ),
                               ),
-                              Expanded(
-                                flex: 4,
-                                child: ListView.builder(
-                                  itemCount: 4,
-                                  padding: EdgeInsets.zero,
-                                  itemBuilder: (context, index) {
-                                    return _BundleProduct();
-                                  },
-                                ),
-                              ),
+                              widget.fruit.basketItem.length != 0
+                                  ? Expanded(
+                                      flex: 4,
+                                      child: ListView.builder(
+                                        itemCount:
+                                            widget.fruit.basketItem.length,
+                                        padding: EdgeInsets.zero,
+                                        itemBuilder: (context, index) {
+                                          return _BundleProduct(
+                                            title: widget.fruit
+                                                .basketItem[index].item.name,
+                                            imagePath: widget.fruit
+                                                .basketItem[index].item.image,
+                                            numOfItems: widget
+                                                .fruit.basketItem[index].qty
+                                                .toString(),
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : Container(),
                             ],
                           ),
                         ),
@@ -230,38 +250,40 @@ class _BundleProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return SizedBox(
+    return Container(
       height: size.height * 0.09,
       child: Stack(
+        alignment: Alignment.center,
         children: [
           Align(
             alignment: Alignment.center,
             child: Container(
               height: 40,
               decoration: BoxDecoration(
-                color: CColors.brightLight,
+                color: CColors.fadeGreen,
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
                   children: [
-                    SizedBox(width: size.width * 0.15),
-                    Text(
-                      "Banana",
-                      style: TextStyle(
-                        color: CColors.headerText,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 70),
+                      child: Text(
+                        title ?? '',
+                        style: TextStyle(
+                          color: CColors.headerText,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
                       ),
                     ),
                     Spacer(),
                     Text(
-                      "3 items",
+                      "$numOfItems items",
                       style: TextStyle(
-                        color: CColors.headerText,
-                        fontWeight: FontWeight.normal,
                         fontSize: 13,
+                        color: const Color(0xcc3c4959),
                       ),
                     ),
                   ],
@@ -269,13 +291,13 @@ class _BundleProduct extends StatelessWidget {
               ),
             ),
           ),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Image.asset(
-              "assets/images/blueb.png",
-              width: 70,
-              height: 70,
-              fit: BoxFit.cover,
+          Positioned(
+            left: 12,
+            child: Image.network(
+              imagePath,
+              width: 60,
+              height: 60,
+              fit: BoxFit.fitHeight,
             ),
           ),
         ],

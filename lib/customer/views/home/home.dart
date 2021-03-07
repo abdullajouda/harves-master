@@ -7,6 +7,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:harvest/customer/models/category.dart';
 import 'package:harvest/customer/models/favorite.dart';
+import 'package:harvest/customer/models/featured_product.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/offers_slider.dart';
 import 'package:harvest/customer/models/products.dart';
@@ -50,7 +51,7 @@ class _HomeState extends State<Home> {
   List<Category> _categories = [];
 
   // List<Products> _products = [];
-  List<Products> _featuredProducts = [];
+  List<FeaturedProduct> _featuredProducts = [];
   bool loadOffers = true;
   bool loadProducts = true;
   bool loadFeatured = true;
@@ -96,7 +97,7 @@ class _HomeState extends State<Home> {
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {
-      Products products = Products.fromJson(element);
+      FeaturedProduct products = FeaturedProduct.fromJson(element);
       _featuredProducts.add(products);
     });
     setState(() {
@@ -302,10 +303,9 @@ class _HomeState extends State<Home> {
               shrinkWrap: true,
               scrollDirection: Axis.horizontal,
               itemBuilder: (context, index) => GestureDetector(
-                  onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductBundleDetails(
+                  onTap: () =>Navigator.of(context, rootNavigator: true).push(
+                      CupertinoPageRoute(
+                        builder: (context) =>ProductBundleDetails(
                           fruit: _featuredProducts[index],
                         ),
                       )),

@@ -81,8 +81,6 @@ class CColors {
   }
 
 
-
-
   static LinearGradient orangeAppBarGradient({
     AlignmentGeometry begin = Alignment.centerRight,
     AlignmentGeometry end = Alignment.centerLeft,
