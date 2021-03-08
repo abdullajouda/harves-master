@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:harvest/customer/models/city.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/customer/views/root_screen.dart';
-import 'package:harvest/delivery/views/login.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'dart:ui' as ui;
@@ -92,25 +92,40 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
       var addresses =
           await Geocoder.local.findAddressesFromCoordinates(coordinates);
       if (addresses.first.addressLine != null) {
-        Navigator.of(context).pop({
-          'addressLine': addresses.first.addressLine,
-          'latitude': markers[0].position.latitude,
-          'longitude': markers[0].position.longitude,
-          'cityId': city.id
-        });
+        if(city != null){
+          Navigator.of(context).pop({
+            'addressLine': addresses.first.addressLine,
+            'latitude': markers[0].position.latitude,
+            'longitude': markers[0].position.longitude,
+            'city': city
+          });
+        }else{
+          Fluttertoast.showToast(msg: 'Select your city from extra details');
+        }
+
       } else {
-        Navigator.of(context).pop({
-          'latitude': markers[0].position.latitude,
-          'longitude': markers[0].position.longitude,
-          'cityId': city.id
-        });
+        if(city != null){
+          Navigator.of(context).pop({
+            'latitude': markers[0].position.latitude,
+            'longitude': markers[0].position.longitude,
+            'city': city
+          });
+        }else{
+          Fluttertoast.showToast(msg: 'Select your city from extra details');
+        }
+
       }
     } on Exception catch (e) {
-      Navigator.of(context).pop({
-        'latitude': markers[0].position.latitude,
-        'longitude': markers[0].position.longitude,
-        'cityId': city.id
-      });
+      if(city != null){
+        Navigator.of(context).pop({
+          'latitude': markers[0].position.latitude,
+          'longitude': markers[0].position.longitude,
+          'city': city
+        });
+      }else{
+        Fluttertoast.showToast(msg: 'Select your city from extra details');
+      }
+
     }
   }
 
@@ -128,9 +143,8 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     var op = Provider.of<CityOperations>(context);
-
     return Container(
-      width: double.infinity,
+      // width: size.width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(33.0),
@@ -147,12 +161,13 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
         // alignment: Alignment.center,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 30),
             child: Container(
-              height: 400,
+              height: size.height*.6,
               width: size.width * .8,
               child: Stack(
                 alignment: Alignment.center,
@@ -160,7 +175,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                   Positioned(
                     top: 0,
                     child: Container(
-                      height: 342,
+                      height: size.height*.57,
                       width: size.width * .8,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(13.0),
@@ -181,7 +196,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                             mapToolbarEnabled: false,
                             trafficEnabled: false,
                             compassEnabled: false,
-                            scrollGesturesEnabled: false,
+                            // scrollGesturesEnabled: false,
                             initialCameraPosition: _initialCameraPosition,
                             markers: markers.toSet(),
                             onMapCreated: (controller) {
@@ -480,11 +495,11 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               GestureDetector(
-                onTap: () => Navigator.push(
-                    context,
-                    CustomPageRoute(
-                      builder: (context) => LoginDelivery(),
-                    )),
+                // onTap: () => Navigator.push(
+                //     context,
+                //     CustomPageRoute(
+                //       builder: (context) => LoginDelivery(),
+                //     )),
                 child: Container(
                   height: 60,
                   width: 260,
@@ -508,7 +523,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
               Padding(
                 padding: const EdgeInsets.only(top: 28, bottom: 50),
                 child: Container(
-                  width: MediaQuery.of(context).size.width,
+                  width: size.width,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

@@ -6,7 +6,9 @@ import 'package:harvest/widgets/favorite_button.dart';
 
 class FruitItem extends StatelessWidget {
   final Products fruit;
-  const FruitItem({Key key, this.fruit}) : super(key: key);
+  final Color color;
+
+  const FruitItem({Key key, this.fruit, this.color}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +119,7 @@ class FruitItem extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'SF Pro Rounded',
                     fontSize: 12,
-                    color: const Color(0xff3c984f),
+                    color: color != null ? color :const Color(0xff3c984f),
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.left,
@@ -136,7 +138,7 @@ class FruitItem extends StatelessWidget {
                   topLeft: Radius.circular(19.0),
                   bottomRight: Radius.circular(19.0),
                 ),
-                color: const Color(0xff3c984f),
+                color: color != null ? color : Color(0xff3c984f),
               ),
               child: Center(
                 child: SvgPicture.asset('assets/icons/add.svg'),

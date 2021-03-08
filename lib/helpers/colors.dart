@@ -81,14 +81,16 @@ class CColors {
   }
 
 
-  static LinearGradient orangeAppBarGradient({
+  static LinearGradient gradientGenerator({
     AlignmentGeometry begin = Alignment.centerRight,
     AlignmentGeometry end = Alignment.centerLeft,
     GradientTransform transform,
     TileMode tileMode = TileMode.clamp,
+    Color color1,
+    Color color2,
   }) {
     return LinearGradient(
-      colors: [const Color(0xffff8010),const Color(0xffe15959)],
+      colors: [color1,color2],
       begin: begin,
       end: end,
       transform: transform,

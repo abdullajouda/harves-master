@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/models/city.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/customer/views/root_screen.dart';
-import 'package:harvest/delivery/views/login.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/widgets/auth_widgets/set_location_sheet.dart';
@@ -26,7 +26,7 @@ class LocationSheet extends StatefulWidget {
 class _LocationSheetState extends State<LocationSheet> {
   double lat, lng;
   var _locationResponse;
-  int cityId;
+  City city;
   bool load = false;
 
   onContinue() async {
@@ -44,7 +44,7 @@ class _LocationSheetState extends State<LocationSheet> {
             'lat': '$lat',
             'lan': '$lng',
             'full_address': '$_locationResponse',
-            'city': '$cityId'
+            'city': '${city.id}'
           },
           headers: ApiHelper.headers);
       var response = json.decode(request.body);
@@ -69,6 +69,7 @@ class _LocationSheetState extends State<LocationSheet> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      enableDrag: false,
       backgroundColor: Colors.transparent,
       builder: (context) => SetLocationSheet(),
     ).then((value) {
@@ -77,7 +78,7 @@ class _LocationSheetState extends State<LocationSheet> {
           setState(() {
             lat = value['latitude'];
             lng = value['longitude'];
-            cityId = value['cityId'];
+            city = value['city'];
           });
           return;
         }
@@ -85,7 +86,7 @@ class _LocationSheetState extends State<LocationSheet> {
           _locationResponse = value['addressLine'];
           lat = value['latitude'];
           lng = value['longitude'];
-          cityId = value['cityId'];
+          city = value['city'];
         });
       }
     });
@@ -137,7 +138,7 @@ class _LocationSheetState extends State<LocationSheet> {
               ),
               child: Column(
                 children: [
-                  _locationResponse != null || (lat != null && lng != null)
+                  city != null || (lat != null && lng != null)
                       ? Padding(
                           padding: const EdgeInsets.only(top: 15),
                           child: Container(
@@ -156,17 +157,20 @@ class _LocationSheetState extends State<LocationSheet> {
                                   child: Center(
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                                          MainAxisAlignment.start,
                                       children: [
-                                        SvgPicture.asset(
-                                            'assets/images/Pin.svg'),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                                          child: SvgPicture.asset(
+                                              'assets/images/Pin.svg'),
+                                        ),
                                         Column(
                                           mainAxisSize: MainAxisSize.min,
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              _locationResponse ?? '',
+                                              city.name ?? '',
                                               style: TextStyle(
                                                 fontFamily: 'SF Pro Rounded',
                                                 fontSize: 13,
