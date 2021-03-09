@@ -57,7 +57,7 @@ class Order {
     productsTotal = json['products_total'] != null
         ? double.parse(json["products_total"].toString())
         : null;
-    totalPrice = json['products_total'] != null
+    totalPrice = json['total_price'] != null
         ? double.parse(json["total_price"].toString())
         : null;
     status = json['status'];

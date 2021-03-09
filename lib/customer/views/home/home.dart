@@ -33,7 +33,7 @@ import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'search_page.dart';
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
@@ -163,6 +163,9 @@ class _HomeState extends State<Home> {
             ],
           ),
           child: TextFormField(
+            onFieldSubmitted: (value) {
+              Navigator.push(context, CupertinoPageRoute(builder: (context) => SearchResults(search: value,),));
+            },
             decoration: searchDecoration(
               'Search products',
               Container(
