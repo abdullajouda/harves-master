@@ -1,13 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:harvest/customer/components/WaveAppBar/appBar_body.dart';
+import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/Profile/user_addresses.dart';
 import 'package:harvest/customer/widgets/profile_text_field.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/main.dart';
+import 'package:harvest/splash_screen.dart';
+import 'package:harvest/widgets/dialogs/change_language.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
+import 'package:provider/provider.dart';
 
 class UserProfile extends StatefulWidget {
   @override
@@ -15,11 +22,9 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
-  final _image =
-      r'''https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimages.hellogiggles.com%2Fuploads%2F2017%2F06%2F13074112%2Fgal.jpg&f=1&nofb=1''';
-
   @override
   Widget build(BuildContext context) {
+    var op = Provider.of<UserFunctions>(context);
     final Size size = MediaQuery.of(context).size;
     final trs = AppTranslations.of(context);
     return Scaffold(
@@ -44,7 +49,7 @@ class _UserProfileState extends State<UserProfile> {
                     border: Border.all(color: CColors.white, width: 3),
                     image: DecorationImage(
                       fit: BoxFit.cover,
-                      image: NetworkImage(_image),
+                      image: NetworkImage(op.user.imageProfile),
                     ),
                   ),
                 ),
@@ -72,7 +77,7 @@ class _UserProfileState extends State<UserProfile> {
             ),
             SizedBox(height: 5),
             Text(
-              "Hala Ahmed",
+              op.user.name,
               style: TextStyle(
                 color: CColors.headerText,
                 fontWeight: FontWeight.w600,
@@ -101,36 +106,40 @@ class _UserProfileState extends State<UserProfile> {
                   ),
                 ),
                 NoBGTextField(
-                  hint: "Name",
+                  hint: 'User Name',
+                  initVal: op.user.name,
                   contentPadding: EdgeInsetsDirectional.only(
                       start: 20, top: 15, bottom: 15),
                 ),
                 NoBGTextField(
-                  hint: "Phone Number",
+                  hint: 'Phone Number',
+                  initVal: op.user.mobile,
                   textInputType: TextInputType.phone,
                   icon: Icon(FontAwesomeIcons.mobileAlt,
                       color: CColors.lightGreen),
                 ),
                 NoBGTextField(
-                  hint: "E-mail",
+                  hint: 'Email',
+                  initVal: op.user.email,
                   textInputType: TextInputType.emailAddress,
                   icon: Icon(FontAwesomeIcons.envelope,
                       color: CColors.lightGreen),
                 ),
-                NoBGTextField(
-                  hint: "Address",
-                  textInputType: TextInputType.emailAddress,
-                  icon: Container(
-                      height: 20,
-                      width: 15,
-                      child: Center(
-                          child: SvgPicture.asset(
-                              'assets/icons/location_icon.svg',
-                              color: CColors.lightGreen))),
-                ),
+                // NoBGTextField(
+                //   hint: "Address",
+                //   textInputType: TextInputType.emailAddress,
+                //   icon: Container(
+                //       height: 20,
+                //       width: 15,
+                //       child: Center(
+                //           child: SvgPicture.asset(
+                //               'assets/icons/location_icon.svg',
+                //               color: CColors.lightGreen))),
+                // ),
                 UserAddresses(),
                 Stack(
-                  clipBehavior: Clip.none, children: [
+                  clipBehavior: Clip.none,
+                  children: [
                     Container(
                       decoration: BoxDecoration(
                         color: CColors.fadeBlue,
@@ -158,8 +167,16 @@ class _UserProfileState extends State<UserProfile> {
                             ),
                             SizedBox(height: 10),
                             _SettingsButton(
+                              onTap: () {
+                                showCupertinoDialog(
+                                  context: context,
+                                  builder: (context) => ChangeLanguageDialog(),
+                                );
+                              },
                               iconPath: Constants.languageIcon,
-                              title: "English",
+                              title: LangProvider().getLocaleCode() == 'ar'
+                                  ? "العربية"
+                                  : "English",
                             ),
                             _SettingsButton(
                               iconPath: Constants.questionIcon,
@@ -239,11 +256,11 @@ class _SettingsButton extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  color: CColors.headerText,
-                  fontSize: 16,
+                  fontSize: 12,
+                  color: const Color(0xff3c4959),
                   fontWeight: FontWeight.w300,
-                ).merge(textStyle),
-              )
+                ),
+              ),
             ],
           ),
         ),

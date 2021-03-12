@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/customer/components/WaveAppBar/appBar_body.dart';
+import 'package:harvest/customer/views/Basket/basket.dart';
 import 'package:harvest/customer/views/Support/support_chat.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
-
 
 class SupportTab extends StatefulWidget {
   SupportTab({Key key}) : super(key: key);
@@ -39,10 +39,25 @@ class _SupportTabState extends State<SupportTab> {
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
         pinned: true,
-        actions: [
-          HomePopUpMenu()
-        ],
-        leading: SvgPicture.asset(Constants.basketIcon),
+        actions: [HomePopUpMenu()],
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              platformPageRoute(
+                context: context,
+                builder: (context) => Basket(),
+              ),
+            );
+          },
+          child: Container(
+            width: 30,
+            height: 30,
+            child: Center(
+              child: SvgPicture.asset(Constants.basketIcon),
+            ),
+          ),
+        ),
         contentPadding: EdgeInsets.symmetric(horizontal: 20),
         children: [
           Text(
@@ -99,7 +114,8 @@ class _SupportTabState extends State<SupportTab> {
                     padding: const EdgeInsets.symmetric(vertical: 20.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: CColors.brightLight, width: 1.5),
+                        border:
+                            Border.all(color: CColors.brightLight, width: 1.5),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: TextField(
@@ -110,7 +126,8 @@ class _SupportTabState extends State<SupportTab> {
                           hintText: 'write_your_message'.trs(context),
                           focusColor: CColors.brightLight,
                           fillColor: CColors.brightLight,
-                          contentPadding: EdgeInsetsDirectional.only(start: 10, top: 9, bottom: 9),
+                          contentPadding: EdgeInsetsDirectional.only(
+                              start: 10, top: 9, bottom: 9),
                           hintStyle: TextStyle(fontSize: 12),
                           border: _buildBorder(),
                           focusedBorder: _buildBorder(),
@@ -131,7 +148,8 @@ class _SupportTabState extends State<SupportTab> {
                           builder: (context) => SupportChat(),
                         ));
                       },
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       color: CColors.lightGreen,
                       icon: Icon(

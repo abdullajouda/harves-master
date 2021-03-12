@@ -25,7 +25,10 @@ class LocationSheet extends StatefulWidget {
 
 class _LocationSheetState extends State<LocationSheet> {
   double lat, lng;
-  var _locationResponse;
+  var fullAddress;
+  var buildingNo;
+  var unitNo;
+  var additionalNotes;
   City city;
   bool load = false;
 
@@ -43,12 +46,15 @@ class _LocationSheetState extends State<LocationSheet> {
             'fcm_token': '236565576',
             'lat': '$lat',
             'lan': '$lng',
-            'full_address': '$_locationResponse',
-            'city': '${city.id}'
+            'full_address': '$fullAddress',
+            'city': '${city.id}',
+            'building_no': '$buildingNo',
+            'unit_no': '$unitNo',
+            'additional_notes': '$additionalNotes',
           },
           headers: ApiHelper.headers);
       var response = json.decode(request.body);
-      Fluttertoast.showToast(msg: response['message']);
+      // Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
         prefs.setString('userToken', response['user']['access_token']);
         Navigator.push(
@@ -79,14 +85,20 @@ class _LocationSheetState extends State<LocationSheet> {
             lat = value['latitude'];
             lng = value['longitude'];
             city = value['city'];
+            buildingNo = value['buildingNo'];
+            unitNo = value['unitNo'];
+            additionalNotes = value['additionalNotes'];
           });
           return;
         }
         setState(() {
-          _locationResponse = value['addressLine'];
+          fullAddress = value['addressLine'];
           lat = value['latitude'];
           lng = value['longitude'];
           city = value['city'];
+          buildingNo = value['buildingNo'];
+          unitNo = value['unitNo'];
+          additionalNotes = value['additionalNotes'];
         });
       }
     });
@@ -138,7 +150,7 @@ class _LocationSheetState extends State<LocationSheet> {
               ),
               child: Column(
                 children: [
-                  city != null || (lat != null && lng != null)
+                  city != null && (lat != null && lng != null)
                       ? Padding(
                           padding: const EdgeInsets.only(top: 15),
                           child: Container(
@@ -160,7 +172,8 @@ class _LocationSheetState extends State<LocationSheet> {
                                           MainAxisAlignment.start,
                                       children: [
                                         Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 15),
                                           child: SvgPicture.asset(
                                               'assets/images/Pin.svg'),
                                         ),
@@ -170,18 +183,16 @@ class _LocationSheetState extends State<LocationSheet> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              city.name ?? '',
+                                              fullAddress ?? city.name ?? '',
                                               style: TextStyle(
-                                                fontFamily: 'SF Pro Rounded',
                                                 fontSize: 13,
                                                 color: const Color(0xff3c4959),
                                               ),
                                               textAlign: TextAlign.left,
                                             ),
                                             Text(
-                                              lat.toString(),
+                                              ' $unitNo, $buildingNo',
                                               style: TextStyle(
-                                                fontFamily: 'SF Pro Rounded',
                                                 fontSize: 10,
                                                 color: const Color(0xff888a8d),
                                                 fontWeight: FontWeight.w300,

@@ -47,13 +47,13 @@ class SpecialItem extends StatelessWidget {
                 tag: fruit.image,
                 child: Container(
                   decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0x1a000000),
-                        offset: Offset(0, 4),
-                        blurRadius: 10,
-                      ),
-                    ],
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: const Color(0x1a000000),
+                    //     offset: Offset(0, 4),
+                    //     blurRadius: 10,
+                    //   ),
+                    // ],
                   ),
                   child: Image.network(
                     fruit.image,
@@ -74,7 +74,6 @@ class SpecialItem extends StatelessWidget {
                   Text(
                     fruit.name,
                     style: TextStyle(
-                      fontFamily: 'SF Pro Rounded',
                       fontSize: 16,
                       color: const Color(0xffffffff),
                     ),
@@ -83,7 +82,6 @@ class SpecialItem extends StatelessWidget {
                   Text(
                     '${fruit.price}\$/${fruit.typeName}',
                     style: TextStyle(
-                      fontFamily: 'SF Pro Rounded',
                       fontSize: 12,
                       color: const Color(0xffffffff),
                     ),

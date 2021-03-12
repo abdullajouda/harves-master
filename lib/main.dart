@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:harvest/customer/models/city.dart';
+import 'package:harvest/customer/models/notifications.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
@@ -9,6 +10,7 @@ import 'package:harvest/helpers/Localization/appliction.dart';
 import 'package:harvest/splash.dart';
 import 'package:provider/provider.dart';
 import 'customer/models/favorite.dart';
+import 'customer/models/user.dart';
 import 'helpers/Localization/app_translations_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'helpers/shared_perfs_provider.dart';
@@ -55,8 +57,11 @@ class _MyAppState extends State<MyApp> {
         providers: [
           Provider(create: (context) => PTVController()),
           Provider(create: (context) => ApiHelper()),
+          ChangeNotifierProvider(create: (context) => LangProvider()),
           ChangeNotifierProvider(create: (context) => FavoriteOperations()),
           ChangeNotifierProvider(create: (context) => CityOperations()),
+          ChangeNotifierProvider(create: (context) => NotificationOperations()),
+          ChangeNotifierProvider(create: (context) => UserFunctions()),
         ],
         child: MaterialApp(
           supportedLocales: application.supportedLocales(),

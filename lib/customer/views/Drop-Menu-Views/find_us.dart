@@ -26,7 +26,10 @@ class _FindUSState extends State<FindUS> {
 
   getSettings() async {
     var request =
-        await get(ApiHelper.api + 'getSetting', headers: ApiHelper.headers);
+        await get(ApiHelper.api + 'getSetting',headers: {
+          'Accept': 'application/json',
+          'Accept-Language': LangProvider().getLocaleCode(),
+        });
     var response = json.decode(request.body)['items'];
     setState(() {
       facebook = response['facebook'];

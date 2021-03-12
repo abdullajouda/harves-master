@@ -1,14 +1,16 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/Profile/user_profile.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/Wallet/wallet.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/about_us.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/notifications.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/privacy.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
-import 'package:harvest/splash_screen.dart';
+import 'package:harvest/widgets/dialogs/logout_confirm.dart';
 import 'package:provider/provider.dart';
 import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/Localization/app_translations.dart';
@@ -36,6 +38,14 @@ class HomePopUpMenu extends StatefulWidget {
 }
 
 class _HomePopUpMenuState extends State<HomePopUpMenu> {
+
+  signOut() async {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => Center(child: ConfirmDialog()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<HomePopUpMenuModel> _options = [
@@ -50,8 +60,8 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
         onPressed: () {
           Navigator.push(
             context,
-            platformPageRoute(
-              context: context,
+            CupertinoPageRoute(
+              // context: context,
               builder: (context) => UserProfile(),
             ),
           );
@@ -97,6 +107,13 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
       HomePopUpMenuModel(
         iconPath: 'assets/icons/bell.svg',
         title: 'Notifications',
+        onPressed: () => Navigator.push(
+          context,
+          platformPageRoute(
+            context: context,
+            builder: (context) => Notifications(),
+          ),
+        ),
       ),
       HomePopUpMenuModel(
         iconPath: Constants.termsMenuIcon,
@@ -124,12 +141,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
         iconPath: Constants.logoutMenuIcon,
         title: 'Sign out',
         onPressed: () {
-          Navigator.popUntil(context, (route) => route.isFirst);
-          Navigator.of(context, rootNavigator: true)
-              .push(platformPageRoute(
-            context: context,
-            builder: (context) => SplashScreen(),
-          ));
+          signOut();
         },
       ),
     ];

@@ -45,6 +45,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       setState(() {
         op.addItem(widget.fruit);
         widget.fruit.isFavorite = '1';
+        op.updateFavHome(widget.fruit);
         load = false;
       });
     }
@@ -74,6 +75,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
       setState(() {
         widget.fruit.isFavorite = '0';
         op.removeFav(widget.fruit);
+        op.updateFavHome(widget.fruit);
         load = false;
       });
     }

@@ -51,28 +51,40 @@ class _RootScreenState extends State<RootScreen> {
     List<PersistentBottomNavBarItem> _navBarsItems() {
       return [
         PersistentBottomNavBarItem(
-          icon: SvgPicture.asset(Constants.homeIcon),
+          icon: Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: SvgPicture.asset(Constants.homeIcon),
+          ),
           title: "home".trs(context),
           activeColor: CColors.lightGreen,
           activeColorAlternate: CColors.white,
           textStyle: TextStyle(fontSize: 14),
         ),
         PersistentBottomNavBarItem(
-          icon: SvgPicture.asset(Constants.orderIcon),
+          icon: Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: SvgPicture.asset(Constants.orderIcon),
+          ),
           title: "Orders".trs(context),
           activeColor: CColors.lightGreen,
           activeColorAlternate: CColors.white,
           textStyle: TextStyle(fontSize: 14),
         ),
         PersistentBottomNavBarItem(
-          icon: SvgPicture.asset(Constants.favoriteIcon),
+          icon: Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: SvgPicture.asset(Constants.favoriteIcon),
+          ),
           title: "Favorite".trs(context),
           activeColor: CColors.lightGreen,
           activeColorAlternate: CColors.white,
           textStyle: TextStyle(fontSize: 14),
         ),
         PersistentBottomNavBarItem(
-          icon: SvgPicture.asset(Constants.supportIcon),
+          icon: Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: SvgPicture.asset(Constants.supportIcon),
+          ),
           title: "Support".trs(context),
           activeColor: CColors.lightGreen,
           activeColorAlternate: CColors.white,

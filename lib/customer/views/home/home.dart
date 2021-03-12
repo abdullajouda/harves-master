@@ -24,8 +24,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/Loader.dart';
-import 'package:harvest/widgets/category_selector.dart';
-import 'package:harvest/widgets/favorite_button.dart';
+import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:harvest/widgets/my-opacity.dart';
 import 'package:harvest/widgets/my_animation.dart';
@@ -34,6 +33,7 @@ import 'package:provider/provider.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'search_page.dart';
+
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
@@ -58,12 +58,13 @@ class _HomeState extends State<Home> {
   bool loadCategories = true;
 
   getOffers() async {
-    SharedPreferences prefs =await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getSliders', headers: {
       'Accept': 'application/json',
-      'Accept-Language': 'en',
+      'Accept-Language': LangProvider().getLocaleCode(),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
+
     var response = json.decode(request.body);
     var items = response['items'];
     // Fluttertoast.showToast(msg: response['message']);
@@ -77,8 +78,10 @@ class _HomeState extends State<Home> {
   }
 
   Future getCategories() async {
-    var request =
-        await get(ApiHelper.api + 'getCategories', headers: ApiHelper.headers);
+    var request = await get(ApiHelper.api + 'getCategories', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+    });
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {
@@ -92,8 +95,10 @@ class _HomeState extends State<Home> {
   }
 
   getFeaturedProducts() async {
-    var request = await get(ApiHelper.api + 'getFeaturedProducts',
-        headers: ApiHelper.headers);
+    var request = await get(ApiHelper.api + 'getFeaturedProducts', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+    });
     var response = json.decode(request.body);
     List values = response['items'];
     values.forEach((element) {
@@ -106,7 +111,7 @@ class _HomeState extends State<Home> {
   }
 
   getProductsByCategories(Category category) async {
-    SharedPreferences prefs =await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       loadProducts = true;
     });
@@ -117,7 +122,7 @@ class _HomeState extends State<Home> {
         ApiHelper.api + 'getProductsByCategoryId/${category.id}',
         headers: {
           'Accept': 'application/json',
-          'Accept-Language': 'en',
+          'Accept-Language': LangProvider().getLocaleCode(),
           'Authorization': 'Bearer ${prefs.getString('userToken')}'
         });
     var response = json.decode(request.body);
@@ -148,32 +153,41 @@ class _HomeState extends State<Home> {
       body: WaveAppBarBody(
         backgroundGradient: CColors.greenAppBarGradient(),
         bottomViewOffset: Offset(0, -10),
-        bottomView: Container(
-          width: 298.0,
-          height: 40.0,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20.0),
-            color: const Color(0xffffffff),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0x18000000),
-                offset: Offset(0, 2),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: TextFormField(
-            onFieldSubmitted: (value) {
-              Navigator.push(context, CupertinoPageRoute(builder: (context) => SearchResults(search: value,),));
-            },
-            decoration: searchDecoration(
-              'Search products',
-              Container(
-                height: 14,
-                width: 14,
-                child: Center(
-                  child: SvgPicture.asset(
-                    'assets/icons/search.svg',
+        bottomView: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 50),
+          child: Container(
+            // width: 298.0,
+            // height: 40.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20.0),
+              color: const Color(0xffffffff),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0x18000000),
+                  offset: Offset(0, 2),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+            child: TextFormField(
+              onFieldSubmitted: (value) {
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => SearchResults(
+                        search: value,
+                      ),
+                    ));
+              },
+              decoration: searchDecoration(
+                'search_products'.trs(context),
+                Container(
+                  height: 14,
+                  width: 14,
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/icons/search.svg',
+                    ),
                   ),
                 ),
               ),
@@ -191,18 +205,25 @@ class _HomeState extends State<Home> {
                 ),
               );
             },
-            child: SvgPicture.asset(Constants.basketIcon)),
+            child: Container(
+                width: 30,
+                height: 30,
+                child: Center(child: SvgPicture.asset(Constants.basketIcon)))),
         children: [
           Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Text(
-              'Offers',
-              style: TextStyle(
-                fontFamily: 'SF Pro Rounded',
-                fontSize: 18,
-                color: const Color(0xff3c4959),
-              ),
-              textAlign: TextAlign.left,
+            child: Row(
+              children: [
+                Text(
+                  'Offers'.trs(context),
+                  style: TextStyle(
+                    fontFamily: 'SF Pro Rounded',
+                    fontSize: 18,
+                    color: const Color(0xff3c4959),
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+              ],
             ),
           ),
           Padding(
@@ -286,37 +307,44 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              'Special For You',
-              style: TextStyle(
-                fontFamily: 'SF Pro Rounded',
-                fontSize: 18,
-                color: const Color(0xff3c4959),
-              ),
-              textAlign: TextAlign.left,
-            ),
-          ),
-          Container(
-            height: 170,
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              itemCount: _featuredProducts.length,
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) => GestureDetector(
-                  onTap: () =>Navigator.of(context, rootNavigator: true).push(
-                      CupertinoPageRoute(
-                        builder: (context) =>ProductBundleDetails(
-                          fruit: _featuredProducts[index],
+          _featuredProducts.length == 0
+              ? Container()
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        'Special For You'.trs(context),
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: const Color(0xff3c4959),
                         ),
-                      )),
-                  child: SpecialItem(
-                    fruit: _featuredProducts[index],
-                  )),
-            ),
-          ),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    Container(
+                      height: 170,
+                      child: ListView.builder(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: _featuredProducts.length,
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) => GestureDetector(
+                            onTap: () =>
+                                Navigator.of(context, rootNavigator: true)
+                                    .push(CupertinoPageRoute(
+                                  builder: (context) => ProductBundleDetails(
+                                    fruit: _featuredProducts[index],
+                                  ),
+                                )),
+                            child: SpecialItem(
+                              fruit: _featuredProducts[index],
+                            )),
+                      ),
+                    ),
+                  ],
+                ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: MyOpacity(

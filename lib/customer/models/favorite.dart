@@ -88,6 +88,10 @@ class FavoriteOperations with ChangeNotifier {
     _items.removeWhere((key, value) => key == model.id.toString());
     notifyListeners();
   }
+  void updateFavHome(Products model) {
+    _homeProducts.update(model.id.toString(), (value) => model);
+    notifyListeners();
+  }
 
   void clearFav() {
     _items = {};

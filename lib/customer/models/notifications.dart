@@ -1,4 +1,6 @@
-class Notification {
+import 'package:flutter/material.dart';
+
+class NotificationM {
   int id;
   int userId;
   int orderId;
@@ -9,18 +11,18 @@ class Notification {
   String nameUser;
   int totalOrder;
 
-  Notification(
+  NotificationM(
       {this.id,
-        this.userId,
-        this.orderId,
-        this.message,
-        this.status,
-        this.createdAt,
-        this.imageUser,
-        this.nameUser,
-        this.totalOrder});
+      this.userId,
+      this.orderId,
+      this.message,
+      this.status,
+      this.createdAt,
+      this.imageUser,
+      this.nameUser,
+      this.totalOrder});
 
-  Notification.fromJson(Map<String, dynamic> json) {
+  NotificationM.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     userId = json['user_id'];
     orderId = json['order_id'];
@@ -44,5 +46,31 @@ class Notification {
     data['name_user'] = this.nameUser;
     data['total_order'] = this.totalOrder;
     return data;
+  }
+}
+
+class NotificationOperations with ChangeNotifier {
+  Map<String, NotificationM> _items = {};
+
+  Map<String, NotificationM> get items {
+    return {..._items};
+  }
+
+  int get itemCount {
+    return _items.length;
+  }
+
+  void addItem(NotificationM model) {
+    if (_items.containsKey(model.id)) {
+      _items.update(model.id.toString(), (existing) => model);
+    } else {
+      _items.putIfAbsent(model.id.toString(), () => model);
+    }
+    notifyListeners();
+  }
+
+  void clearNotes() {
+    _items = {};
+    notifyListeners();
   }
 }

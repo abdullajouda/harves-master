@@ -30,6 +30,10 @@ class SetLocationSheet extends StatefulWidget {
 
 class _SetLocationSheetState extends State<SetLocationSheet> {
   City city;
+  var fullAddress;
+  var buildingNo;
+  var unitNo;
+  var additionalNotes;
   GoogleMapController _controller;
   List<Marker> markers = [];
   CameraPosition _initialCameraPosition;
@@ -49,17 +53,19 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
         .asUint8List();
   }
 
-  addMarker() async {
-    final Uint8List markerIcon = await getBytesFromAsset('assets/Pin.png', 50);
-    markers.add(
-      Marker(
-        position: LatLng(30, 30),
-        markerId: MarkerId('0'),
-        icon: BitmapDescriptor.fromBytes(markerIcon),
-        onTap: () {},
-        // icon: customIcon
-      ),
-    );
+  addMarker(double lat,double lng) async {
+    final Uint8List markerIcon = await getBytesFromAsset('assets/Pin.png', 100);
+    setState(() {
+      markers = [];
+      markers.add(
+        Marker(
+          position: LatLng(lat, lng),
+          markerId: MarkerId('0'),
+          icon: BitmapDescriptor.fromBytes(markerIcon), // icon: customIcon
+        ),
+      );
+    });
+
   }
 
   Future<Position> _determinePosition() async {
@@ -81,53 +87,57 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
         _load = false;
         _visible = true;
       });
-    } else {
-      Navigator.pop(context);
     }
+    setState(() {
+      _load = false;
+      _visible = true;
+
+    });
     return await Geolocator.getCurrentPosition();
   }
 
   save() async {
-    try {
-      var addresses =
-          await Geocoder.local.findAddressesFromCoordinates(coordinates);
-      if (addresses.first.addressLine != null) {
+    // try {
+      // var addresses =
+      //     await Geocoder.local.findAddressesFromCoordinates(coordinates);
+      // if (addresses.first.addressLine != null) {
         if(city != null){
           Navigator.of(context).pop({
-            'addressLine': addresses.first.addressLine,
+            'addressLine': fullAddress,
             'latitude': markers[0].position.latitude,
             'longitude': markers[0].position.longitude,
-            'city': city
+            'city': city,
+            'buildingNo': buildingNo,
+            'unitNo': unitNo,
+            'additionalNotes': additionalNotes,
           });
         }else{
           Fluttertoast.showToast(msg: 'Select your city from extra details');
         }
 
-      } else {
-        if(city != null){
-          Navigator.of(context).pop({
-            'latitude': markers[0].position.latitude,
-            'longitude': markers[0].position.longitude,
-            'city': city
-          });
-        }else{
-          Fluttertoast.showToast(msg: 'Select your city from extra details');
-        }
+        // if(city != null){
+        //   Navigator.of(context).pop({
+        //     'latitude': markers[0].position.latitude,
+        //     'longitude': markers[0].position.longitude,
+        //     'city': city
+        //   });
+        // }else{
+        //   Fluttertoast.showToast(msg: 'Select your city from extra details');
+        // }
 
       }
-    } on Exception catch (e) {
-      if(city != null){
-        Navigator.of(context).pop({
-          'latitude': markers[0].position.latitude,
-          'longitude': markers[0].position.longitude,
-          'city': city
-        });
-      }else{
-        Fluttertoast.showToast(msg: 'Select your city from extra details');
-      }
+    // }
+    // on Exception catch (e) {
+    //   if(city != null){
+    //     Navigator.of(context).pop({
+    //       'latitude': markers[0].position.latitude,
+    //       'longitude': markers[0].position.longitude,
+    //       'city': city
+    //     });
+    //   }else{
+    //     Fluttertoast.showToast(msg: 'Select your city from extra details');
+    //   }
 
-    }
-  }
 
   @override
   void initState() {
@@ -207,6 +217,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                             onTap: (latLng) {
                               _controller.animateCamera(
                                   CameraUpdate.newLatLng(latLng));
+                              addMarker(latLng.latitude,latLng.longitude);
                             },
                           ),
                           _load
@@ -302,8 +313,6 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                                   child: Text(
                                                     value.name,
                                                     style: TextStyle(
-                                                      fontFamily:
-                                                          'SF Pro Rounded',
                                                       fontSize: 8,
                                                       color: const Color(
                                                           0xff525768),
@@ -326,6 +335,16 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                           horizontal: 20),
                                       child: Container(
                                         child: TextFormField(
+                                            style: TextStyle(
+                                              fontSize: 8,
+                                              color: const Color(
+                                                  0xff525768),
+                                            ),
+                                          onChanged: (value) {
+                                            setState(() {
+                                              fullAddress = value;
+                                            });
+                                          },
                                             cursorColor: CColors.darkOrange,
                                             cursorWidth: 1,
                                             decoration: locationFieldDecoration(
@@ -343,6 +362,16 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                             width: size.width * .25,
                                             child: Center(
                                               child: TextFormField(
+                                                  style: TextStyle(
+                                                    fontSize: 8,
+                                                    color: const Color(
+                                                        0xff525768),
+                                                  ),
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      unitNo = value;
+                                                    });
+                                                  },
                                                   cursorColor:
                                                       CColors.darkOrange,
                                                   cursorWidth: 1,
@@ -355,6 +384,16 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                             width: size.width * .25,
                                             child: Center(
                                               child: TextFormField(
+                                                  style: TextStyle(
+                                                    fontSize: 8,
+                                                    color: const Color(
+                                                        0xff525768),
+                                                  ),
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      buildingNo = value;
+                                                    });
+                                                  },
                                                   cursorColor:
                                                       CColors.darkOrange,
                                                   cursorWidth: 1,
@@ -373,6 +412,16 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                         child: Stack(
                                           children: [
                                             TextFormField(
+                                                style: TextStyle(
+                                                  fontSize: 8,
+                                                  color: const Color(
+                                                      0xff525768),
+                                                ),
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    additionalNotes = value;
+                                                  });
+                                                },
                                                 maxLines: 5,
                                                 cursorColor: CColors.darkOrange,
                                                 cursorWidth: 1,

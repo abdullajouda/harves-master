@@ -30,18 +30,18 @@ class ApiHelper with ChangeNotifier {
     selectedCategory = cat;
   }
 
-  Future<List<Category>> getCategories() async {
-    var request = await get(api + 'getCategories', headers: headers);
-    var response = json.decode(request.body);
-    List values = response['items'];
-    List<Category> _category = [];
-    values.forEach((element) {
-      Category category = Category.fromJson(element);
-      _category.add(category);
-    });
-    notifyListeners();
-    return _category;
-  }
+  // Future<List<Category>> getCategories() async {
+  //   var request = await get(api + 'getCategories', headers: headers);
+  //   var response = json.decode(request.body);
+  //   List values = response['items'];
+  //   List<Category> _category = [];
+  //   values.forEach((element) {
+  //     Category category = Category.fromJson(element);
+  //     _category.add(category);
+  //   });
+  //   notifyListeners();
+  //   return _category;
+  // }
 
 // Future<List<Products>> getProductsByCategories(Category category) async {
 //   var request = await get(api + 'getProductsByCategoryId/${category.id??1}', headers: headers);

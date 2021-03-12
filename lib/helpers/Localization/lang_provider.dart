@@ -4,7 +4,7 @@ import 'package:harvest/helpers/shared_perfs_provider.dart';
 
 enum Locales { ar, en }
 
-class LangProvider {
+class LangProvider with ChangeNotifier{
   bool hasLocale() {
     PreferenceUtils prefs = PreferenceUtils.instance;
     String localeName = prefs.getValueWithKey(Constants.langKey, hideDebugPrint: true);
@@ -16,9 +16,11 @@ class LangProvider {
     switch (locale) {
       case Locales.ar:
         await prefs.saveValueWithKey(Constants.langKey, 'ar');
+        notifyListeners();
         break;
       case Locales.en:
         await prefs.saveValueWithKey(Constants.langKey, 'en');
+        notifyListeners();
         break;
     }
   }

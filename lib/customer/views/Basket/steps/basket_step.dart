@@ -44,7 +44,7 @@ class _BasketStepState extends State<BasketStep> {
   ListView _buildItemsBody(Size size) {
     return ListView.separated(
       itemCount: 5,
-      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 5),
+      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       separatorBuilder: (context, index) {
         final _hasError = _itemHasError(index + 1);
         if (_hasError) return SizedBox(height: 5);
@@ -77,7 +77,7 @@ class _BasketStepState extends State<BasketStep> {
                       iconSize: 16,
                       backgroundColor: CColors.white,
                       borderColor: _hasError ? CColors.coldPaleBloodRed : CColors.white,
-                      borderWidth: 2,
+                      borderWidth: 2,elevation: 1,
                       raduis: 2,
                     ),
                     shadow: [

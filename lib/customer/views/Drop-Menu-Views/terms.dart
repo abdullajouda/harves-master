@@ -25,8 +25,10 @@ class _TermsState extends State<Terms> {
   Pages _terms;
 
   getSettings() async {
-    var request =
-        await get(ApiHelper.api + 'getSetting', headers: ApiHelper.headers);
+    var request = await get(ApiHelper.api + 'getSetting', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+    });
     var response = json.decode(request.body)['items'];
     Pages model = Pages.fromJson(response['terms']);
     setState(() {

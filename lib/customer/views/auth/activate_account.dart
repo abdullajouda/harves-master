@@ -4,13 +4,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/customer/views/auth/login2.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
+import 'package:harvest/helpers/services.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/button_loader.dart';
 import 'package:harvest/widgets/countdown.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../root_screen.dart';
@@ -31,6 +34,7 @@ class _AccountActivationState extends State<AccountActivation>
   Timer _timer;
   int _start = 120;
   bool load = false;
+  bool loadResend = false;
   String code;
 
   void startTimer() async {
@@ -50,7 +54,7 @@ class _AccountActivationState extends State<AccountActivation>
   }
 
   sendCode() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var op = Provider.of<UserFunctions>(context, listen: false);
     setState(() {
       load = true;
     });
@@ -67,8 +71,17 @@ class _AccountActivationState extends State<AccountActivation>
       Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
         if (response['user'] != null) {
-          prefs.setString('userToken', response['user']['access_token']);
-          Navigator.push(
+          User user = User.fromJson(response['user']);
+          op.setUser(user);
+          Services().setToken(response['user']['access_token']);
+          Services().setUser(
+              response['user']['id'],
+              response['user']['city_id'],
+              response['user']['name'],
+              response['user']['email'],
+              response['user']['mobile'],
+              response['user']['image_profile']);
+          Navigator.pushReplacement(
               context,
               CustomPageRoute(
                 builder: (context) => RootScreen(),
@@ -80,7 +93,7 @@ class _AccountActivationState extends State<AccountActivation>
         //     CustomPageRoute(
         //       builder: (context) => Login2(),
         //     ));
-      }else if (response['code'] == 203) {
+      } else if (response['code'] == 203) {
         Navigator.pushReplacement(
             context,
             CustomPageRoute(
@@ -88,7 +101,6 @@ class _AccountActivationState extends State<AccountActivation>
                 mobile: widget.mobile,
               ),
             ));
-
       } else {
         setState(() {
           load = false;
@@ -98,6 +110,34 @@ class _AccountActivationState extends State<AccountActivation>
 
     setState(() {
       load = false;
+    });
+  }
+
+  resendCode() async {
+    setState(() {
+      loadResend = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var response = await post(ApiHelper.api + 'reSendCode',
+        headers: ApiHelper.headers, body: {'mobile': widget.mobile});
+
+    var res = json.decode(response.body);
+    if (res['status'] == true) {
+      setState(() {
+        loadResend = false;
+      });
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AccountActivation(
+            mobile: widget.mobile,
+          ),
+        ),
+      );
+    }
+    Fluttertoast.showToast(msg: res['message']);
+    setState(() {
+      loadResend = false;
     });
   }
 
@@ -209,18 +249,33 @@ class _AccountActivationState extends State<AccountActivation>
                           padding: const EdgeInsets.only(top: 25),
                           child: Container(
                             height: 33,
-                            width: 56,
+                            width: _start != 0 ? 60 : 120,
+                            padding: EdgeInsets.zero,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(11.0),
                               color: const Color(0xffebf4ee),
                             ),
                             child: Center(
-                              child: Countdown(
-                                animation: StepTween(
-                                  begin: 2 * 60,
-                                  end: 0,
-                                ).animate(_controller),
-                              ),
+                              child: _start != 0
+                                  ? Countdown(
+                                      animation: StepTween(
+                                        begin: 2 * 60,
+                                        end: 0,
+                                      ).animate(_controller),
+                                    )
+                                  : FlatButton(
+                                      onPressed: () => resendCode(),
+                                      child: loadResend
+                                          ? LoadingBtn()
+                                          : Text(
+                                              "Resend code",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: const Color(0xccf88518),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                    ),
                             ),
                           ),
                         ),

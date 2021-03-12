@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
@@ -30,8 +31,16 @@ class _SplashState extends State<Splash> {
 
   setLandingPage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    var op = Provider.of<UserFunctions>(context, listen: false);
     String token = prefs.getString('userToken');
     if (token != null) {
+      op.setUser(User(
+          id: prefs.getInt('id'),
+          name: prefs.getString('username'),
+          mobile: prefs.getString('mobile'),
+          email: prefs.getString('email'),
+          cityId: prefs.getInt('cityId'),
+          imageProfile: prefs.getString('avatar')));
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -49,7 +58,7 @@ class _SplashState extends State<Splash> {
   getCities() async {
     var op = Provider.of<CityOperations>(context, listen: false);
     var request =
-    await get(ApiHelper.api + 'getCities', headers: ApiHelper.headers);
+        await get(ApiHelper.api + 'getCities', headers: ApiHelper.headers);
     var response = json.decode(request.body);
     var items = response['cities'];
     items.forEach((element) {
@@ -57,6 +66,7 @@ class _SplashState extends State<Splash> {
       op.addItem(city);
     });
   }
+
   @override
   void initState() {
     // ApiServices().getSettings();

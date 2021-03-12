@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 class NoData extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,7 @@ class NoData extends StatelessWidget {
           child: SvgPicture.asset('assets/no-data.svg'),
         ),
         Text(
-          'No Data',
+          'No Data'.trs(context),
           style: TextStyle(
             fontSize: 24,
             color: const Color(0xff000000),

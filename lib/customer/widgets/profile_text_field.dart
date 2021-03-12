@@ -16,6 +16,7 @@ class NoBGTextField extends StatelessWidget {
   final bool autoCorrect;
   final Widget icon;
   final int linesNum;
+  final String initVal;
 
   const NoBGTextField({
     Key key,
@@ -31,7 +32,7 @@ class NoBGTextField extends StatelessWidget {
     this.autoCorrect = false,
     this.icon,
     this.linesNum,
-    this.borderRadius,
+    this.borderRadius, this.initVal,
   }) : super(key: key);
 
   @override
@@ -46,6 +47,7 @@ class NoBGTextField extends StatelessWidget {
       ),
       margin: EdgeInsetsDirectional.only(top: 10),
       child: TextFormField(
+        initialValue: initVal,
         maxLines: linesNum,
         enabled: isEnabled,
         controller: controller,

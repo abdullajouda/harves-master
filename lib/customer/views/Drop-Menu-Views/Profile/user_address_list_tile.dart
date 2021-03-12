@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:harvest/customer/models/delivery-data.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
@@ -9,12 +10,14 @@ class UserAddressListTile extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   final int index;
+  final DeliveryAddresses address;
 
   const UserAddressListTile({
     Key key,
     this.isSelected,
     this.onTap,
     this.index,
+    this.address,
   }) : super(key: key);
 
   @override
@@ -23,7 +26,8 @@ class UserAddressListTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Stack(
-        clipBehavior: Clip.none, children: [
+        clipBehavior: Clip.none,
+        children: [
           RemoveIcon(
             enabled: isSelected,
             child: Container(
@@ -50,7 +54,8 @@ class UserAddressListTile extends StatelessWidget {
                             EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                         leading: SvgPicture.asset(Constants.mapPinIcon),
                         title: Text("delivery_address".trs(context)),
-                        subtitle: Text("AlQahera, Jamal 43st, CD 43, 4 floor"),
+                        subtitle: Text(
+                            "${address.city.name}, ${address.street}, ${address.buildingNumber}, ${address.unitNumber}"),
                       ),
                     ),
                   ),

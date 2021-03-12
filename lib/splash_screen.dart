@@ -240,7 +240,7 @@ class _SplashScreenState extends State<SplashScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 30),
                             child: TextButton(
                               onPressed: () {
-                                Navigator.of(context).push(CustomPageRoute(
+                                Navigator.of(context).pushReplacement(CustomPageRoute(
                                   builder: (context) {
                                     return Login();
                                   },

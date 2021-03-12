@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,12 +8,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/models/favorite.dart';
 import 'package:harvest/customer/models/products.dart';
+import 'package:harvest/customer/views/Basket/basket.dart';
+import 'package:harvest/customer/views/home/search_page.dart';
 import 'package:harvest/customer/widgets/favorite_item.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:http/http.dart';
@@ -98,8 +102,61 @@ class _FavoritesTabState extends State<FavoritesTab> {
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
         actions: [HomePopUpMenu()],
-        leading: SvgPicture.asset(Constants.basketIcon),
-        bottomView: _buildSearchTextField(size),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                platformPageRoute(
+                  context: context,
+                  builder: (context) => Basket(),
+                ),
+              );
+            },
+            child: Container(
+                width: 30,
+                height: 30,
+                child: Center(child: SvgPicture.asset(Constants.basketIcon)))),
+        bottomView: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 50),
+          child: Container(
+            // width: 298.0,
+            // height: 40.0,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20.0),
+              color: const Color(0xffffffff),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0x18000000),
+                  offset: Offset(0, 2),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+            child: TextFormField(
+              onFieldSubmitted: (value) {
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => SearchResults(
+                        search: value,
+                      ),
+                    ));
+              },
+              decoration: searchDecoration(
+                'search_products'.trs(context),
+                Container(
+                  height: 14,
+                  width: 14,
+                  child: Center(
+                    child: SvgPicture.asset(
+                      'assets/icons/search.svg',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),

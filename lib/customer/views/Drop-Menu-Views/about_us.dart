@@ -22,7 +22,10 @@ class _AboutUsState extends State<AboutUs> {
 
   getSettings() async {
     var request =
-        await get(ApiHelper.api + 'getSetting', headers: ApiHelper.headers);
+        await get(ApiHelper.api + 'getSetting', headers: {
+          'Accept': 'application/json',
+          'Accept-Language': LangProvider().getLocaleCode(),
+        });
     var response = json.decode(request.body)['items'];
     Pages model = Pages.fromJson(response['aboutUs']);
     setState(() {
