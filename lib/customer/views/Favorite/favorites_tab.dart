@@ -18,6 +18,7 @@ import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/Loader.dart';
+import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -102,20 +103,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
         actions: [HomePopUpMenu()],
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                platformPageRoute(
-                  context: context,
-                  builder: (context) => Basket(),
-                ),
-              );
-            },
-            child: Container(
-                width: 30,
-                height: 30,
-                child: Center(child: SvgPicture.asset(Constants.basketIcon)))),
+        leading: BasketButton(),
         bottomView: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Container(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/button_loader.dart';
 
 class MainButton extends StatelessWidget {
   final String title;
@@ -55,9 +56,9 @@ class MainButton extends StatelessWidget {
                 ),
               ),
               if (loading)
-                // Positioned.fill(
-                //   child: Container(color: Colors.white.withOpacity(0.3), child: AdaptiveProgessIndicator()),
-                // ),
+                Positioned.fill(
+                  child: Container(color: Colors.white.withOpacity(0.3), child: Center(child: LoadingBtn())),
+                ),
               if (!enabled) Positioned.fill(child: Container(color: Colors.white.withOpacity(0.3))),
             ],
           ),

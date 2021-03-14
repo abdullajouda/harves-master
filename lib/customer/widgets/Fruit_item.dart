@@ -4,11 +4,24 @@ import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/widgets/favorite_button.dart';
 
-class FruitItem extends StatelessWidget {
+class FruitItem extends StatefulWidget {
   final Products fruit;
   final Color color;
 
   const FruitItem({Key key, this.fruit, this.color}) : super(key: key);
+
+  @override
+  _FruitItemState createState() => _FruitItemState();
+}
+
+class _FruitItemState extends State<FruitItem> {
+  int _qty;
+
+  @override
+  void initState() {
+    _qty = int.parse(widget.fruit.inCart);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +49,7 @@ class FruitItem extends StatelessWidget {
               width: 87,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: NetworkImage(fruit.image),
+                  image: NetworkImage(widget.fruit.image),
                   fit: BoxFit.fill,
                 ),
                 // boxShadow: [
@@ -53,10 +66,10 @@ class FruitItem extends StatelessWidget {
             right: 0,
             top: 0,
             child: FavoriteButton(
-              fruit: fruit,
+              fruit: widget.fruit,
             ),
           ),
-          fruit.discount > 0
+          widget.fruit.discount > 0
               ? Positioned(
                   top: 0,
                   left: 0,
@@ -72,7 +85,7 @@ class FruitItem extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        '${fruit.discount}% Off',
+                        '${widget.fruit.discount}% Off',
                         style: TextStyle(
                           fontFamily: 'SF Pro Rounded',
                           fontSize: 10,
@@ -86,13 +99,13 @@ class FruitItem extends StatelessWidget {
               : Container(),
           Positioned(
             left: 20,
-            bottom: fruit.inCart != '0' ? 40 : 13,
+            bottom: _qty != 0 ? 40 : 13,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  fruit.name ?? '',
+                  widget.fruit.name ?? '',
                   style: TextStyle(
                     fontFamily: 'SF Pro Rounded',
                     fontSize: 12,
@@ -104,7 +117,7 @@ class FruitItem extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   child: Text(
-                    fruit.description ?? '',
+                    widget.fruit.description ?? '',
                     style: TextStyle(
                       fontFamily: 'SF Pro Rounded',
                       fontSize: 10,
@@ -115,11 +128,13 @@ class FruitItem extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${fruit.price}\$/kilo',
+                  '${widget.fruit.price}\$/kilo',
                   style: TextStyle(
                     fontFamily: 'SF Pro Rounded',
                     fontSize: 12,
-                    color: color != null ? color :const Color(0xff3c984f),
+                    color: widget.color != null
+                        ? widget.color
+                        : const Color(0xff3c984f),
                     fontWeight: FontWeight.w600,
                   ),
                   textAlign: TextAlign.left,
@@ -130,28 +145,35 @@ class FruitItem extends StatelessWidget {
           Positioned(
             bottom: 0,
             right: 0,
-            child: Container(
-              height: 31,
-              width: 30,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(19.0),
-                  bottomRight: Radius.circular(19.0),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _qty = _qty + widget.fruit.unitRate;
+                });
+              },
+              child: Container(
+                height: 31,
+                width: 30,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(19.0),
+                    bottomRight: Radius.circular(19.0),
+                  ),
+                  color:
+                      widget.color != null ? widget.color : Color(0xff3c984f),
                 ),
-                color: color != null ? color : Color(0xff3c984f),
-              ),
-              child: Center(
-                child: SvgPicture.asset('assets/icons/add.svg'),
+                child: Center(
+                  child: SvgPicture.asset('assets/icons/add.svg'),
+                ),
               ),
             ),
           ),
-          fruit.inCart != '0'
+          _qty != 0
               ? Positioned(
                   bottom: 7,
                   child: Text(
-                    '${fruit.qty}',
+                    '$_qty',
                     style: TextStyle(
-                      fontFamily: 'SF Pro Rounded',
                       fontSize: 16,
                       color: const Color(0xff3c4959),
                       fontWeight: FontWeight.w600,
@@ -160,22 +182,29 @@ class FruitItem extends StatelessWidget {
                   ),
                 )
               : Container(),
-          fruit.inCart != '0'
+          _qty != 0
               ? Positioned(
                   bottom: 0,
                   left: 0,
-                  child: Container(
-                    height: 31,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(19.0),
-                        bottomLeft: Radius.circular(19.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _qty = _qty - widget.fruit.unitRate;
+                      });
+                    },
+                    child: Container(
+                      height: 31,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(19.0),
+                          bottomLeft: Radius.circular(19.0),
+                        ),
+                        color: const Color(0xffe3e7eb),
                       ),
-                      color: const Color(0xffe3e7eb),
-                    ),
-                    child: Center(
-                      child: SvgPicture.asset('assets/icons/remove.svg'),
+                      child: Center(
+                        child: SvgPicture.asset('assets/icons/remove.svg'),
+                      ),
                     ),
                   ),
                 )

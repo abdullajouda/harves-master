@@ -52,7 +52,10 @@ class _LocationSheetState extends State<LocationSheet> {
             'unit_no': '$unitNo',
             'additional_notes': '$additionalNotes',
           },
-          headers: ApiHelper.headers);
+          headers: {
+            'Accept': 'application/json',
+            'Accept-Language': prefs.getString('language'),
+          });
       var response = json.decode(request.body);
       // Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {

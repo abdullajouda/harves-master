@@ -9,6 +9,7 @@ import 'package:harvest/customer/views/Orders/old_orders.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 
 enum _OrdersTabs { Current, Old }
@@ -27,26 +28,12 @@ class _OrdersTabState extends State<OrdersTab> {
       "current_order",
       "old_order",
     ];
-
     return Scaffold(
       body: WaveAppBarBody(
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
         actions: [HomePopUpMenu()],
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                platformPageRoute(
-                  context: context,
-                  builder: (context) => Basket(),
-                ),
-              );
-            },
-            child: Container(
-                width: 30,
-                height: 30,
-                child: Center(child: SvgPicture.asset(Constants.basketIcon)))),
+        leading: BasketButton(),
         topHeader: PinnedTopHeader(
           maxHeight: 46,
           margin: EdgeInsetsDirectional.only(start: 10)

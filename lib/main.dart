@@ -9,6 +9,7 @@ import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/helpers/Localization/appliction.dart';
 import 'package:harvest/splash.dart';
 import 'package:provider/provider.dart';
+import 'customer/models/cart_items.dart';
 import 'customer/models/favorite.dart';
 import 'customer/models/user.dart';
 import 'helpers/Localization/app_translations_delegate.dart';
@@ -62,6 +63,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context) => CityOperations()),
           ChangeNotifierProvider(create: (context) => NotificationOperations()),
           ChangeNotifierProvider(create: (context) => UserFunctions()),
+          ChangeNotifierProvider(create: (context) => Cart()),
         ],
         child: MaterialApp(
           supportedLocales: application.supportedLocales(),

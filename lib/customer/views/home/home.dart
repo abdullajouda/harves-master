@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/category.dart';
 import 'package:harvest/customer/models/favorite.dart';
 import 'package:harvest/customer/models/featured_product.dart';
@@ -25,6 +26,7 @@ import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:harvest/widgets/my-opacity.dart';
 import 'package:harvest/widgets/my_animation.dart';
@@ -56,6 +58,7 @@ class _HomeState extends State<Home> {
   bool loadProducts = true;
   bool loadFeatured = true;
   bool loadCategories = true;
+  bool loadBasket = true;
 
   getOffers() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -95,16 +98,24 @@ class _HomeState extends State<Home> {
   }
 
   getFeaturedProducts() async {
-    var request = await get(ApiHelper.api + 'getFeaturedProducts', headers: {
+    var settings = await get(ApiHelper.api + 'getSetting', headers: {
       'Accept': 'application/json',
       'Accept-Language': LangProvider().getLocaleCode(),
     });
-    var response = json.decode(request.body);
-    List values = response['items'];
-    values.forEach((element) {
-      FeaturedProduct products = FeaturedProduct.fromJson(element);
-      _featuredProducts.add(products);
-    });
+    var set = json.decode(settings.body)['items'];
+    if (set['show_featured'] == 1) {
+      var request = await get(ApiHelper.api + 'getFeaturedProducts', headers: {
+        'Accept': 'application/json',
+        'fcmToken': '5555',
+        'Accept-Language': LangProvider().getLocaleCode(),
+      });
+      var response = json.decode(request.body);
+      List values = response['items'];
+      values.forEach((element) {
+        FeaturedProduct products = FeaturedProduct.fromJson(element);
+        _featuredProducts.add(products);
+      });
+    }
     setState(() {
       loadFeatured = false;
     });
@@ -122,6 +133,7 @@ class _HomeState extends State<Home> {
         ApiHelper.api + 'getProductsByCategoryId/${category.id}',
         headers: {
           'Accept': 'application/json',
+          'fcmToken': '5555',
           'Accept-Language': LangProvider().getLocaleCode(),
           'Authorization': 'Bearer ${prefs.getString('userToken')}'
         });
@@ -136,11 +148,33 @@ class _HomeState extends State<Home> {
     });
   }
 
+  getCart() async {
+    var cart = Provider.of<Cart>(context, listen: false);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await get(ApiHelper.api + 'getMyCart', headers: {
+      'Accept': 'application/json',
+      'fcmToken': '5555',
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+
+    var response = json.decode(request.body);
+    var items = response['items'];
+    items.forEach((element) {
+      CartItem item = CartItem.fromJson(element);
+      cart.addItem(item);
+    });
+    setState(() {
+      loadBasket = false;
+    });
+  }
+
   @override
   void initState() {
     getOffers();
     getCategories().then((value) => getProductsByCategories(_selectedIndex));
     getFeaturedProducts();
+    getCart();
     super.initState();
   }
 
@@ -195,20 +229,7 @@ class _HomeState extends State<Home> {
           ),
         ),
         actions: [HomePopUpMenu()],
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                platformPageRoute(
-                  context: context,
-                  builder: (context) => Basket(),
-                ),
-              );
-            },
-            child: Container(
-                width: 30,
-                height: 30,
-                child: Center(child: SvgPicture.asset(Constants.basketIcon)))),
+        leading: BasketButton(),
         children: [
           Padding(
             padding: const EdgeInsets.all(20.0),

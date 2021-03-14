@@ -121,7 +121,7 @@ class _OffersPageState extends State<OffersPage> {
                   mainAxisSpacing: 18),
               itemCount: op.homeItems.length,
               shrinkWrap: true,
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 25),
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 if (op.homeItems.values.toList()[index].categoryId ==

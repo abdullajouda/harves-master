@@ -1,13 +1,21 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/favorite.dart';
 import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/customer/widgets/custom_main_button.dart';
 import 'package:harvest/customer/widgets/make_favorite_button.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/button_loader.dart';
 import 'package:harvest/widgets/favorite_button.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductDetails extends StatefulWidget {
   final Products fruit;
@@ -20,15 +28,45 @@ class ProductDetails extends StatefulWidget {
 
 class _ProductDetailsState extends State<ProductDetails> {
   final color = const Color(0xffFDAA5C);
-
+  bool load = false;
   int _qty = 0;
 
-  // bool _isFavorite = false;
+  addToBasket(int id) async {
+    setState(() {
+      load = true;
+    });
+    var cart = Provider.of<Cart>(context, listen: false);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
+      'Accept': 'application/json',
+      'fcmToken': '5555',
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    if (response['status'] == true) {
+      var items = response['cart'];
+      if (items != null) {
+        items.forEach((element) {
+          CartItem item = CartItem.fromJson(element);
+          cart.addItem(item);
+        });
+        setState(() {
+          _qty = _qty+widget.fruit.unitRate;
+        });
+      }
+    }
+    Fluttertoast.showToast(msg: response['message']);
+    setState(() {
+      load = false;
+    });
+  }
 
+  // bool _isFavorite = false;
   @override
   void initState() {
     setState(() {
-      _qty = widget.fruit.minQty;
+      _qty = int.parse(widget.fruit.inCart);
     });
     super.initState();
   }
@@ -36,7 +74,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    var op = Provider.of<FavoriteOperations>(context);
+    var cart = Provider.of<Cart>(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -110,49 +148,53 @@ class _ProductDetailsState extends State<ProductDetails> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      Row(
+                      _qty == 0
+                          ? Container()
+                          :Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             children: [
-                              if (_qty > 0) ...[
-                                CIconButton(
-                                  onTap: () {
-                                    if (_qty == 0) return;
-                                    setState(() => _qty--);
-                                  },
-                                  icon: Icon(Icons.remove,
-                                      color: CColors.headerText, size: 25),
+                              CIconButton(
+                                onTap: () {
+                                  if (_qty == 0) return;
+                                  setState(() {
+                                    _qty = _qty - widget.fruit.unitRate;
+                                  });
+                                },
+                                icon: Icon(Icons.remove,
+                                    color: CColors.headerText, size: 25),
+                              ),
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minWidth: size.width * 0.12,
                                 ),
-                                ConstrainedBox(
-                                  constraints: BoxConstraints(
-                                    minWidth: size.width * 0.12,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      _qty.toString(),
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        color: CColors.headerText,
-                                        fontSize: 18,
-                                      ),
+                                child: Center(
+                                  child: Text(
+                                    _qty.toString(),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      color: CColors.headerText,
+                                      fontSize: 18,
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
                               CIconButton(
-                                onTap: () => setState(() => _qty++),
+                                onTap: () => setState(() {
+                                  _qty = _qty + widget.fruit.unitRate;
+                                }),
                                 icon: Icon(Icons.add,
                                     color: CColors.headerText, size: 25),
                               ),
-                              if (_qty == 0)
-                                Text("add_to_basket".trs(context),
-                                    style: TextStyle(
-                                        fontSize: 13, color: CColors.grey)),
+                              // if (_qty == 0)
+                              //   Text("add_to_basket".trs(context),
+                              //       style: TextStyle(
+                              //           fontSize: 13, color: CColors.grey)),
                             ],
                           ),
                           Text(
-                            "\$10.5",
+                            "\$${widget.fruit.price}",
                             style: TextStyle(
                               color: CColors.headerText,
                               fontSize: 22,
@@ -179,7 +221,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 child: SingleChildScrollView(
                                   padding: EdgeInsets.only(bottom: 10),
                                   child: Text(
-                                    widget.fruit.description??'',
+                                    widget.fruit.description ?? '',
                                     style: TextStyle(
                                       color: CColors.normalText,
                                       fontSize: 14,
@@ -210,12 +252,21 @@ class _ProductDetailsState extends State<ProductDetails> {
                             )),
                           ),
                           SizedBox(width: 10),
-                          Expanded(
-                            child: MainButton(
-                              constraints: BoxConstraints(maxHeight: 50),
-                              titleTextStyle: TextStyle(fontSize: 15),
-                              title: 'add_to_basket'.trs(context),
-                            ),
+                          _qty != 0
+                              ? Container()
+                              :Expanded(
+                            child: load
+                                ? Center(child: LoadingBtn())
+                                :MainButton(
+                                        onTap: () {
+                                          addToBasket(widget.fruit.id);
+
+                                        },
+                                        constraints:
+                                            BoxConstraints(maxHeight: 50),
+                                        titleTextStyle: TextStyle(fontSize: 15),
+                                        title: 'add_to_basket'.trs(context),
+                                      ),
                           ),
                         ],
                       ),

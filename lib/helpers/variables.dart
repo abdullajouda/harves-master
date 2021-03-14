@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:intl/intl.dart';
 
-// import 'services/app_localization.dart';
-
-const String api = 'http://plus.plr.sa/api/V1/';
+import 'package:harvest/helpers/Localization/localization.dart';
 
 const String appName = 'Harvest';
 const String appStoreId = 'com.example.harvest';
@@ -16,9 +14,7 @@ const kDarkPrimaryColor = Color(0xffecb7bf);
 const kFontRoboto = 'Roboto';
 const kFontNeoSans = 'NeoSans';
 
-const deviceType = 'android';
-const fcmToken = '1111';
-const userToken = 'userToken';
+
 
 // String translateText(BuildContext context, String key) {
 //   return AppLocalization.of(context).translate(key);
@@ -29,14 +25,14 @@ const userToken = 'userToken';
 //  return prefs.getString('language');
 //}
 
-// class FieldValidator {
-//   static String validate(String value, context) {
-//     if (value.isEmpty) {
-//       return translateText(context, 'field_cant_be_empty');
-//     }
-//     return null;
-//   }
-// }
+class FieldValidator {
+  static String validate(String value, context) {
+    if (value.isEmpty) {
+      return  'Required'.trs(context);
+    }
+    return null;
+  }
+}
 
 InputDecoration searchDecoration(hint, icon) {
   return InputDecoration(
