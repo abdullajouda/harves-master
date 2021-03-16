@@ -23,6 +23,7 @@ import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
@@ -229,7 +230,17 @@ class _HomeState extends State<Home> {
           ),
         ),
         actions: [HomePopUpMenu()],
-        leading: BasketButton(),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                CustomPageRoute(
+                  // context: context,
+                  builder: (context) => Basket(),
+                ),
+              ).then((value) => getProductsByCategories(_selectedIndex));
+            },
+            child: BasketButton()),
         children: [
           Padding(
             padding: const EdgeInsets.all(20.0),
@@ -254,7 +265,7 @@ class _HomeState extends State<Home> {
                 Stack(
                   alignment: Alignment.center,
                   children: [
-                    MyOpacity(
+                    loadOffers ? Loader() : MyOpacity(
                       load: loadOffers,
                       child: CarouselSlider.builder(
                         itemCount: _offers.length,
@@ -280,7 +291,6 @@ class _HomeState extends State<Home> {
                         carouselController: _carouselController,
                       ),
                     ),
-                    loadOffers ? Loader() : Container()
                   ],
                 ),
                 Positioned(

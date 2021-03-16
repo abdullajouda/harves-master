@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
@@ -218,7 +219,7 @@ class _UserProfileState extends State<UserProfile> {
                           fit: BoxFit.cover,
                           image: selectedImage != null
                               ? FileImage(selectedImage)
-                              : NetworkImage(op.user.imageProfile),
+                              : op.user.imageProfile!= null?NetworkImage(op.user.imageProfile):AssetImage(''),
                         ),
                       ),
                     ),
@@ -253,7 +254,7 @@ class _UserProfileState extends State<UserProfile> {
             Padding(
               padding: const EdgeInsets.only(top: 5),
               child: Text(
-                op.user.name,
+                op.user.name??'',
                 style: TextStyle(
                   color: CColors.headerText,
                   fontWeight: FontWeight.w600,
@@ -398,6 +399,9 @@ class _UserProfileState extends State<UserProfile> {
                                     : "English",
                               ),
                               _SettingsButton(
+                                onTap: () {
+                                  context.read<PTVController>().jumbToTab(AppTabs.Support);
+                                },
                                 iconPath: Constants.questionIcon,
                                 title: "help".trs(context),
                               ),

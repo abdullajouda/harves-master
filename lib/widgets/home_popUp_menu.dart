@@ -38,10 +38,9 @@ class HomePopUpMenu extends StatefulWidget {
 }
 
 class _HomePopUpMenuState extends State<HomePopUpMenu> {
-
   signOut() async {
     showCupertinoDialog(
-      context: context,
+      context: context,useRootNavigator: true,
       builder: (context) => Center(child: ConfirmDialog()),
     );
   }
@@ -71,13 +70,9 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
         iconPath: 'assets/icons/credit-card.svg',
         title: 'wallet',
         onPressed: () {
-          Navigator.push(
-            context,
-            platformPageRoute(
-              context: context,
-              builder: (context) => Wallet(),
-            ),
-          );
+          Navigator.of(context, rootNavigator: true).push(CupertinoPageRoute(
+            builder: (context) => Wallet(),
+          ));
         },
       ),
       HomePopUpMenuModel(

@@ -52,10 +52,34 @@ class _ProductDetailsState extends State<ProductDetails> {
           cart.addItem(item);
         });
         setState(() {
-          _qty = _qty+widget.fruit.unitRate;
+          widget.fruit.inCart = '1';
+          _qty = _qty + widget.fruit.unitRate;
         });
       }
     }
+    Fluttertoast.showToast(msg: response['message']);
+    setState(() {
+      load = false;
+    });
+  }
+
+  changeQnt(int type, int id) async {
+    setState(() {
+      load = true;
+    });
+    var cart = Provider.of<Cart>(context, listen: false);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'changeQuantity', body: {
+      'type': type.toString(),
+      'product_id': id.toString()
+    }, headers: {
+      'Accept': 'application/json',
+      'fcmToken': '5555',
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+
     Fluttertoast.showToast(msg: response['message']);
     setState(() {
       load = false;
@@ -150,58 +174,61 @@ class _ProductDetailsState extends State<ProductDetails> {
                       SizedBox(height: 10),
                       _qty == 0
                           ? Container()
-                          :Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              CIconButton(
-                                onTap: () {
-                                  if (_qty == 0) return;
-                                  setState(() {
-                                    _qty = _qty - widget.fruit.unitRate;
-                                  });
-                                },
-                                icon: Icon(Icons.remove,
-                                    color: CColors.headerText, size: 25),
-                              ),
-                              ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minWidth: size.width * 0.12,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    _qty.toString(),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      color: CColors.headerText,
-                                      fontSize: 18,
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    CIconButton(
+                                      onTap: () {
+                                        changeQnt(2, widget.fruit.id);
+                                        setState(() {
+                                          _qty = _qty - widget.fruit.unitRate;
+                                        });
+                                      },
+                                      icon: Icon(Icons.remove,
+                                          color: CColors.headerText, size: 25),
                                     ),
+                                    ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minWidth: size.width * 0.12,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          _qty.toString(),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: CColors.headerText,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    CIconButton(
+                                      onTap: () {
+                                        changeQnt(1, widget.fruit.id);
+                                        setState(() {
+                                          _qty = _qty + widget.fruit.unitRate;
+                                        });
+                                      },
+                                      icon: Icon(Icons.add,
+                                          color: CColors.headerText, size: 25),
+                                    ),
+                                    // if (_qty == 0)
+                                    //   Text("add_to_basket".trs(context),
+                                    //       style: TextStyle(
+                                    //           fontSize: 13, color: CColors.grey)),
+                                  ],
+                                ),
+                                Text(
+                                  "\$${widget.fruit.price}",
+                                  style: TextStyle(
+                                    color: CColors.headerText,
+                                    fontSize: 22,
                                   ),
                                 ),
-                              ),
-                              CIconButton(
-                                onTap: () => setState(() {
-                                  _qty = _qty + widget.fruit.unitRate;
-                                }),
-                                icon: Icon(Icons.add,
-                                    color: CColors.headerText, size: 25),
-                              ),
-                              // if (_qty == 0)
-                              //   Text("add_to_basket".trs(context),
-                              //       style: TextStyle(
-                              //           fontSize: 13, color: CColors.grey)),
-                            ],
-                          ),
-                          Text(
-                            "\$${widget.fruit.price}",
-                            style: TextStyle(
-                              color: CColors.headerText,
-                              fontSize: 22,
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
                       SizedBox(height: 10),
                       Expanded(
                         child: Align(
@@ -254,20 +281,20 @@ class _ProductDetailsState extends State<ProductDetails> {
                           SizedBox(width: 10),
                           _qty != 0
                               ? Container()
-                              :Expanded(
-                            child: load
-                                ? Center(child: LoadingBtn())
-                                :MainButton(
-                                        onTap: () {
-                                          addToBasket(widget.fruit.id);
-
-                                        },
-                                        constraints:
-                                            BoxConstraints(maxHeight: 50),
-                                        titleTextStyle: TextStyle(fontSize: 15),
-                                        title: 'add_to_basket'.trs(context),
-                                      ),
-                          ),
+                              : Expanded(
+                                  child: load
+                                      ? Center(child: LoadingBtn())
+                                      : MainButton(
+                                          onTap: () {
+                                            addToBasket(widget.fruit.id);
+                                          },
+                                          constraints:
+                                              BoxConstraints(maxHeight: 50),
+                                          titleTextStyle:
+                                              TextStyle(fontSize: 15),
+                                          title: 'add_to_basket'.trs(context),
+                                        ),
+                                ),
                         ],
                       ),
                     ],

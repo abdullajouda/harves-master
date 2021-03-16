@@ -35,7 +35,7 @@ class _OrdersTabState extends State<OrdersTab> {
         actions: [HomePopUpMenu()],
         leading: BasketButton(),
         topHeader: PinnedTopHeader(
-          maxHeight: 46,
+          maxHeight: 43,
           margin: EdgeInsetsDirectional.only(start: 10)
               .add(EdgeInsets.symmetric(vertical: 10)),
           child: _buildTopSelector(_orderTabsTitles, context),

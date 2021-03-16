@@ -48,12 +48,14 @@ class _FavoritesTabState extends State<FavoritesTab> {
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
-    List values = response['items'];
-    values.forEach((element) {
-      FavoriteModel products = FavoriteModel.fromJson(element);
-      op.addItem(products.product);
-      // _fruits.add(products);
-    });
+    if(response['items'] != null){
+      List values = response['items'];
+      values.forEach((element) {
+        FavoriteModel products = FavoriteModel.fromJson(element);
+        op.addItem(products.product);
+        // _fruits.add(products);
+      });
+    }
     setState(() {
       load = false;
     });

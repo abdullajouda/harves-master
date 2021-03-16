@@ -9,6 +9,7 @@ import 'package:harvest/widgets/remove_icon.dart';
 class UserAddressListTile extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
+  final VoidCallback onRemove;
   final int index;
   final DeliveryAddresses address;
 
@@ -18,6 +19,7 @@ class UserAddressListTile extends StatelessWidget {
     this.onTap,
     this.index,
     this.address,
+    this.onRemove,
   }) : super(key: key);
 
   @override
@@ -29,7 +31,8 @@ class UserAddressListTile extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           RemoveIcon(
-            enabled: isSelected,
+            enabled: true,
+            onTap: onRemove,
             child: Container(
               child: Row(
                 children: [
@@ -55,7 +58,8 @@ class UserAddressListTile extends StatelessWidget {
                         leading: SvgPicture.asset(Constants.mapPinIcon),
                         title: Text("delivery_address".trs(context)),
                         subtitle: Text(
-                            "${address.city.name}, ${address.street}, ${address.buildingNumber}, ${address.unitNumber}"),
+                          "${address.city.name}, ${address.street != null ? address.street + ',' : ''} ${address.buildingNumber != null ? address.buildingNumber.toString() + ', ' : ''} ${address.unitNumber != null ? address.unitNumber.toString() + ',' : ''}",
+                        ),
                       ),
                     ),
                   ),

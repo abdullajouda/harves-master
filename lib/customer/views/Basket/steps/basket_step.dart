@@ -31,12 +31,12 @@ class BasketStep extends StatefulWidget {
 
 class _BasketStepState extends State<BasketStep> {
   bool load = true;
-  bool showFree = true;
+  bool showFree = false;
   double total;
   List<int> _errorIndexes = [];
-  double _city;
-
-  // List<CartItem> _cartItems =[];
+  City _city;
+  double remains;
+  List<City> _cities =[];
 
   getCart() async {
     var cart = Provider.of<Cart>(context, listen: false);
@@ -63,20 +63,30 @@ class _BasketStepState extends State<BasketStep> {
   }
 
   showFreeDelivery() async {
-    var op = Provider.of<UserFunctions>(context, listen: false);
-    var ci = Provider.of<CityOperations>(context, listen: false);
+    // var op = Provider.of<UserFunctions>(context, listen: false);
+    // var ci = Provider.of<CityOperations>(context, listen: false);
     var settings = await get(ApiHelper.api + 'getSetting', headers: {
       'Accept': 'application/json',
       'Accept-Language': LangProvider().getLocaleCode(),
     });
-    var set = json.decode(settings.body)['items'];
-    print(op.user.cityId);
-    print(double.parse(
-        ci.items.values.toList()[op.user.cityId].minOrder.toString()));
-    setState(() {
-      _city = double.parse(
-          ci.items.values.toList()[op.user.cityId].minOrder.toString());
+    var request =
+    await get(ApiHelper.api + 'getCities', headers: ApiHelper.headers);
+    var response = json.decode(request.body);
+    var items = response['cities'];
+    items.forEach((element) {
+      City city = City.fromJson(element);
+      _cities.add(city);
     });
+    var set = json.decode(settings.body)['items'];
+    // setState(() {
+    //   for(var city in _cities){
+    //     if(city.id == op.user.cityId){
+    //       _city = city;
+    //     }
+    //   }
+    //   print(_city);
+    //   print(op.user.cityId);
+    // });
     if (set['show_delivery_free_msg'] == 1) {
       setState(() {
         showFree = true;
@@ -256,7 +266,7 @@ class _BasketStepState extends State<BasketStep> {
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 2),
                                   child: Text(
-                                    "${cart.items.values.toList()[index].quantity}",
+                                    "${cart.items.values.toList()[index].product.inCart}",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       color: CColors.headerText,
@@ -349,7 +359,7 @@ class _BasketStepState extends State<BasketStep> {
                                                         horizontal: 10,
                                                         vertical: 5),
                                                 child: Text(
-                                                  "${_city}\$",
+                                                  "${remains.toString()}\$",
                                                   style: TextStyle(
                                                       color: CColors.white),
                                                 ),

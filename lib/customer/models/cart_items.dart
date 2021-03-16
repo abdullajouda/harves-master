@@ -66,7 +66,7 @@ class Cart with ChangeNotifier {
   }
 
   void removeFav(CartItem item) {
-    _cartItems.removeWhere((key, value) => key == item.id.toString());
+    _cartItems.remove(item);
     notifyListeners();
   }
 

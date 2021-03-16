@@ -6,12 +6,15 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/favorite.dart';
 import 'package:harvest/customer/models/notifications.dart';
+import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/main.dart';
 import 'package:harvest/splash.dart';
 import 'package:harvest/splash_screen.dart';
 import 'package:http/http.dart';
@@ -32,6 +35,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     });
     var op = Provider.of<FavoriteOperations>(context, listen: false);
     var no = Provider.of<NotificationOperations>(context, listen: false);
+    var us = Provider.of<UserFunctions>(context, listen: false);
+    var ca = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'logout', headers: {
       'Accept': 'application/json',
@@ -43,11 +48,14 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     op.clearFav();
     op.clearHome();
     no.clearNotes();
+    us.clearUser();
+    ca.clearFav();
     prefs.remove('userToken');
     Navigator.popUntil(context, (route) => route.isFirst);
-    Navigator.of(context).pushReplacement(platformPageRoute(
+    Navigator.of(context, rootNavigator: true).pushReplacement(
+        platformPageRoute(
       context: context,
-      builder: (context) => SplashScreen(),
+      builder: (context) => MyApp(),
     ));
     setState(() {
       load = false;

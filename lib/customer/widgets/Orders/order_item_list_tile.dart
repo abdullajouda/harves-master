@@ -6,7 +6,7 @@ import 'package:harvest/helpers/colors.dart';
 class OrderItemListTile extends StatelessWidget {
   final String name;
   final TextStyle nameStyle;
-  final int itemsNum;
+  final String itemsNum;
   final String image;
   final double price;
   final double pricePerKilo;

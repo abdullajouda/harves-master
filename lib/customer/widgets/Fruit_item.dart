@@ -1,8 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/products.dart';
+import 'package:harvest/helpers/Localization/lang_provider.dart';
+import 'package:harvest/helpers/api.dart';
+import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/widgets/favorite_button.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FruitItem extends StatefulWidget {
   final Products fruit;
@@ -16,6 +27,61 @@ class FruitItem extends StatefulWidget {
 
 class _FruitItemState extends State<FruitItem> {
   int _qty;
+  bool load = false;
+
+  addToBasket(int id) async {
+    setState(() {
+      load = true;
+    });
+    var cart = Provider.of<Cart>(context, listen: false);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
+      'Accept': 'application/json',
+      'fcmToken': '5555',
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    if (response['status'] == true) {
+      var items = response['cart'];
+      if (items != null) {
+        cart.clearFav();
+        items.forEach((element) {
+          CartItem item = CartItem.fromJson(element);
+          cart.addItem(item);
+        });
+        setState(() {
+          widget.fruit.inCart = '1';
+          _qty = _qty + widget.fruit.unitRate;
+        });
+      }
+    }
+    Fluttertoast.showToast(msg: response['message']);
+    setState(() {
+      load = false;
+    });
+  }
+
+  changeQnt(int type, int id) async {
+    setState(() {
+      load = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'changeQuantity', body: {
+      'type': type.toString(),
+      'product_id': id.toString()
+    }, headers: {
+      'Accept': 'application/json',
+      'fcmToken': '5555',
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    Fluttertoast.showToast(msg: response['message']);
+    setState(() {
+      load = false;
+    });
+  }
 
   @override
   void initState() {
@@ -25,6 +91,7 @@ class _FruitItemState extends State<FruitItem> {
 
   @override
   Widget build(BuildContext context) {
+    var cart = Provider.of<Cart>(context);
     return Container(
       height: 160,
       width: 160,
@@ -147,9 +214,14 @@ class _FruitItemState extends State<FruitItem> {
             right: 0,
             child: GestureDetector(
               onTap: () {
-                setState(() {
-                  _qty = _qty + widget.fruit.unitRate;
-                });
+                _qty == 0
+                    ? addToBasket(widget.fruit.id)
+                    : changeQnt(1, widget.fruit.id);
+                setState(_qty != 0
+                    ? () {
+                        _qty = _qty + widget.fruit.unitRate;
+                      }
+                    : () {});
               },
               child: Container(
                 height: 31,
@@ -171,15 +243,20 @@ class _FruitItemState extends State<FruitItem> {
           _qty != 0
               ? Positioned(
                   bottom: 7,
-                  child: Text(
-                    '$_qty',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: const Color(0xff3c4959),
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
+                  child: load
+                      ? SpinKitFadingCircle(
+                          color: CColors.darkGreen,
+                          size: 15,
+                        )
+                      : Text(
+                          '$_qty',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: const Color(0xff3c4959),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
                 )
               : Container(),
           _qty != 0
@@ -188,6 +265,7 @@ class _FruitItemState extends State<FruitItem> {
                   left: 0,
                   child: GestureDetector(
                     onTap: () {
+                      changeQnt(2, widget.fruit.id);
                       setState(() {
                         _qty = _qty - widget.fruit.unitRate;
                       });

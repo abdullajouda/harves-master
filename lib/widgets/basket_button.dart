@@ -12,15 +12,7 @@ class BasketButton extends StatelessWidget {
   Widget build(BuildContext context) {
     var cart = Provider.of<Cart>(context);
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          CustomPageRoute(
-            // context: context,
-            builder: (context) => Basket(),
-          ),
-        );
-      },
+
       child: Container(
         width: 33,
         height: 25,

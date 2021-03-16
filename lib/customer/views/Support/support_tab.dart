@@ -1,14 +1,23 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/components/WaveAppBar/appBar_body.dart';
 import 'package:harvest/customer/views/Basket/basket.dart';
 import 'package:harvest/customer/views/Support/support_chat.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/widgets/Loader.dart';
+import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SupportTab extends StatefulWidget {
   SupportTab({Key key}) : super(key: key);
@@ -19,6 +28,27 @@ class SupportTab extends StatefulWidget {
 
 class _SupportTabState extends State<SupportTab> {
   TextEditingController _textEditingController;
+  bool load = false;
+
+  sendMessage() async {
+    setState(() {
+      load = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'contactUs', body: {
+      'message': _textEditingController.text
+    }, headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var res = json.decode(request.body);
+    Fluttertoast.showToast(msg: res['message']);
+
+    setState(() {
+      load = false;
+    });
+  }
 
   @override
   void initState() {
@@ -40,24 +70,7 @@ class _SupportTabState extends State<SupportTab> {
         backgroundGradient: CColors.greenAppBarGradient(),
         pinned: true,
         actions: [HomePopUpMenu()],
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              platformPageRoute(
-                context: context,
-                builder: (context) => Basket(),
-              ),
-            );
-          },
-          child: Container(
-            width: 30,
-            height: 30,
-            child: Center(
-              child: SvgPicture.asset(Constants.basketIcon),
-            ),
-          ),
-        ),
+        leading: BasketButton(),
         contentPadding: EdgeInsets.symmetric(horizontal: 20),
         children: [
           Text(
@@ -140,23 +153,26 @@ class _SupportTabState extends State<SupportTab> {
                     alignment: AlignmentDirectional.centerEnd,
                     child: FlatButton.icon(
                       onPressed: () {
-                        Navigator.of(
-                          context,
-                          rootNavigator: true,
-                        ).push(platformPageRoute(
-                          context: context,
-                          builder: (context) => SupportChat(),
-                        ));
+                        sendMessage();
+                        // Navigator.of(
+                        //   context,
+                        //   rootNavigator: true,
+                        // ).push(platformPageRoute(
+                        //   context: context,
+                        //   builder: (context) => SupportChat(),
+                        // ));
                       },
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       color: CColors.lightGreen,
-                      icon: Icon(
-                        CupertinoIcons.paperplane_fill,
-                        color: CColors.white,
-                        size: 16,
-                      ),
+                      icon: load
+                          ? SpinKitFadingCircle(size: 20,color: CColors.white,)
+                          : Icon(
+                              CupertinoIcons.paperplane_fill,
+                              color: CColors.white,
+                              size: 16,
+                            ),
                       label: Text(
                         "send".trs(context),
                         style: TextStyle(
