@@ -111,7 +111,7 @@ class _BillingStepState extends State<BillingStep> {
                   ),
                 ),
                 SizedBox(height: 15),
-                WalletAmount(amount: 250.055),
+                WalletAmount(amount: '250.055'),
                 SizedBox(height: 5),
                 Expanded(
                   child: GridView.builder(

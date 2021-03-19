@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -31,31 +33,38 @@ class _LocationSheetState extends State<LocationSheet> {
   var additionalNotes;
   City city;
   bool load = false;
+  String deviceType;
 
   onContinue() async {
+    if (Platform.isIOS) {
+      deviceType = "ios";
+    } else {
+      deviceType = 'android';
+    }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       load = true;
     });
     if (lat != null && lng != null) {
-      var request = await post(ApiHelper.api + 'signUp',
-          body: {
-            'name': widget.name,
-            'mobile': widget.mobile,
-            'device_type': 'android',
-            'fcm_token': '236565576',
-            'lat': '$lat',
-            'lan': '$lng',
-            'full_address': '$fullAddress',
-            'city': '${city.id}',
-            'building_no': '$buildingNo',
-            'unit_no': '$unitNo',
-            'additional_notes': '$additionalNotes',
-          },
-          headers: {
-            'Accept': 'application/json',
-            'Accept-Language': prefs.getString('language'),
-          });
+      FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+      final fToken = await _firebaseMessaging.getToken();
+      prefs.setString('fcm_token', fToken);
+      var request = await post(ApiHelper.api + 'signUp', body: {
+        'name': widget.name,
+        'mobile': widget.mobile,
+        'device_type': deviceType,
+        'fcm_token': fToken,
+        'lat': '$lat',
+        'lan': '$lng',
+        'full_address': '$fullAddress',
+        'city': '${city.id}',
+        'building_no': '$buildingNo',
+        'unit_no': '$unitNo',
+        'additional_notes': '$additionalNotes',
+      }, headers: {
+        'Accept': 'application/json',
+        'Accept-Language': prefs.getString('language'),
+      });
       var response = json.decode(request.body);
       // Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {

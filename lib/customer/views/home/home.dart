@@ -99,6 +99,7 @@ class _HomeState extends State<Home> {
   }
 
   getFeaturedProducts() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var settings = await get(ApiHelper.api + 'getSetting', headers: {
       'Accept': 'application/json',
       'Accept-Language': LangProvider().getLocaleCode(),
@@ -107,7 +108,7 @@ class _HomeState extends State<Home> {
     if (set['show_featured'] == 1) {
       var request = await get(ApiHelper.api + 'getFeaturedProducts', headers: {
         'Accept': 'application/json',
-        'fcmToken': '5555',
+        'fcmToken': prefs.getString('fcm_token'),
         'Accept-Language': LangProvider().getLocaleCode(),
       });
       var response = json.decode(request.body);
@@ -134,7 +135,7 @@ class _HomeState extends State<Home> {
         ApiHelper.api + 'getProductsByCategoryId/${category.id}',
         headers: {
           'Accept': 'application/json',
-          'fcmToken': '5555',
+          'fcmToken': prefs.getString('fcm_token'),
           'Accept-Language': LangProvider().getLocaleCode(),
           'Authorization': 'Bearer ${prefs.getString('userToken')}'
         });
@@ -154,7 +155,7 @@ class _HomeState extends State<Home> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getMyCart', headers: {
       'Accept': 'application/json',
-      'fcmToken': '5555',
+      'fcmToken': prefs.getString('fcm_token'),
       'Accept-Language': LangProvider().getLocaleCode(),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });

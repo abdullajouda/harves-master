@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/products.dart';
+import 'package:harvest/helpers/AlertManager.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
@@ -37,12 +39,18 @@ class _FruitItemState extends State<FruitItem> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
       'Accept': 'application/json',
-      'fcmToken': '5555',
+      'fcmToken': prefs.getString('fcm_token'),
       'Accept-Language': LangProvider().getLocaleCode(),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
     if (response['status'] == true) {
+      AlertManager.showDropDown(
+          alertBody: AlertBody(
+              context: context,
+              title: 'added successfully to Cart',
+              message: 'You can find it in your cart  screen',
+              icon: Icon(CupertinoIcons.check_mark)));
       var items = response['cart'];
       if (items != null) {
         cart.clearFav();
@@ -56,7 +64,7 @@ class _FruitItemState extends State<FruitItem> {
         });
       }
     }
-    Fluttertoast.showToast(msg: response['message']);
+    // Fluttertoast.showToast(msg: response['message']);
     setState(() {
       load = false;
     });
@@ -72,7 +80,7 @@ class _FruitItemState extends State<FruitItem> {
       'product_id': id.toString()
     }, headers: {
       'Accept': 'application/json',
-      'fcmToken': '5555',
+      'fcmToken': prefs.getString('fcm_token'),
       'Accept-Language': LangProvider().getLocaleCode(),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });

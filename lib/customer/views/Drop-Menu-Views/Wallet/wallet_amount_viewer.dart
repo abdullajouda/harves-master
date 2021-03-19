@@ -3,14 +3,16 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:shimmer/shimmer.dart';
 
 class WalletAmount extends StatelessWidget {
-  final double amount;
+  final String amount;
   final EdgeInsetsGeometry margin;
+  final bool load;
   const WalletAmount({
     Key key,
     @required this.amount,
-    this.margin,
+    this.margin, this.load,
   }) : super(key: key);
 
   @override
@@ -54,11 +56,17 @@ class WalletAmount extends StatelessWidget {
                 ),
               ],
             ),
-            Text(
-              "\$" + (amount ?? 250.00).toStringAsFixed(2),
-              style: TextStyle(
-                color: CColors.white,
-                fontSize: 17,
+            Shimmer.fromColors(
+              period: Duration(milliseconds: 200),
+              enabled: load,
+              baseColor: load?Colors.grey:Colors.white,
+              highlightColor: Colors.white,
+              child: Text(
+                "\$" + (amount ?? '0.00'),
+                style: TextStyle(
+                  color: CColors.white,
+                  fontSize: 17,
+                ),
               ),
             ),
           ],

@@ -1,8 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/widgets/custom_main_button.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 import 'wallet_amount_viewer.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
@@ -14,6 +21,63 @@ class Wallet extends StatefulWidget {
 }
 
 class _WalletState extends State<Wallet> {
+  TextEditingController _controller;
+  bool load = false;
+  String balance;
+  int points;
+  int _selectedIndex = -1;
+
+  getWallet() async {
+    setState(() {
+      load = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await get(ApiHelper.api + 'getWallet', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': 'en',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    setState(() {
+      balance = response['balance'];
+      points = response['points'];
+      load = false;
+    });
+  }
+
+  addAmount() async {
+    setState(() {
+      load = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'addBalanceToWallet', body: {
+      'balance': '${_controller.text}',
+    }, headers: {
+      'Accept': 'application/json',
+      'Accept-Language': 'en',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    print(response);
+    getWallet();
+    setState(() {
+      load = false;
+    });
+  }
+
+  @override
+  void initState() {
+    _controller = TextEditingController();
+    getWallet();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -38,11 +102,149 @@ class _WalletState extends State<Wallet> {
               ),
             ),
             SizedBox(height: 20),
-            WalletAmount(amount: 250.055, margin: EdgeInsets.zero),
+            WalletAmount(load: load, amount: balance, margin: EdgeInsets.zero),
             SizedBox(height: 20),
             _buildConvertPointsToWallet(context),
             SizedBox(height: size.height * 0.06),
-            _WalletChargingSelector(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "charge_wallet_from_card".trs(context),
+                  style: TextStyle(
+                    color: CColors.lightGreen,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.only(start: 15, top: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "select_the_amount".trs(context),
+                        style: TextStyle(
+                          color: CColors.normalText,
+                          fontSize: 13,
+                        ),
+                      ),
+                      SizedBox(
+                        height: size.height * 0.09,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: ListView.separated(
+                                itemCount: 4,
+                                scrollDirection: Axis.horizontal,
+                                separatorBuilder: (context, index) =>
+                                    SizedBox(width: 8),
+                                itemBuilder: (context, index) {
+                                  final _isSelected = _selectedIndex == index;
+                                  final _textColor =
+                                  _isSelected ? CColors.white : CColors.lightGreen;
+                                  final _backgroundColor =
+                                  !_isSelected ? CColors.white : CColors.lightGreen;
+                                  return GestureDetector(
+                                    onTap: () {
+                                      setState(() => _selectedIndex = index);
+                                      FocusScope.of(context).unfocus();
+                                      setState(() {
+                                        _controller = TextEditingController(
+                                            text: '${50 * (index + 1)}');
+                                      });
+                                    },
+                                    child: Container(
+                                      margin: EdgeInsets.symmetric(vertical: 4),
+                                      padding:
+                                      const EdgeInsets.symmetric(horizontal: 12),
+                                      decoration: BoxDecoration(
+                                        color: _backgroundColor,
+                                        border: Border.all(
+                                            color: CColors.lightGreen, width: 1),
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "${50 * (index + 1)}",
+                                            style: TextStyle(
+                                              fontFamily: 'SF Pro Rounded',
+                                              fontSize: 16,
+                                              color: _textColor,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          Text(
+                                            "usd".trs(context),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.normal,
+                                              color: _textColor,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 15),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "another_amount".trs(context),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: CColors.lightGreen,
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    TextField(
+                                      keyboardType: TextInputType.number,
+                                      controller: _controller,
+                                      style: TextStyle(fontSize: 12),
+                                      onTap: () {
+                                        setState(() => _selectedIndex = -1);
+                                      },
+                                      decoration: InputDecoration(
+                                        prefix: Text(
+                                          '\$',
+                                          style: TextStyle(
+                                            fontFamily: 'SF Pro Rounded',
+                                            fontSize: 8,
+                                            color: const Color(0x993c984f),
+                                          ),
+                                          textAlign: TextAlign.left,
+                                        ),
+                                        isDense: true,
+                                        contentPadding: EdgeInsetsDirectional.only(
+                                            start: 10, top: 9, bottom: 9),
+                                        hintStyle: TextStyle(fontSize: 12),
+                                        border: _buildVoucherTextFieldBorder(),
+                                        focusedBorder: _buildVoucherTextFieldBorder(),
+                                        enabledBorder: _buildVoucherTextFieldBorder(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             SizedBox(height: 20),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +288,8 @@ class _WalletState extends State<Wallet> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),
                     color: const Color(0xffffffff),
-                    border: Border.all(width: 2.0, color: const Color(0xffffeede)),
+                    border:
+                        Border.all(width: 2.0, color: const Color(0xffffeede)),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0x14535353),
@@ -122,6 +325,7 @@ class _WalletState extends State<Wallet> {
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: MainButton(
+                onTap: () {addAmount();},
                 title: 'Submit',
               ),
             )
@@ -142,23 +346,29 @@ class _WalletState extends State<Wallet> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text.rich(
-              TextSpan(
-                text: "7,000",
-                style: TextStyle(
-                  color: CColors.darkOrange,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 19,
-                ),
-                children: [
-                  TextSpan(
-                    text: "\t" + "points".trs(context),
-                    style: TextStyle(
-                      color: CColors.darkOrange,
-                      fontSize: 12,
-                    ),
+            Shimmer.fromColors(
+              period: Duration(milliseconds: 200),
+              enabled: load,
+              baseColor: load ? Colors.white : CColors.darkOrange,
+              highlightColor: CColors.darkOrange,
+              child: Text.rich(
+                TextSpan(
+                  text: "${points ?? 0}",
+                  style: TextStyle(
+                    color: CColors.darkOrange,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 19,
                   ),
-                ],
+                  children: [
+                    TextSpan(
+                      text: "\t" + "points".trs(context),
+                      style: TextStyle(
+                        color: CColors.darkOrange,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             FlatButton.icon(
@@ -183,159 +393,6 @@ class _WalletState extends State<Wallet> {
       ),
     );
   }
-}
-
-class _WalletChargingSelector extends StatefulWidget {
-  const _WalletChargingSelector({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  __WalletChargingSelectorState createState() =>
-      __WalletChargingSelectorState();
-}
-
-class __WalletChargingSelectorState extends State<_WalletChargingSelector> {
-  int _selectedIndex = -1;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "charge_wallet_from_card".trs(context),
-          style: TextStyle(
-            color: CColors.lightGreen,
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        Padding(
-          padding: EdgeInsetsDirectional.only(start: 15, top: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "select_the_amount".trs(context),
-                style: TextStyle(
-                  color: CColors.normalText,
-                  fontSize: 13,
-                ),
-              ),
-              SizedBox(
-                height: size.height * 0.09,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: ListView.separated(
-                        itemCount: 4,
-                        scrollDirection: Axis.horizontal,
-                        separatorBuilder: (context, index) =>
-                            SizedBox(width: 8),
-                        itemBuilder: (context, index) {
-                          final _isSelected = _selectedIndex == index;
-                          final _textColor =
-                              _isSelected ? CColors.white : CColors.lightGreen;
-                          final _backgroundColor =
-                              !_isSelected ? CColors.white : CColors.lightGreen;
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() => _selectedIndex = index);
-                              FocusScope.of(context).unfocus();
-                            },
-                            child: Container(
-                              margin: EdgeInsets.symmetric(vertical: 4),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
-                              decoration: BoxDecoration(
-                                color: _backgroundColor,
-                                border: Border.all(
-                                    color: CColors.lightGreen, width: 1),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "${50 * (index + 1)}",
-                                    style: TextStyle(
-                                      fontFamily: 'SF Pro Rounded',
-                                      fontSize: 16,
-                                      color: _textColor,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Text(
-                                    "usd".trs(context),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                      color: _textColor,
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 15),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "another_amount".trs(context),
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: CColors.lightGreen,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            TextField(
-                              style: TextStyle(fontSize: 12),
-                              onTap: () {
-                                setState(() => _selectedIndex = -1);
-                              },
-                              decoration: InputDecoration(
-                                prefix: Text(
-                                  '\$',
-                                  style: TextStyle(
-                                    fontFamily: 'SF Pro Rounded',
-                                    fontSize: 8,
-                                    color: const Color(0x993c984f),
-                                  ),
-                                  textAlign: TextAlign.left,
-                                ),
-                                isDense: true,
-                                contentPadding: EdgeInsetsDirectional.only(
-                                    start: 10, top: 9, bottom: 9),
-                                hintStyle: TextStyle(fontSize: 12),
-                                border: _buildVoucherTextFieldBorder(),
-                                focusedBorder: _buildVoucherTextFieldBorder(),
-                                enabledBorder: _buildVoucherTextFieldBorder(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   ShapeBorder _buildVoucherTextFieldBorder() {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(5),
@@ -343,3 +400,4 @@ class __WalletChargingSelectorState extends State<_WalletChargingSelector> {
     );
   }
 }
+

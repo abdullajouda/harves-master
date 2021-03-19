@@ -45,7 +45,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
       'Accept': 'application/json',
-      'fcmToken': '5555',
+      'fcmToken': prefs.getString('fcm_token'),
       'Accept-Language': LangProvider().getLocaleCode(),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });

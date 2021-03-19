@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -8,17 +9,26 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:harvest/customer/models/city.dart';
+import 'package:harvest/customer/models/delivery-data.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/customer/views/root_screen.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'dart:ui' as ui;
 
 import 'package:harvest/helpers/variables.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddNewAddressDialog extends StatefulWidget {
+  final DeliveryAddresses deliveryAddresses;
+
+  const AddNewAddressDialog({Key key, this.deliveryAddresses})
+      : super(key: key);
+
   @override
   _AddNewAddressDialogState createState() => _AddNewAddressDialogState();
 }
@@ -29,12 +39,13 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
   var buildingNo;
   var unitNo;
   var additionalNotes;
+  double lat, lng;
   GoogleMapController _controller;
   List<Marker> markers = [];
   CameraPosition _initialCameraPosition;
   BitmapDescriptor customIcon;
-  bool _visible = false;
-  bool _load = true;
+  bool _visible = true;
+  bool _load = false;
   bool _expand = false;
   Coordinates coordinates;
 
@@ -62,70 +73,77 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
     });
   }
 
-  Future<Position> _determinePosition() async {
-    final Uint8List markerIcon = await getBytesFromAsset('assets/Pin.png', 100);
-    bool serviceEnabled;
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (serviceEnabled) {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      _controller.animateCamera(CameraUpdate.newLatLngZoom(
-          LatLng(position.latitude, position.longitude), 15));
-      setState(() {
-        coordinates = new Coordinates(position.latitude, position.longitude);
-        markers = [];
-        markers.add(Marker(
-            icon: BitmapDescriptor.fromBytes(markerIcon),
-            position: LatLng(position.latitude, position.longitude),
-            markerId: MarkerId('0')));
-        _load = false;
-        _visible = true;
-      });
-    }
-    setState(() {
-      _load = false;
-      _visible = true;
-    });
-    return await Geolocator.getCurrentPosition();
-  }
+  // Future<Position> _determinePosition() async {
+  //   final Uint8List markerIcon = await getBytesFromAsset('assets/Pin.png', 100);
+  //   bool serviceEnabled;
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (serviceEnabled) {
+  //     Position position = await Geolocator.getCurrentPosition(
+  //         desiredAccuracy: LocationAccuracy.high);
+  //     _controller.animateCamera(CameraUpdate.newLatLngZoom(
+  //         LatLng(position.latitude, position.longitude), 15));
+  //     setState(() {
+  //       coordinates = new Coordinates(position.latitude, position.longitude);
+  //       markers = [];
+  //       markers.add(Marker(
+  //           icon: BitmapDescriptor.fromBytes(markerIcon),
+  //           position: LatLng(position.latitude, position.longitude),
+  //           markerId: MarkerId('0')));
+  //       _load = false;
+  //       _visible = true;
+  //     });
+  //   }
+  //   setState(() {
+  //     _load = false;
+  //     _visible = true;
+  //   });
+  //   return await Geolocator.getCurrentPosition();
+  // }
 
   save() async {
-    // try {
-    // var addresses =
-    //     await Geocoder.local.findAddressesFromCoordinates(coordinates);
-    // if (addresses.first.addressLine != null) {
     if (city != null) {
-      Navigator.of(context).pop({
-        'addressLine': fullAddress,
-        'latitude': markers[0].position.latitude,
-        'longitude': markers[0].position.longitude,
-        'city': city,
-        'buildingNo': buildingNo,
-        'unitNo': unitNo,
-        'additionalNotes': additionalNotes,
+      setState(() {
+        _load = true;
+      });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var request = await post(ApiHelper.api + 'addNewAddress', body: {
+        'lat': '${lat != null ? lat : widget.deliveryAddresses.lat}',
+        'lan': '${lng != null ? lat : widget.deliveryAddresses.lan}',
+        'address_name': '$fullAddress',
+        'address': '$fullAddress',
+        'city_id': '${city.id}',
+        'building_number': '$buildingNo',
+        'unit_number': '$unitNo',
+        'note': '$additionalNotes',
+      }, headers: {
+        'Accept': 'application/json',
+        'Accept-Language': 'en',
+        'Authorization': 'Bearer ${prefs.getString('userToken')}'
+      });
+      var response = json.decode(request.body);
+      print(response);
+      if (response['status'] == true) {
+        Navigator.pop(context);
+      }
+      setState(() {
+        _load = false;
       });
     } else {
       Fluttertoast.showToast(msg: 'Select your city from extra details');
     }
-
-    // if(city != null){
-    //   Navigator.of(context).pop({
-    //     'latitude': markers[0].position.latitude,
-    //     'longitude': markers[0].position.longitude,
-    //     'city': city
-    //   });
-    // }else{
-    //   Fluttertoast.showToast(msg: 'Select your city from extra details');
-    // }
   }
 
   @override
   void initState() {
-    _determinePosition();
+    // _determinePosition();
+    print(widget.deliveryAddresses.lat);
     _initialCameraPosition = CameraPosition(
-      target: LatLng(26, 41),
+      target: LatLng(widget.deliveryAddresses.lat ?? 30,
+          widget.deliveryAddresses.lan ?? 40),
       zoom: 14.4746,
     );
+    addMarker(
+        widget.deliveryAddresses.lat ?? 30, widget.deliveryAddresses.lan ?? 40);
     super.initState();
   }
 
@@ -186,7 +204,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                             mapToolbarEnabled: false,
                             trafficEnabled: false,
                             compassEnabled: false,
-                            // scrollGesturesEnabled: false,
+                            scrollGesturesEnabled: true,
                             initialCameraPosition: _initialCameraPosition,
                             markers: markers.toSet(),
                             onMapCreated: (controller) {
@@ -197,6 +215,10 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                             onTap: (latLng) {
                               _controller.animateCamera(
                                   CameraUpdate.newLatLng(latLng));
+                              setState(() {
+                                lat = latLng.latitude;
+                                lng = latLng.longitude;
+                              });
                               addMarker(latLng.latitude, latLng.longitude);
                             },
                           ),
@@ -486,31 +508,31 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                         ),
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        save();
-                                      },
-                                      child: Container(
-                                        width: 58,
-                                        height: 31,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                          color: const Color(0xfff88518),
-                                        ),
-                                        child: Center(
-                                            child: Text(
-                                          'Done',
-                                          style: TextStyle(
-                                            fontFamily: 'SF Pro Rounded',
-                                            fontSize: 12,
-                                            color: const Color(0xffffffff),
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          textAlign: TextAlign.left,
-                                        )),
-                                      ),
-                                    )
+                                    // GestureDetector(
+                                    //   onTap: () {
+                                    //     save();
+                                    //   },
+                                    //   child: Container(
+                                    //     width: 58,
+                                    //     height: 31,
+                                    //     decoration: BoxDecoration(
+                                    //       borderRadius:
+                                    //           BorderRadius.circular(5.0),
+                                    //       color: const Color(0xfff88518),
+                                    //     ),
+                                    //     child: Center(
+                                    //         child: Text(
+                                    //       'Done',
+                                    //       style: TextStyle(
+                                    //         fontFamily: 'SF Pro Rounded',
+                                    //         fontSize: 12,
+                                    //         color: const Color(0xffffffff),
+                                    //         fontWeight: FontWeight.w500,
+                                    //       ),
+                                    //       textAlign: TextAlign.left,
+                                    //     )),
+                                    //   ),
+                                    // )
                                   ],
                                 ),
                         )),
@@ -522,11 +544,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
           Padding(
             padding: const EdgeInsets.only(bottom: 50),
             child: GestureDetector(
-              // onTap: () => Navigator.push(
-              //     context,
-              //     CustomPageRoute(
-              //       builder: (context) => LoginDelivery(),
-              //     )),
+              onTap: () => save(),
               child: Container(
                 height: 60,
                 width: 260,

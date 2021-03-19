@@ -39,7 +39,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
       'Accept': 'application/json',
-      'fcmToken': '5555',
+      'fcmToken': prefs.getString('fcm_token'),
       'Accept-Language': LangProvider().getLocaleCode(),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
@@ -74,7 +74,7 @@ class _ProductDetailsState extends State<ProductDetails> {
       'product_id': id.toString()
     }, headers: {
       'Accept': 'application/json',
-      'fcmToken': '5555',
+      'fcmToken': prefs.getString('fcm_token'),
       'Accept-Language': LangProvider().getLocaleCode(),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });

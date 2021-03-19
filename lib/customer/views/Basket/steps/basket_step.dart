@@ -43,7 +43,7 @@ class _BasketStepState extends State<BasketStep> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getMyCart', headers: {
       'Accept': 'application/json',
-      'fcmToken': '5555',
+      'fcmToken': prefs.getString('fcm_token'),
       'Accept-Language': LangProvider().getLocaleCode(),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });

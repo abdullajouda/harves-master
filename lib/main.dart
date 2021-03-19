@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:harvest/customer/models/city.dart';
@@ -14,8 +15,9 @@ import 'customer/models/favorite.dart';
 import 'customer/models/user.dart';
 import 'helpers/Localization/app_translations_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'helpers/app_shared.dart';
 import 'helpers/shared_perfs_provider.dart';
-import 'splash_screen.dart';
+import 'services/firebase_messaging_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +31,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   AppTranslationsDelegate _newLocaleDelegate;
   LangProvider _langProvider;
 
@@ -51,6 +54,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    final pushNotificationService =
+    FirebaseMessagingService(_firebaseMessaging);
+    pushNotificationService.initialise();
     bool isArabic = _newLocaleDelegate.newLocale.languageCode == 'ar';
     // final _statusBarBrightness = context.watch<StatusBarBrighness>().brightness;
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -66,6 +72,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context) => Cart()),
         ],
         child: MaterialApp(
+          // navigatorKey: AppShared.navKey = GlobalKey(),
           supportedLocales: application.supportedLocales(),
           locale: _newLocaleDelegate.newLocale,
           localizationsDelegates: [

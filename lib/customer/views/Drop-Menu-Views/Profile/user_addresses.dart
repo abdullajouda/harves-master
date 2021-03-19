@@ -29,6 +29,7 @@ class _UserAddressesState extends State<UserAddresses> {
 
   getAddresses() async {
     setState(() {
+      addresses = [];
       load = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -43,6 +44,7 @@ class _UserAddressesState extends State<UserAddresses> {
       DeliveryAddresses deliveryAddress = DeliveryAddresses.fromJson(element);
       addresses.add(deliveryAddress);
     });
+
     setState(() {
       load = false;
     });
@@ -102,7 +104,7 @@ class _UserAddressesState extends State<UserAddresses> {
       isScrollControlled: true,
       enableDrag: false,
       backgroundColor: Colors.transparent,
-      builder: (context) => SetLocationSheet(),
+      builder: (context) => AddNewAddressDialog(),
     ).then((value) {
       if (value is Map<String, dynamic>) {
         if (value['addressLine'] == null) {
@@ -176,9 +178,12 @@ class _UserAddressesState extends State<UserAddresses> {
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
+                      enableDrag: false,
                       backgroundColor: Colors.transparent,
-                      builder: (_) => AddNewAddressDialog(),
-                    );
+                      builder: (_) => AddNewAddressDialog(
+                        deliveryAddresses: addresses[_selectedIndex],
+                      ),
+                    ).then((value) => getAddresses());
                   },
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5)),

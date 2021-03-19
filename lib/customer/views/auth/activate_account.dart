@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -36,6 +38,7 @@ class _AccountActivationState extends State<AccountActivation>
   bool load = false;
   bool loadResend = false;
   String code;
+  String deviceType;
 
   void startTimer() async {
     const oneSec = const Duration(seconds: 1);
@@ -54,17 +57,26 @@ class _AccountActivationState extends State<AccountActivation>
   }
 
   sendCode() async {
+    if (Platform.isIOS) {
+      deviceType = "ios";
+    } else {
+      deviceType = 'android';
+    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var op = Provider.of<UserFunctions>(context, listen: false);
     setState(() {
       load = true;
     });
     if (_formKey.currentState.validate()) {
+      FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+      final fToken = await _firebaseMessaging.getToken();
+      prefs.setString('fcm_token', fToken);
       var request = await post(ApiHelper.api + 'verifyCode',
           body: {
             'code': code,
             'mobile': widget.mobile,
-            'device_type': 'android',
-            'fcm_token': '78654132687'
+            'device_type': deviceType,
+            'fcm_token': fToken
           },
           headers: ApiHelper.headers);
       var response = json.decode(request.body);

@@ -37,8 +37,14 @@ class _UserProfileState extends State<UserProfile> {
   TextEditingController _name, _mobile, _email;
   bool isChanged = false;
   bool load = false;
+  String deviceType;
 
   updateProfile() async {
+    if (Platform.isIOS) {
+      deviceType = "ios";
+    } else {
+      deviceType = 'android';
+    }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var op = Provider.of<UserFunctions>(context, listen: false);
     Map<String, String> headers = {
@@ -51,8 +57,8 @@ class _UserProfileState extends State<UserProfile> {
       'name': _name.text,
       'email': _email.text,
       'mobile': _mobile.text,
-      'device_type': 'android',
-      'fcm_token': '5555',
+      'device_type': deviceType,
+      'fcm_token': prefs.getString('fcm_token'),
     };
 
     var uri = Uri.parse(ApiHelper.api + 'editProfile');
@@ -190,6 +196,8 @@ class _UserProfileState extends State<UserProfile> {
     final Size size = MediaQuery.of(context).size;
     final trs = AppTranslations.of(context);
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       body: WaveAppBarBody(
         bottomViewOffset: Offset(0, 10),
         leading: BasketButton(),
