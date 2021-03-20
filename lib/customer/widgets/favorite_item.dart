@@ -1,8 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:harvest/customer/models/favorite.dart';
 import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/customer/views/product_details.dart';
+import 'dart:convert';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/models/cart_items.dart';
+import 'package:harvest/helpers/AlertManager.dart';
+import 'package:harvest/helpers/Localization/lang_provider.dart';
+import 'package:harvest/helpers/api.dart';
+import 'package:harvest/helpers/colors.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FavoriteItem extends StatefulWidget {
   final Products fruit;
@@ -16,6 +28,67 @@ class FavoriteItem extends StatefulWidget {
 
 class _FavoriteItemState extends State<FavoriteItem> {
   bool load = false;
+
+  addToBasket(int id) async {
+    setState(() {
+      load = true;
+    });
+    var cart = Provider.of<Cart>(context, listen: false);
+    var op = Provider.of<FavoriteOperations>(context, listen: false);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
+      'Accept': 'application/json',
+      'fcmToken': prefs.getString('fcm_token'),
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    if (response['status'] == true) {
+      AlertManager.showDropDown(
+          alertBody: AlertBody(
+              context: context,
+              title: 'added successfully to Cart',
+              message: 'You can find it in your cart  screen',
+              icon: Icon(CupertinoIcons.check_mark)));
+      var items = response['cart'];
+      if (items != null) {
+        cart.clearFav();
+        items.forEach((element) {
+          CartItem item = CartItem.fromJson(element);
+          cart.addItem(item);
+          op.addHomeItem(item.product);
+        });
+        setState(() {
+          widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
+        });
+      }
+    }
+    // Fluttertoast.showToast(msg: response['message']);
+    setState(() {
+      load = false;
+    });
+  }
+
+  changeQnt(int type, int id) async {
+    setState(() {
+      load = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'changeQuantity', body: {
+      'type': type.toString(),
+      'product_id': id.toString()
+    }, headers: {
+      'Accept': 'application/json',
+      'fcmToken': prefs.getString('fcm_token'),
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    Fluttertoast.showToast(msg: response['message']);
+    setState(() {
+      load = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +201,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                 : Container(),
             Positioned(
               left: 20,
-              bottom: widget.fruit.inCart == '1' ? 40 : 13,
+              bottom: widget.fruit.inCart != 0 ? 40 : 13,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,52 +245,76 @@ class _FavoriteItemState extends State<FavoriteItem> {
             Positioned(
               bottom: 0,
               right: 0,
-              child: Container(
-                height: 31,
-                width: 30,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(19.0),
-                    bottomRight: Radius.circular(19.0),
+              child: GestureDetector(
+                onTap: () {
+                  widget.fruit.inCart == 0
+                      ? addToBasket(widget.fruit.id)
+                      : changeQnt(1, widget.fruit.id);
+                  setState(widget.fruit.inCart != 0
+                      ? () {
+                    widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
+                        }
+                      : () {});
+                },
+                child: Container(
+                  height: 31,
+                  width: 30,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(19.0),
+                      bottomRight: Radius.circular(19.0),
+                    ),
+                    color: Color(0xff3c984f),
                   ),
-                  color: const Color(0xff3c984f),
-                ),
-                child: Center(
-                  child: SvgPicture.asset('assets/icons/add.svg'),
+                  child: Center(
+                    child: SvgPicture.asset('assets/icons/add.svg'),
+                  ),
                 ),
               ),
             ),
-            widget.fruit.inCart == '1'
+            widget.fruit.inCart != 0
                 ? Positioned(
                     bottom: 7,
-                    child: Text(
-                      widget.fruit.qty.toString(),
-                      style: TextStyle(
-                        fontFamily: 'SF Pro Rounded',
-                        fontSize: 16,
-                        color: const Color(0xff3c4959),
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.left,
-                    ),
+                    child: load
+                        ? SpinKitFadingCircle(
+                            color: CColors.darkGreen,
+                            size: 15,
+                          )
+                        : Text(
+                            '$widget.fruit.inCart',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: const Color(0xff3c4959),
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
                   )
                 : Container(),
-            widget.fruit.inCart == '1'
+            widget.fruit.inCart != 0
                 ? Positioned(
                     bottom: 0,
                     left: 0,
-                    child: Container(
-                      height: 31,
-                      width: 30,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(19.0),
-                          bottomLeft: Radius.circular(19.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        changeQnt(2, widget.fruit.id);
+                        setState(() {
+                          widget.fruit.inCart = widget.fruit.inCart - widget.fruit.unitRate;
+                        });
+                      },
+                      child: Container(
+                        height: 31,
+                        width: 30,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(19.0),
+                            bottomLeft: Radius.circular(19.0),
+                          ),
+                          color: const Color(0xffe3e7eb),
                         ),
-                        color: const Color(0xffe3e7eb),
-                      ),
-                      child: Center(
-                        child: SvgPicture.asset('assets/icons/remove.svg'),
+                        child: Center(
+                          child: SvgPicture.asset('assets/icons/remove.svg'),
+                        ),
                       ),
                     ),
                   )

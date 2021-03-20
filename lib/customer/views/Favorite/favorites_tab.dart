@@ -19,6 +19,7 @@ import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/basket_button.dart';
+import 'package:harvest/widgets/dialogs/signup_first.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +32,7 @@ class FavoritesTab extends StatefulWidget {
 }
 
 class _FavoritesTabState extends State<FavoritesTab> {
-  bool load = true;
+  bool load = false;
   bool loadButton = false;
   Products _selectedIndex;
 
@@ -40,25 +41,37 @@ class _FavoritesTabState extends State<FavoritesTab> {
   getFavorite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    FavoriteOperations op =
-        Provider.of<FavoriteOperations>(context, listen: false);
-    var request = await get(ApiHelper.api + 'getMyFavorites', headers: {
-      'Accept': 'application/json',
-      'Accept-Language': 'en',
-      'Authorization': 'Bearer ${prefs.getString('userToken')}'
-    });
-    var response = json.decode(request.body);
-    if(response['items'] != null){
-      List values = response['items'];
-      values.forEach((element) {
-        FavoriteModel products = FavoriteModel.fromJson(element);
-        op.addItem(products.product);
-        // _fruits.add(products);
+    if (prefs.getString('userToken') != null) {
+      setState(() {
+        load = true;
       });
+      FavoriteOperations op =
+      Provider.of<FavoriteOperations>(context, listen: false);
+      var request = await get(ApiHelper.api + 'getMyFavorites', headers: {
+        'Accept': 'application/json',
+        'Accept-Language': 'en',
+        'Authorization': 'Bearer ${prefs.getString('userToken')}'
+      });
+      var response = json.decode(request.body);
+      if (response['items'] != null) {
+        List values = response['items'];
+        values.forEach((element) {
+          FavoriteModel products = FavoriteModel.fromJson(element);
+          op.addItem(products.product);
+          // _fruits.add(products);
+        });
+      }
+      setState(() {
+        load = false;
+      });
+    }else{
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => SignUpFirst(),
+      );
     }
-    setState(() {
-      load = false;
-    });
+
+
   }
 
   Future removeFav(Products fruit) async {

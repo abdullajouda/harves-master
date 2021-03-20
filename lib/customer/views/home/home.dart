@@ -457,7 +457,7 @@ class _HomeState extends State<Home> {
                           fruit: op.homeItems.values.toList()[index],
                         ),
                       ),
-                    ),
+                    ).then((value) => getProductsByCategories(_selectedIndex)),
                     child: FruitItem(
                       fruit: op.homeItems.values.toList()[index],
                     ),

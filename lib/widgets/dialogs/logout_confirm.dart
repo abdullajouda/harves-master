@@ -51,6 +51,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     us.clearUser();
     ca.clearFav();
     prefs.remove('userToken');
+    prefs.remove('fcm_token');
     Navigator.popUntil(context, (route) => route.isFirst);
     Navigator.of(context, rootNavigator: true).pushReplacement(
         platformPageRoute(

@@ -12,7 +12,6 @@ class BasketButton extends StatelessWidget {
   Widget build(BuildContext context) {
     var cart = Provider.of<Cart>(context);
     return GestureDetector(
-
       child: Container(
         width: 33,
         height: 25,

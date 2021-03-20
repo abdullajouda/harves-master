@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
+import 'package:harvest/customer/views/Basket/basket.dart';
 import 'package:harvest/customer/widgets/custom_main_button.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/helpers/custom_page_transition.dart';
+import 'package:harvest/widgets/basket_button.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -87,7 +90,17 @@ class _WalletState extends State<Wallet> {
         backgroundGradient: CColors.greenAppBarGradient(),
         bottomViewOffset: Offset(0, -10),
         actions: [HomePopUpMenu()],
-        leading: SvgPicture.asset(Constants.basketIcon),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                CustomPageRoute(
+                  // context: context,
+                  builder: (context) => Basket(),
+                ),
+              );
+            },
+            child: BasketButton()),
       ),
       body: SafeArea(
         child: ListView(

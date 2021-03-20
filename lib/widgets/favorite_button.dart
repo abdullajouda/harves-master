@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/customer/models/favorite.dart';
@@ -13,6 +14,8 @@ import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+import 'dialogs/signup_first.dart';
+
 class FavoriteButton extends StatefulWidget {
   final Products fruit;
   final Color color;
@@ -27,31 +30,38 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   bool load = false;
 
   Future setFav() async {
-    setState(() {
-      load = true;
-    });
-    FavoriteOperations op =
-        Provider.of<FavoriteOperations>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var request =
-        await get(ApiHelper.api + 'addFavorite/${widget.fruit.id}', headers: {
-      'Accept': 'application/json',
-      'Accept-Language': 'en',
-      'Authorization': 'Bearer ${prefs.getString('userToken')}'
-    });
-    var response = json.decode(request.body);
-    Fluttertoast.showToast(msg: response['message']);
-    if (response['status'] == true) {
+    if (prefs.getString('userToken') != null) {
       setState(() {
-        op.addItem(widget.fruit);
-        widget.fruit.isFavorite = '1';
-        op.updateFavHome(widget.fruit);
+        load = true;
+      });
+      FavoriteOperations op =
+          Provider.of<FavoriteOperations>(context, listen: false);
+      var request =
+          await get(ApiHelper.api + 'addFavorite/${widget.fruit.id}', headers: {
+        'Accept': 'application/json',
+        'Accept-Language': 'en',
+        'Authorization': 'Bearer ${prefs.getString('userToken')}'
+      });
+      var response = json.decode(request.body);
+      Fluttertoast.showToast(msg: response['message']);
+      if (response['status'] == true) {
+        setState(() {
+          op.addItem(widget.fruit);
+          widget.fruit.isFavorite = '1';
+          op.updateFavHome(widget.fruit);
+          load = false;
+        });
+      }
+      setState(() {
         load = false;
       });
+    } else {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => SignUpFirst(),
+      );
     }
-    setState(() {
-      load = false;
-    });
   }
 
   Future removeFav() async {

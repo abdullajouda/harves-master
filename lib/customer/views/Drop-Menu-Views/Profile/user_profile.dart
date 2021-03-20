@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/views/Basket/basket.dart';
+import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:image_picker/image_picker.dart';
@@ -200,7 +202,17 @@ class _UserProfileState extends State<UserProfile> {
       resizeToAvoidBottomInset: false,
       body: WaveAppBarBody(
         bottomViewOffset: Offset(0, 10),
-        leading: BasketButton(),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                CustomPageRoute(
+                  // context: context,
+                  builder: (context) => Basket(),
+                ),
+              );
+            },
+            child: BasketButton()),
         // pinned: true,
         // hideActions: true,
         backgroundGradient: CColors.greenAppBarGradient(),

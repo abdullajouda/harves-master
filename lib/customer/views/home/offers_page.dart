@@ -11,6 +11,8 @@ import 'package:harvest/customer/widgets/Fruit_item.dart';
 import 'package:harvest/helpers/color_converter.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/helpers/custom_page_transition.dart';
+import 'package:harvest/widgets/basket_button.dart';
 import 'package:provider/provider.dart';
 
 import '../product_details.dart';
@@ -43,22 +45,17 @@ class _OffersPageState extends State<OffersPage> {
         //     child: CategorySelector(),
         //   ),
         // ),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).push(
-              platformPageRoute(
-                context: context,
-                builder: (context) => Basket(),
-              ),
-            );
-          },
-          icon: SvgPicture.asset(
-            Constants.basketIcon,
-            fit: BoxFit.fitWidth,
-            width: 20,
-            height: 20,
-          ),
-        ),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                CustomPageRoute(
+                  // context: context,
+                  builder: (context) => Basket(),
+                ),
+              );
+            },
+            child: BasketButton()),
         actions: [Container()],
         bottomView: Card(
           // margin: EdgeInsets.symmetric(horizontal: size.width * 0.13),
@@ -146,5 +143,10 @@ class _OffersPageState extends State<OffersPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
   }
 }

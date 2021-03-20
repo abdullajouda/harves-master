@@ -36,7 +36,7 @@ class _BasketStepState extends State<BasketStep> {
   List<int> _errorIndexes = [];
   City _city;
   double remains;
-  List<City> _cities =[];
+  List<City> _cities = [];
 
   getCart() async {
     var cart = Provider.of<Cart>(context, listen: false);
@@ -70,7 +70,7 @@ class _BasketStepState extends State<BasketStep> {
       'Accept-Language': LangProvider().getLocaleCode(),
     });
     var request =
-    await get(ApiHelper.api + 'getCities', headers: ApiHelper.headers);
+        await get(ApiHelper.api + 'getCities', headers: ApiHelper.headers);
     var response = json.decode(request.body);
     var items = response['cities'];
     items.forEach((element) {
@@ -141,10 +141,13 @@ class _BasketStepState extends State<BasketStep> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  if (_hasError)
-                    _errorIndexes.removeWhere((i) => i == index);
-                  else
+                  if (cart.items.values.toList()[index].product.available <
+                      cart.items.values.toList()[index].quantity) {
                     _errorIndexes.add(index);
+                  }else{
+                    _errorIndexes.remove(index);
+
+                  }
                 });
               },
               child: Column(
@@ -152,12 +155,20 @@ class _BasketStepState extends State<BasketStep> {
                   if (_hasError)
                     Align(
                       alignment: AlignmentDirectional(-0.9, 0.0),
-                      child: _buildRemainingItemsCard(context),
+                      child: _buildRemainingItemsCard(context, index, cart),
                     ),
                   RemoveIcon(
                     onTap: () {
                       setState(() {
+
                         cart.removeFav(cart.items.values.toList()[index]);
+                        if (cart.items.values.toList()[index].product.available <
+                            cart.items.values.toList()[index].quantity) {
+                          _errorIndexes.add(index);
+                        }else{
+                          _errorIndexes.remove(index);
+
+                        }
                       });
                     },
                     iconAlignment: Alignment.topRight,
@@ -252,11 +263,23 @@ class _BasketStepState extends State<BasketStep> {
                                 SizedBox(width: 10),
                                 CIconButton(
                                   onTap: () {
-                                    setState(() {
-                                      cart.items.values
-                                          .toList()[index]
-                                          .quantity--;
-                                    });
+                                    if (cart.items.values
+                                            .toList()[index]
+                                            .quantity !=
+                                        0) {
+                                      setState(() {
+                                        cart.items.values
+                                            .toList()[index]
+                                            .quantity--;
+                                        if (cart.items.values.toList()[index].product.available <
+                                            cart.items.values.toList()[index].quantity) {
+                                          _errorIndexes.add(index);
+                                        }else{
+                                          _errorIndexes.remove(index);
+
+                                        }
+                                      });
+                                    }
                                   },
                                   color: CColors.darkOrange,
                                   icon: Icon(Icons.remove,
@@ -266,7 +289,7 @@ class _BasketStepState extends State<BasketStep> {
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 2),
                                   child: Text(
-                                    "${cart.items.values.toList()[index].product.inCart}",
+                                    "${cart.items.values.toList()[index].quantity}",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       color: CColors.headerText,
@@ -280,6 +303,13 @@ class _BasketStepState extends State<BasketStep> {
                                       cart.items.values
                                           .toList()[index]
                                           .quantity++;
+                                      if (cart.items.values.toList()[index].product.available <
+                                          cart.items.values.toList()[index].quantity) {
+                                        _errorIndexes.add(index);
+                                      }else{
+                                        _errorIndexes.remove(index);
+
+                                      }
                                     });
                                   },
                                   color: CColors.darkOrange,
@@ -489,7 +519,7 @@ class _BasketStepState extends State<BasketStep> {
 
   bool _itemHasError(int index) => _errorIndexes.contains(index);
 
-  Widget _buildRemainingItemsCard(BuildContext context) {
+  Widget _buildRemainingItemsCard(BuildContext context, index, cart) {
     return Card(
       color: CColors.coldPaleBloodRed,
       elevation: 0.0,
@@ -499,7 +529,8 @@ class _BasketStepState extends State<BasketStep> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         child: Text(
-          "1\t" + "item_remains".trs(context),
+          "${cart.items.values.toList()[index].product.available}\t" +
+              "item_remains".trs(context),
           style: TextStyle(
             color: CColors.white,
             fontSize: 12,

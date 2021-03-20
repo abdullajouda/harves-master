@@ -20,7 +20,7 @@ class Products {
   int priceOffer;
   String typeName;
   int available;
-  String inCart;
+  int inCart;
   String name;
   String description;
 

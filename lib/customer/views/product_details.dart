@@ -29,7 +29,6 @@ class ProductDetails extends StatefulWidget {
 class _ProductDetailsState extends State<ProductDetails> {
   final color = const Color(0xffFDAA5C);
   bool load = false;
-  int _qty = 0;
 
   addToBasket(int id) async {
     setState(() {
@@ -52,8 +51,8 @@ class _ProductDetailsState extends State<ProductDetails> {
           cart.addItem(item);
         });
         setState(() {
-          widget.fruit.inCart = '1';
-          _qty = _qty + widget.fruit.unitRate;
+          // widget.fruit.inCart = 1;
+          widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
         });
       }
     }
@@ -84,15 +83,6 @@ class _ProductDetailsState extends State<ProductDetails> {
     setState(() {
       load = false;
     });
-  }
-
-  // bool _isFavorite = false;
-  @override
-  void initState() {
-    setState(() {
-      _qty = int.parse(widget.fruit.inCart);
-    });
-    super.initState();
   }
 
   @override
@@ -172,7 +162,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      _qty == 0
+                      widget.fruit.inCart == 0
                           ? Container()
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -183,7 +173,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       onTap: () {
                                         changeQnt(2, widget.fruit.id);
                                         setState(() {
-                                          _qty = _qty - widget.fruit.unitRate;
+                                          widget.fruit.inCart = widget.fruit.inCart - widget.fruit.unitRate;
                                         });
                                       },
                                       icon: Icon(Icons.remove,
@@ -195,7 +185,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       ),
                                       child: Center(
                                         child: Text(
-                                          _qty.toString(),
+                                          widget.fruit.inCart.toString(),
                                           style: TextStyle(
                                             fontWeight: FontWeight.w500,
                                             color: CColors.headerText,
@@ -208,7 +198,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       onTap: () {
                                         changeQnt(1, widget.fruit.id);
                                         setState(() {
-                                          _qty = _qty + widget.fruit.unitRate;
+                                          widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
                                         });
                                       },
                                       icon: Icon(Icons.add,
@@ -279,7 +269,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                             )),
                           ),
                           SizedBox(width: 10),
-                          _qty != 0
+                          widget.fruit.inCart != 0
                               ? Container()
                               : Expanded(
                                   child: load

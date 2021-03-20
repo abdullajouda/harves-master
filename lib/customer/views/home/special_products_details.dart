@@ -34,7 +34,6 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
   final _productDescription =
       "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.";
   bool _isFavorite = false;
-  int _qty = 0;
   bool load = false;
 
   addToBasket(int id) async {
@@ -59,7 +58,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
           cart.addItem(item);
         });
         setState(() {
-          _qty = _qty+widget.fruit.unitRate;
+          widget.fruit.inCart = widget.fruit.inCart+widget.fruit.unitRate;
         });
       }
     }
@@ -69,13 +68,6 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
     });
   }
 
-  @override
-  void initState() {
-    setState(() {
-      _qty = int.parse(widget.fruit.inCart);
-    });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +147,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      _qty != 0
+                      widget.fruit.inCart != 0
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -165,7 +157,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                       CIconButton(
                                         onTap: () {
                                           setState(() {
-                                            _qty= _qty - widget.fruit.unitRate;
+                                            widget.fruit.inCart= widget.fruit.inCart - widget.fruit.unitRate;
                                           });
                                         },
                                         icon: Icon(Icons.remove,
@@ -178,7 +170,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            _qty.toString(),
+                                            widget.fruit.inCart.toString(),
                                             style: TextStyle(
                                               fontWeight: FontWeight.w500,
                                               color: CColors.headerText,
@@ -191,7 +183,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                     CIconButton(
                                       onTap: () {
                                         setState(() {
-                                          _qty= _qty + widget.fruit.unitRate;
+                                          widget.fruit.inCart= widget.fruit.inCart + widget.fruit.unitRate;
                                         });
                                       },
                                       icon: Icon(Icons.add,
@@ -269,7 +261,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                             value: _isFavorite,
                           ),
                           SizedBox(width: 10),
-                          _qty != 0
+                          widget.fruit.inCart != 0
                               ? Container()
                               : Expanded(
                                   child: MainButton(

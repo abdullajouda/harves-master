@@ -22,7 +22,7 @@ class FeaturedProduct {
   int priceOffer;
   String typeName;
   int available;
-  String inCart;
+  int inCart;
   String inFavorite;
   String name;
   String description;

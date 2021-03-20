@@ -28,7 +28,6 @@ class FruitItem extends StatefulWidget {
 }
 
 class _FruitItemState extends State<FruitItem> {
-  int _qty;
   bool load = false;
 
   addToBasket(int id) async {
@@ -59,8 +58,7 @@ class _FruitItemState extends State<FruitItem> {
           cart.addItem(item);
         });
         setState(() {
-          widget.fruit.inCart = '1';
-          _qty = _qty + widget.fruit.unitRate;
+          widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
         });
       }
     }
@@ -91,16 +89,43 @@ class _FruitItemState extends State<FruitItem> {
     });
   }
 
-  @override
-  void initState() {
-    _qty = int.parse(widget.fruit.inCart);
-    super.initState();
-  }
+
 
   @override
   Widget build(BuildContext context) {
     var cart = Provider.of<Cart>(context);
-    return Container(
+    return widget.fruit.available == 0
+        ? Container(
+      height: 160,
+      width: 160,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20.0),
+        color: const Color(0xffE3E7EB),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0x17000000),
+            offset: Offset(0, 10),
+            blurRadius: 21,
+          ),
+        ],
+      ),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child:
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Text(
+            'Sold Out',
+            style: TextStyle(
+              fontSize: 14,
+              color: const Color(0xff3c4959),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+    )
+        :Container(
       height: 160,
       width: 160,
       decoration: BoxDecoration(
@@ -174,7 +199,7 @@ class _FruitItemState extends State<FruitItem> {
               : Container(),
           Positioned(
             left: 20,
-            bottom: _qty != 0 ? 40 : 13,
+            bottom: widget.fruit.inCart != 0 ? 40 : 13,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,12 +247,12 @@ class _FruitItemState extends State<FruitItem> {
             right: 0,
             child: GestureDetector(
               onTap: () {
-                _qty == 0
+                widget.fruit.inCart == 0
                     ? addToBasket(widget.fruit.id)
                     : changeQnt(1, widget.fruit.id);
-                setState(_qty != 0
+                setState(widget.fruit.inCart != 0
                     ? () {
-                        _qty = _qty + widget.fruit.unitRate;
+                  widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
                       }
                     : () {});
               },
@@ -239,8 +264,9 @@ class _FruitItemState extends State<FruitItem> {
                     topLeft: Radius.circular(19.0),
                     bottomRight: Radius.circular(19.0),
                   ),
-                  color:
-                      widget.color != null ? widget.color : Color(0xff3c984f),
+                  color: widget.color != null
+                      ? widget.color
+                      : Color(0xff3c984f),
                 ),
                 child: Center(
                   child: SvgPicture.asset('assets/icons/add.svg'),
@@ -248,7 +274,7 @@ class _FruitItemState extends State<FruitItem> {
               ),
             ),
           ),
-          _qty != 0
+          widget.fruit.inCart != 0
               ? Positioned(
                   bottom: 7,
                   child: load
@@ -257,7 +283,7 @@ class _FruitItemState extends State<FruitItem> {
                           size: 15,
                         )
                       : Text(
-                          '$_qty',
+                          '${widget.fruit.inCart}',
                           style: TextStyle(
                             fontSize: 16,
                             color: const Color(0xff3c4959),
@@ -267,7 +293,7 @@ class _FruitItemState extends State<FruitItem> {
                         ),
                 )
               : Container(),
-          _qty != 0
+          widget.fruit.inCart != 0
               ? Positioned(
                   bottom: 0,
                   left: 0,
@@ -275,7 +301,7 @@ class _FruitItemState extends State<FruitItem> {
                     onTap: () {
                       changeQnt(2, widget.fruit.id);
                       setState(() {
-                        _qty = _qty - widget.fruit.unitRate;
+                        widget.fruit.inCart = widget.fruit.inCart - widget.fruit.unitRate;
                       });
                     },
                     child: Container(
