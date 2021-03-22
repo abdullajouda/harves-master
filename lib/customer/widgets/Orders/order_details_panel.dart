@@ -12,6 +12,7 @@ import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/Loader.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'order_item_list_tile.dart';
 import 'package:http/http.dart';
 
@@ -48,8 +49,13 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
   }
 
   getOrderDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getOrderDetail/${widget.order.id}',
-        headers: ApiHelper.headersWithAuth);
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Language': LangProvider().getLocaleCode(),
+          'Authorization': 'Bearer ${prefs.getString('userToken')}'
+        });
     var response = json.decode(request.body);
     var value = response['Order Details'];
     OrderDetails order = OrderDetails.fromJson(value);
@@ -109,6 +115,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                           color: CColors.white,
                           fontSize: 13,
                         ),
+                        textDirection: TextDirection.ltr,
                       ),
                     ),
                   ),
@@ -224,7 +231,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
           ],
         ),
         Text(
-          '${_order.myOrder.deliveryDate}',
+          '${_order.myOrder.deliveryDate!=null?_order.myOrder.deliveryDate:''}',
           style: TextStyle(
             fontSize: 13,
             color: CColors.headerText,
@@ -264,7 +271,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                 ),
               ],
             ),
-            Padding(
+            _order.myOrder.codeName!=null?Padding(
               padding: const EdgeInsets.symmetric(vertical: 5),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -278,7 +285,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                   ),
                   SizedBox(width: 10),
                   Text(
-                    "#A48C",
+                    "#${_order.myOrder.codeName}",
                     style: TextStyle(
                       color: CColors.headerText,
                       fontWeight: FontWeight.normal,
@@ -287,7 +294,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                   ),
                 ],
               ),
-            ),
+            ):Container(),
             Row(
               children: [
                 Text(

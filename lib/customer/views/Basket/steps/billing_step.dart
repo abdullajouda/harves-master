@@ -15,7 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../order_done.dart';
 
-
 class PaymentMethod {
   final int id;
   final String title;
@@ -38,6 +37,7 @@ class _BillingStepState extends State<BillingStep> {
   bool load = false;
   int points;
   String balance;
+
   getWallet() async {
     setState(() {
       load = true;
@@ -102,7 +102,8 @@ class _BillingStepState extends State<BillingStep> {
                     ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 10),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -122,7 +123,7 @@ class _BillingStepState extends State<BillingStep> {
                             ),
                             children: [
                               TextSpan(
-                                text: "${cart.total}",
+                                text: "${cart.totalPrice}",
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: CColors.headerText,
@@ -136,7 +137,8 @@ class _BillingStepState extends State<BillingStep> {
                   ),
                 ),
                 SizedBox(height: 15),
-                WalletAmount(load: load, amount: balance, margin: EdgeInsets.zero),
+                WalletAmount(
+                    load: load, amount: balance, margin: EdgeInsets.zero),
                 SizedBox(height: 5),
                 Expanded(
                   child: GridView.builder(
@@ -159,7 +161,10 @@ class _BillingStepState extends State<BillingStep> {
                           decoration: BoxDecoration(
                             color: CColors.white,
                             borderRadius: BorderRadius.circular(12),
-                            border: _isSelected ? Border.all(color: CColors.lightGreen, width: 2) : null,
+                            border: _isSelected
+                                ? Border.all(
+                                    color: CColors.lightGreen, width: 2)
+                                : null,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withAlpha(5),
@@ -174,7 +179,8 @@ class _BillingStepState extends State<BillingStep> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SvgPicture.asset(_paymentMethod.iconPath, width: 25, height: 25),
+                                SvgPicture.asset(_paymentMethod.iconPath,
+                                    width: 25, height: 25),
                                 SizedBox(height: 10),
                                 Text(
                                   _paymentMethod.title,

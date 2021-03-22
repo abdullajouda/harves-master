@@ -16,7 +16,9 @@ import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/widgets/dialogs/minimun_charge.dart';
+import 'package:harvest/widgets/dialogs/no_delivery_location.dart';
 import 'package:harvest/widgets/dialogs/signup_dialog.dart';
+import 'package:harvest/widgets/sheets/order_description.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,7 +36,6 @@ class _BasketState extends State<Basket> {
   ValueNotifier<int> _pagesNotifiew = ValueNotifier<int>(0);
   int _step = 0;
   bool isAuth = false;
-  DeliveryAddresses add;
 
   @override
   void dispose() {
@@ -48,13 +49,13 @@ class _BasketState extends State<Basket> {
     var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await post(ApiHelper.api + 'checkOut', body: {
-      'delivery_address': '61',
-      'delivery_date_id': '3',
-      'delivery_time_id': '14',
-      'delivery_date': '',
+      'delivery_address': cart.deliveryAddresses.id.toString(),
+      'delivery_date_id': cart.availableDates.id.toString(),
+      'delivery_time_id': cart.time.id.toString(),
+      'delivery_date': '${cart.availableDates.date}',
       'payment_method': '0',
       'note': '${cart.additionalNote != null ? cart.additionalNote : ''}',
-      'promoCode_name': ''
+      'promoCode_name': '${cart.promo != null ? cart.promo : ''}'
     }, headers: {
       'Accept': 'application/json',
       'fcmToken': prefs.getString('fcm_token'),
@@ -63,22 +64,24 @@ class _BasketState extends State<Basket> {
     });
     var response = json.decode(request.body);
     print(response);
-    if(response['status']==true){
+    if (response['code'] == 200) {
       cart.clearFav();
-      showCupertinoDialog(context: context, builder: (context) => MinimumChargeDialog(),);
       Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => OrderDone(),
           )).then((value) => Navigator.pop(context));
-    }else if(response['code'] == 205){
+    } else if (response['code'] == 204) {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => MinimumChargeDialog(),
+      );
+    } else if (response['code'] == 205) {
       setState(() {
         _step = 0;
       });
       return _jumpTo(_step);
     }
-
-
   }
 
   checkToken() async {
@@ -92,7 +95,6 @@ class _BasketState extends State<Basket> {
 
   @override
   void initState() {
-    var cart = Provider.of<Cart>(context, listen: false);
     checkToken();
     _stepsAdv = {
       BasketStep(
@@ -111,18 +113,7 @@ class _BasketState extends State<Basket> {
           }
         },
       ): true,
-      PlaceStep(
-        address: add,
-        onTapContinue: () {
-          if (add != null) {
-            cart.setAddress(add);
-            setState(() {
-              _step = 2;
-            });
-            return _jumpTo();
-          }
-        },
-      ): false,
+      PlaceStep(): false,
       DeliveryTimeStep(): false,
       BillingStep(): false,
     };
@@ -131,6 +122,8 @@ class _BasketState extends State<Basket> {
 
   @override
   Widget build(BuildContext context) {
+    var cart = Provider.of<Cart>(context);
+
     return Scaffold(
       appBar: WaveAppBar(
         hideActions: true,
@@ -143,66 +136,85 @@ class _BasketState extends State<Basket> {
           },
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              Center(
-                child: ValueListenableBuilder(
-                  valueListenable: _pagesNotifiew,
-                  builder: (context, value, child) => child,
-                  child: Container(
-                    // color: Colors.teal,
-                    child: BasketStepper(
-                      currentStep: _step,
-                    ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            Center(
+              child: ValueListenableBuilder(
+                valueListenable: _pagesNotifiew,
+                builder: (context, value, child) => child,
+                child: Container(
+                  // color: Colors.teal,
+                  child: BasketStepper(
+                    currentStep: _step,
                   ),
                 ),
               ),
-              Expanded(
-                child: IndexedStack(
-                  index: _pagesNotifiew.value.round(),
-                  children: _stepsAdv.keys.map((step) {
-                    final _isVisible = _stepsAdv[step];
-                    return Visibility(
-                      visible: _isVisible,
-                      child: step,
-                    );
-                  }).toList(),
-                ),
-              ),
-              ValueListenableBuilder<int>(
-                valueListenable: _pagesNotifiew,
-                builder: (context, index, child) {
-                  final _BasketSteps _currentStep = _getCurrentStep(index);
-                  if (_currentStep == _BasketSteps.Basket) return SizedBox();
-                  return BasketPagesControlles(
-                    onContinuePressed: () {
-                      setState(() {
-                        if (index != 3) {
-                          _step++;
-                        } else {
-                          checkOut();
-
-                        }
-                      });
-                      return _jumpTo();
-                    },
-                    onPrevPressed: () {
-                      setState(() {
-                        if (index != 0) {
-                          _step--;
-                        }
-                      });
-                      return _jumpTo(index - 1);
-                    },
+            ),
+            Expanded(
+              child: IndexedStack(
+                index: _pagesNotifiew.value.round(),
+                children: _stepsAdv.keys.map((step) {
+                  final _isVisible = _stepsAdv[step];
+                  return Visibility(
+                    visible: _isVisible,
+                    child: step,
                   );
-                },
+                }).toList(),
               ),
-            ],
-          ),
+            ),
+            ValueListenableBuilder<int>(
+              valueListenable: _pagesNotifiew,
+              builder: (context, index, child) {
+                final _BasketSteps _currentStep = _getCurrentStep(index);
+                if (_currentStep == _BasketSteps.Basket) return SizedBox();
+                return BasketPagesControlles(
+                  onContinuePressed: () {
+                    setState(() {
+                      if (index != 3) {
+                        if (index != 1) {
+                          _step++;
+                          return _jumpTo();
+                        } else {
+                          if (cart.deliveryAddresses == null) {
+                            showCupertinoDialog(
+                              context: context,
+                              builder: (context) => NoLocationFound(),
+                            );
+                          }
+                          showModalBottomSheet(
+                              context: context,
+                              backgroundColor: CColors.transparent,
+                              builder: (context) => OrderDescription(
+                                    onTap: () {
+                                      if (cart.totalPrice != null) {
+                                        Navigator.pop(context);
+                                        _step++;
+                                        return _jumpTo();
+                                      }
+                                    },
+                                  ),
+                              isScrollControlled: true);
+                        }
+                      } else {
+                        checkOut();
+                      }
+                    });
+                  },
+                  onPrevPressed: () {
+                    setState(() {
+                      if (index != 0) {
+                        _step--;
+                      }
+                    });
+                    return _jumpTo(index - 1);
+                  },
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:harvest/customer/models/products.dart';
 
 import 'delivery-data.dart';
+import 'delivery_time_avaiable.dart';
 
 class CartItem {
   int id;
@@ -49,21 +50,44 @@ class CartItem {
 
 class Cart with ChangeNotifier {
   double total;
+  double totalPrice;
   String additionalNote;
+  String promo;
   DeliveryAddresses deliveryAddresses;
+  AvailableDates availableDates;
+  Times time;
 
-  void setAddress(DeliveryAddresses addresses){
+  void setDate(AvailableDates date) {
+    availableDates = date;
+    notifyListeners();
+  }
+
+  void setTime(Times times) {
+    time = times;
+    notifyListeners();
+  }
+
+  void setAddress(DeliveryAddresses addresses) {
     deliveryAddresses = addresses;
     notifyListeners();
   }
 
-  void setTotal(double tot){
+  void setTotal(double tot) {
     total = tot;
     notifyListeners();
   }
+  void setTotalPrice(double tot) {
+    totalPrice = tot;
+    notifyListeners();
+  }
 
-  void setAdditional(String note){
+  void setAdditional(String note) {
     additionalNote = note;
+    notifyListeners();
+  }
+
+  void setPromo(String code) {
+    promo = code;
     notifyListeners();
   }
 

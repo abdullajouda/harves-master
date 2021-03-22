@@ -6,7 +6,7 @@ class Order {
   int id;
   int userId;
   String deliveryAddress;
-  int deliveryCost;
+  double deliveryCost;
   String codeName;
   double productsTotal;
   double totalPrice;
@@ -52,7 +52,9 @@ class Order {
     id = json['id'];
     userId = json['user_id'];
     deliveryAddress = json['delivery_address'];
-    deliveryCost = json['delivery_cost'];
+    deliveryCost = json['delivery_cost'] != null
+        ? double.parse(json["delivery_cost"].toString())
+        : null;
     codeName = json['code_name'];
     productsTotal = json['products_total'] != null
         ? double.parse(json["products_total"].toString())

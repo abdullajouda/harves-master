@@ -1,45 +1,17 @@
+import 'dart:typed_data';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:harvest/customer/models/cart_items.dart';
-
-// import 'package:harvest/customer/views/Basket/pages_controlles.dart';
 import 'package:harvest/widgets/address_list_tile.dart';
-import 'package:intl/intl.dart';
+import 'package:harvest/widgets/sheets/available_dates_sheet.dart';
+// import 'package:intl/intl.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:provider/provider.dart';
-
-@immutable
-class _DeliveryTimeModel {
-  final String day;
-  final String dayNum;
-  final String month;
-  final String minTime;
-  final String maxTime;
-
-  const _DeliveryTimeModel({
-    this.day,
-    this.dayNum,
-    this.month,
-    this.minTime,
-    this.maxTime,
-  });
-
-  factory _DeliveryTimeModel.fromTime(DateTime time) {
-    final String _fromTime = DateFormat("h:mm a").format(time);
-    final String _day = DateFormat("EEE").format(time);
-    final String _dayNum = DateFormat("d").format(time);
-    final String _month = DateFormat("MMMM").format(time);
-    return _DeliveryTimeModel(
-      day: _day,
-      dayNum: _dayNum,
-      maxTime: _fromTime,
-      minTime: _fromTime,
-      month: _month,
-    );
-  }
-}
+import 'dart:ui' as ui;
 
 class DeliveryTimeStep extends StatefulWidget {
   @override
@@ -47,18 +19,34 @@ class DeliveryTimeStep extends StatefulWidget {
 }
 
 class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
-  _DeliveryTimeModel _deliveryTime;
   DateTime _currentDateTime;
+  Set<Marker> _markers = {};
 
-  @override
-  void initState() {
-    // var cart = Provider.of<Cart>(context,listen: false);
-    _currentDateTime = DateTime.now();
-    _deliveryTime = _DeliveryTimeModel.fromTime(_currentDateTime);
-    super.initState();
+
+
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))
+        .buffer
+        .asUint8List();
   }
 
-  Set<Marker> _markers = {};
+  addMarker(double lat, double lng) async {
+    final Uint8List markerIcon = await getBytesFromAsset('assets/Pin.png', 100);
+    setState(() {
+      // markers = [];
+      _markers.add(
+        Marker(
+          position: LatLng(lat, lng),
+          markerId: MarkerId('$lat'),
+          icon: BitmapDescriptor.fromBytes(markerIcon), // icon: customIcon
+        ),
+      );
+    });
+  }
 
   static final CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -66,8 +54,17 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
   );
 
   @override
+  void initState() {
+    var cart = Provider.of<Cart>(context, listen: false);
+    addMarker(cart.deliveryAddresses.lat, cart.deliveryAddresses.lan);
+    _currentDateTime = DateTime.now();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    var cart = Provider.of<Cart>(context);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -110,9 +107,20 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(13),
                             child: GoogleMap(
+                              zoomGesturesEnabled: false,
+                              scrollGesturesEnabled: false,
                               myLocationButtonEnabled: false,
                               myLocationEnabled: false,
-                              initialCameraPosition:_kGooglePlex,
+                              initialCameraPosition: CameraPosition(
+                                target: LatLng(
+                                    cart.deliveryAddresses.lat != null
+                                        ? cart.deliveryAddresses.lat
+                                        : 37.42796133580664,
+                                    cart.deliveryAddresses.lan != null
+                                        ? cart.deliveryAddresses.lan
+                                        : 41.085749655962),
+                                zoom: 12,
+                              ),
                               markers: _markers,
                             ),
                           ),
@@ -128,7 +136,7 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                   bottom: 0,
                   child: Center(
                     child: Container(
-                      width: size.width*.6,
+                      width: size.width * .6,
                       decoration: BoxDecoration(
                         color: CColors.white,
                         borderRadius: BorderRadius.circular(13),
@@ -143,8 +151,10 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                       ),
                       padding: EdgeInsets.all(10),
                       child: AddressListTile(
-                        title: "AlQahera, Jamal 43st",
-                        subTitle: "CD 43, 4 floor",
+                        title:
+                            "${cart.deliveryAddresses.city.name}, ${cart.deliveryAddresses.street != null ? cart.deliveryAddresses.street : ''}",
+                        subTitle:
+                            "${cart.deliveryAddresses.buildingNumber}, ${cart.deliveryAddresses.unitNumber}",
                       ),
                     ),
                   ),
@@ -167,8 +177,8 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
           padding: EdgeInsets.only(top: 10),
           child: Column(
             children: [
+              cart.availableDates!= null?
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 25),
                 decoration: BoxDecoration(
                   color: CColors.white,
                   borderRadius: BorderRadius.circular(6),
@@ -198,14 +208,14 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                             Column(
                               children: [
                                 Text(
-                                  _deliveryTime.month,
+                                  cart.availableDates.dayName,
                                   style: TextStyle(
                                     fontSize: 15,
                                     color: CColors.lightGreen,
                                   ),
                                 ),
                                 Text(
-                                  _deliveryTime.dayNum,
+                                  cart.availableDates.dayId.toString(),
                                   style: TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w600,
@@ -218,13 +228,34 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "${_deliveryTime.day}, ${_deliveryTime.minTime} to ${_deliveryTime.minTime}",
-                                  style: TextStyle(
-                                    color: CColors.headerText,
-                                    fontSize: 15,
-                                  ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  children: [
+                                    Text(
+                                      "${cart.availableDates.dayName}, ",
+                                      style: TextStyle(
+                                        color: CColors.headerText,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    Text(
+                                      " ${cart.time.from} ${'to'.trs(context)} ",
+                                      style: TextStyle(
+                                        color: CColors.headerText,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    Text(
+                                      " ${cart.time.to} ",
+                                      style: TextStyle(
+                                        color: CColors.headerText,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
                                 ),
+
                                 Text(
                                   "at_this_time".trs(context),
                                   style: TextStyle(
@@ -239,7 +270,7 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                     ],
                   ),
                 ),
-              ),
+              ):Container(),
               SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5),
@@ -259,59 +290,7 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                     isScrollControlled: true,
                     backgroundColor: CColors.transparent,
                     enableDrag: true,
-                    builder: (context) => Container(
-                      width: size.width,
-                      decoration: BoxDecoration(
-                          color: CColors.white,
-                          borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(30),
-                              topLeft: Radius.circular(30))),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            child: Card(
-                              elevation: 0.0,
-                              color: Colors.grey[300],
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(99)),
-                              child:
-                                  SizedBox(width: size.width * 0.35, height: 6),
-                            ),
-                          ),
-                          Text(
-                            'Select an available Date/Time',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: const Color(0xff3c4959),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          FlatButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5)),
-                            color: CColors.lightGreen,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 30),
-                              child: Text(
-                                "done".trs(context),
-                                style: TextStyle(
-                                  color: CColors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.normal,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    builder: (context) => AvailableDatesSheet(),
                   );
                   // DatePicker.showDateTimePicker(
                   //   context,
@@ -352,7 +331,7 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                 ),
               ),
             ],
-          ),
+          )
         ),
         // BasketPagesControlles(),
       ],

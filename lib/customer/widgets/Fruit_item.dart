@@ -12,12 +12,14 @@ import 'package:harvest/helpers/AlertManager.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/alerts/added_to_cart.dart';
+import 'package:harvest/widgets/alerts/removed_from_cart.dart';
 import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:harvest/widgets/favorite_button.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 class FruitItem extends StatefulWidget {
   final Products fruit;
   final Color color;
@@ -49,22 +51,10 @@ class _FruitItemState extends State<FruitItem> {
         barrierDismissible: true,
         barrierLabel: '',
         barrierColor: Colors.black.withOpacity(0.1),
-        transitionDuration: Duration(milliseconds: 400),
+        transitionDuration: Duration(milliseconds: 500),
         context: context,
         pageBuilder: (context, anim1, anim2) {
-          return GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: AlertBuilder(
-              title: 'Added Successfully To Cart',
-              subTitle: 'You can find it in your cart  screen',
-              color: CColors.lightGreen,
-              icon: Icon(
-                Icons.check,
-                color: CColors.white,
-                size: 25,
-              ),
-            ),
-          );
+          return AddedToCartAlert();
         },
         transitionBuilder: (context, anim1, anim2, child) {
           return SlideTransition(
@@ -112,18 +102,10 @@ class _FruitItemState extends State<FruitItem> {
         barrierDismissible: true,
         barrierLabel: '',
         barrierColor: Colors.black.withOpacity(0.1),
-        transitionDuration: Duration(milliseconds: 400),
+        transitionDuration: Duration(milliseconds: 500),
         context: context,
         pageBuilder: (context, anim1, anim2) {
-          return GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: AlertBuilder(
-              title: 'The Item Removed',
-              subTitle: 'The item was removed from your cart',
-              color: CColors.lightOrangeAccent,
-              icon: SvgPicture.asset('assets/trash.svg'),
-            ),
-          );
+          return RemovedFromCart();
         },
         transitionBuilder: (context, anim1, anim2, child) {
           return SlideTransition(

@@ -5,7 +5,7 @@ class OrderProduct {
   int orderId;
   int productId;
   String quantity;
-  int price;
+  double price;
   Products product;
 
   OrderProduct(
@@ -21,7 +21,8 @@ class OrderProduct {
     orderId = json['order_id'];
     productId = json['product_id'];
     quantity = json['quantity'] != null ? json['quantity'].toString() : null;
-    price = json['price'];
+    price =
+        json['price'] != null ? double.parse(json['price'].toString()) : null;
     product =
         json['product'] != null ? new Products.fromJson(json['product']) : null;
   }

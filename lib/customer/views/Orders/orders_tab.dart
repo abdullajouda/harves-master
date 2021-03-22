@@ -80,6 +80,7 @@ class _OrdersTabState extends State<OrdersTab> {
                   _orderTabsTitles[index].trs(context),
                   style: TextStyle(
                     color: _isSelected ? CColors.white : CColors.boldBlack,
+                    height: 1.2
                   ),
                 ),
               ),
