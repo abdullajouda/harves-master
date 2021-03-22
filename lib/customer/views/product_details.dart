@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/favorite.dart';
@@ -12,6 +13,7 @@ import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/widgets/button_loader.dart';
+import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:harvest/widgets/favorite_button.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -44,19 +46,47 @@ class _ProductDetailsState extends State<ProductDetails> {
     });
     var response = json.decode(request.body);
     if (response['status'] == true) {
+      showGeneralDialog(
+        barrierDismissible: true,
+        barrierLabel: '',
+        barrierColor: Colors.black.withOpacity(0.1),
+        transitionDuration: Duration(milliseconds: 400),
+        context: context,
+        pageBuilder: (context, anim1, anim2) {
+          return GestureDetector(onTap: () => Navigator.pop(context),
+            child: AlertBuilder(
+              title: 'Added Successfully To Cart',
+              subTitle: 'You can find it in your cart  screen',
+              color: CColors.lightGreen,
+              icon: Icon(
+                Icons.check,
+                color: CColors.white,
+                size: 25,
+              ),
+            ),
+          );
+        },
+        transitionBuilder: (context, anim1, anim2, child) {
+          return SlideTransition(
+            position:
+            Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
+            child: child,
+          );
+        },
+      );
       var items = response['cart'];
       if (items != null) {
+        cart.clearFav();
         items.forEach((element) {
           CartItem item = CartItem.fromJson(element);
           cart.addItem(item);
         });
         setState(() {
-          // widget.fruit.inCart = 1;
           widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
         });
       }
     }
-    Fluttertoast.showToast(msg: response['message']);
+    // Fluttertoast.showToast(msg: response['message']);
     setState(() {
       load = false;
     });
@@ -66,7 +96,6 @@ class _ProductDetailsState extends State<ProductDetails> {
     setState(() {
       load = true;
     });
-    var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await post(ApiHelper.api + 'changeQuantity', body: {
       'type': type.toString(),
@@ -78,8 +107,32 @@ class _ProductDetailsState extends State<ProductDetails> {
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
-
-    Fluttertoast.showToast(msg: response['message']);
+    if(response['message'] == 'product deleted'){
+      showGeneralDialog(
+        barrierDismissible: true,
+        barrierLabel: '',
+        barrierColor: Colors.black.withOpacity(0.1),
+        transitionDuration: Duration(milliseconds: 400),
+        context: context,
+        pageBuilder: (context, anim1, anim2) {
+          return GestureDetector(onTap: () => Navigator.pop(context),
+            child: AlertBuilder(
+              title: 'The Item Removed',
+              subTitle: 'The item was removed from your cart',
+              color: CColors.lightOrangeAccent,
+              icon: SvgPicture.asset('assets/trash.svg'),
+            ),
+          );
+        },
+        transitionBuilder: (context, anim1, anim2, child) {
+          return SlideTransition(
+            position:
+            Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
+            child: child,
+          );
+        },
+      );
+    }
     setState(() {
       load = false;
     });

@@ -1,10 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/Wallet/wallet_amount_viewer.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../order_done.dart';
 
@@ -28,15 +35,42 @@ class BillingStep extends StatefulWidget {
 
 class _BillingStepState extends State<BillingStep> {
   int _chosenIndex = -1;
+  bool load = false;
+  int points;
+  String balance;
+  getWallet() async {
+    setState(() {
+      load = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await get(ApiHelper.api + 'getWallet', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': 'en',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    setState(() {
+      balance = response['balance'];
+      points = response['points'];
+      load = false;
+    });
+  }
+
+  @override
+  void initState() {
+    getWallet();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     List<PaymentMethod> _paymentMethods = [
-      PaymentMethod(title: "Banck Account", iconPath: Constants.bankIcon),
-      PaymentMethod(title: "Card", iconPath: Constants.creditCardIcon),
-      PaymentMethod(title: "PayPal", iconPath: Constants.payPalIcon),
-      PaymentMethod(title: "Cash", iconPath: Constants.cashIcon),
+      PaymentMethod(title: "Bank Account", iconPath: 'assets/images/bank.svg'),
+      PaymentMethod(title: "Card", iconPath: 'assets/images/credit-card.svg'),
+      PaymentMethod(title: "PayPal", iconPath: 'assets/images/paypal.svg'),
+      PaymentMethod(title: "Cash", iconPath: 'assets/images/cash.svg'),
     ];
-
+    var cart = Provider.of<Cart>(context);
     return Column(
       children: [
         Align(
@@ -54,64 +88,55 @@ class _BillingStepState extends State<BillingStep> {
             padding: EdgeInsets.only(top: 10),
             child: Column(
               children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OrderDone(),
-                        ));
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: CColors.white,
-                      borderRadius: BorderRadius.circular(9),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(5),
-                          offset: Offset(0, 5.0),
-                          spreadRadius: 1,
-                          blurRadius: 10,
+                Container(
+                  decoration: BoxDecoration(
+                    color: CColors.white,
+                    borderRadius: BorderRadius.circular(9),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(5),
+                        offset: Offset(0, 5.0),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "required_amount".trs(context) + "\t" * 2,
+                          style: TextStyle(
+                            color: CColors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text.rich(
+                          TextSpan(
+                            text: " \$",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: CColors.lightOrange,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: "${cart.total}",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: CColors.headerText,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "required_amount".trs(context) + "\t" * 2,
-                            style: TextStyle(
-                              color: CColors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text.rich(
-                            TextSpan(
-                              text: " \$",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: CColors.lightOrange,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: "65.50",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: CColors.headerText,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
                 ),
                 SizedBox(height: 15),
-                WalletAmount(amount: '250.055'),
+                WalletAmount(load: load, amount: balance, margin: EdgeInsets.zero),
                 SizedBox(height: 5),
                 Expanded(
                   child: GridView.builder(

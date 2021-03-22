@@ -108,7 +108,7 @@
     "Cancelled": "تم الإلغاء",
     "Order_Date": "تاريخ التسليم",
     "Order_Time": "وقت التسليم",
-    "Order_Details": "تفاصيل الطلب",
+    "order_details": "تفاصيل الطلب",
     "Order_Items": "عناصر الطلب",
     "Go_to_Map": "الذهاب الى الخريطة",
     "Deliverd": "تم التوصيل",

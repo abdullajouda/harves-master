@@ -196,7 +196,7 @@ class BasketStepper extends StatelessWidget {
               ),
           ],
         ),
-        if (isCurrentStep && !switchFloatingCardDirection)
+        if (isCurrentStep)
           PositionedDirectional(
             top: -_radius * 2,
             start: _radius,

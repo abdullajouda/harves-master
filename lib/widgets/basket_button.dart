@@ -23,7 +23,7 @@ class BasketButton extends StatelessWidget {
                   bottom: 0,
                   left: 0,
                   child: SvgPicture.asset(Constants.basketIcon)),
-              cart.itemCount == 0
+              cart.items.length == 0
                   ? Container()
                   : Positioned(
                       top: 0,
@@ -38,7 +38,7 @@ class BasketButton extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            cart.itemCount.toString(),
+                            cart.items.length.toString(),
                             style: TextStyle(
                               fontSize: 11,
                               color: const Color(0xffffffff),

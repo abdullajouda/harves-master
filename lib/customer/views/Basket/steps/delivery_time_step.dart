@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:harvest/customer/models/cart_items.dart';
+
 // import 'package:harvest/customer/views/Basket/pages_controlles.dart';
 import 'package:harvest/widgets/address_list_tile.dart';
 import 'package:intl/intl.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:provider/provider.dart';
 
 @immutable
 class _DeliveryTimeModel {
@@ -49,6 +52,7 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
 
   @override
   void initState() {
+    // var cart = Provider.of<Cart>(context,listen: false);
     _currentDateTime = DateTime.now();
     _deliveryTime = _DeliveryTimeModel.fromTime(_currentDateTime);
     super.initState();
@@ -64,6 +68,7 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -107,7 +112,7 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                             child: GoogleMap(
                               myLocationButtonEnabled: false,
                               myLocationEnabled: false,
-                              initialCameraPosition: _kGooglePlex,
+                              initialCameraPosition:_kGooglePlex,
                               markers: _markers,
                             ),
                           ),
@@ -121,29 +126,27 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: CColors.white,
-                          borderRadius: BorderRadius.circular(13),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(10),
-                              offset: Offset(0, 7.0),
-                              spreadRadius: 1,
-                              blurRadius: 10,
-                            ),
-                          ],
-                        ),
-                        padding: EdgeInsets.all(10),
-                        child: AddressListTile(
-                          title: "AlQahera, Jamal 43st",
-                          subTitle: "CD 43, 4 floor",
-                        ),
+                  child: Center(
+                    child: Container(
+                      width: size.width*.6,
+                      decoration: BoxDecoration(
+                        color: CColors.white,
+                        borderRadius: BorderRadius.circular(13),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(10),
+                            offset: Offset(0, 7.0),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                          ),
+                        ],
                       ),
-                    ],
+                      padding: EdgeInsets.all(10),
+                      child: AddressListTile(
+                        title: "AlQahera, Jamal 43st",
+                        subTitle: "CD 43, 4 floor",
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -251,33 +254,93 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
               ),
               FlatButton(
                 onPressed: () {
-                  DatePicker.showDateTimePicker(
-                    context,
-                    onConfirm: (time) {
-                      setState(() {
-                        _deliveryTime = _DeliveryTimeModel.fromTime(time);
-                      });
-                    },
-                    onChanged: (time) {
-                      final String _time = DateFormat("h:mm a").format(time);
-                      // ignore: unused_local_variable
-                      final String _date = DateFormat("d").format(time);
-                      // ignore: unused_local_variable
-                      final String _month = DateFormat("MMMM").format(time);
-                      // ignore: unused_local_variable
-                      final _timeFormated2 = DateFormat("EE, MMMM d, h:mm aaa").format(time);
-                      print(_time);
-                      setState(() {
-                        _deliveryTime = _DeliveryTimeModel.fromTime(time);
-                      });
-                    },
-                    currentTime: DateTime.now(),
-                    maxTime: DateTime.now().add(Duration(days: 30)),
-                    minTime: DateTime.now().subtract(Duration(days: 30)),
-                    locale: LocaleType.ar,
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: CColors.transparent,
+                    enableDrag: true,
+                    builder: (context) => Container(
+                      width: size.width,
+                      decoration: BoxDecoration(
+                          color: CColors.white,
+                          borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(30),
+                              topLeft: Radius.circular(30))),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            child: Card(
+                              elevation: 0.0,
+                              color: Colors.grey[300],
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(99)),
+                              child:
+                                  SizedBox(width: size.width * 0.35, height: 6),
+                            ),
+                          ),
+                          Text(
+                            'Select an available Date/Time',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: const Color(0xff3c4959),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          FlatButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5)),
+                            color: CColors.lightGreen,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
+                              child: Text(
+                                "done".trs(context),
+                                style: TextStyle(
+                                  color: CColors.white,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   );
+                  // DatePicker.showDateTimePicker(
+                  //   context,
+                  //   onConfirm: (time) {
+                  //     setState(() {
+                  //       _deliveryTime = _DeliveryTimeModel.fromTime(time);
+                  //     });
+                  //   },
+                  //   onChanged: (time) {
+                  //     final String _time = DateFormat("h:mm a").format(time);
+                  //     // ignore: unused_local_variable
+                  //     final String _date = DateFormat("d").format(time);
+                  //     // ignore: unused_local_variable
+                  //     final String _month = DateFormat("MMMM").format(time);
+                  //     // ignore: unused_local_variable
+                  //     final _timeFormated2 = DateFormat("EE, MMMM d, h:mm aaa").format(time);
+                  //     print(_time);
+                  //     setState(() {
+                  //       _deliveryTime = _DeliveryTimeModel.fromTime(time);
+                  //     });
+                  //   },
+                  //   currentTime: DateTime.now(),
+                  //   maxTime: DateTime.now().add(Duration(days: 30)),
+                  //   minTime: DateTime.now().subtract(Duration(days: 30)),
+                  //   locale: LocaleType.ar,
+                  // );
                 },
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5)),
                 color: CColors.fadeBlue,
                 child: Text(
                   "change_date_time".trs(context),
@@ -288,7 +351,6 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                   ),
                 ),
               ),
-
             ],
           ),
         ),

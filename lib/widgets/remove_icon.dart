@@ -70,7 +70,7 @@ class RemoveIcon extends StatelessWidget {
       clipBehavior: Clip.none, children: [
         child,
         PositionedDirectional(
-          end: -10,
+          end: 0,
           bottom: iconAlignment.y == 1.0 ? -10 : null,
           top: iconAlignment.y == 1.0 ? null : -10,
           child: GestureDetector(

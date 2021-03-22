@@ -33,7 +33,7 @@ class LocalNotificationsService {
 //    var initializationSettingsAndroid =
 //        AndroidInitializationSettings('@mipmap/launcher_icon');
     var initializationSettingsAndroid =
-        AndroidInitializationSettings('@drawable/logo');
+        AndroidInitializationSettings('@drawable/appicon');
     var initializationSettingsIOS = IOSInitializationSettings(
         onDidReceiveLocalNotification: _onDidReceiveLocalNotification);
     var initializationSettings = InitializationSettings(
@@ -169,7 +169,7 @@ class LocalNotificationsService {
       NotificationDetails(
         AndroidNotificationDetails(
           title,
-          'Zeyada',
+          'Harvest',
           message,
           enableVibration: true,
           enableLights: true,

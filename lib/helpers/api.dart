@@ -30,6 +30,7 @@ class ApiHelper with ChangeNotifier {
     selectedCategory = cat;
   }
 
+
   // Future<List<Category>> getCategories() async {
   //   var request = await get(api + 'getCategories', headers: headers);
   //   var response = json.decode(request.body);

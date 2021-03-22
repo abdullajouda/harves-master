@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:harvest/customer/views/auth/login.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/main.dart';
@@ -86,7 +88,14 @@ class _SignUpDialogState extends State<SignUpDialog> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.popUntil(context, (route) => route.isFirst);
+                            Navigator.of(context, rootNavigator: true).pushReplacement(
+                                platformPageRoute(
+                                  context: context,
+                                  builder: (context) => Login(),
+                                ));
+                          },
                           child: Center(
                             child: Container(
                               height: 35,

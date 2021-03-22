@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 class AddressListTile extends StatelessWidget {
   final VoidCallback onTap;
   final String title;
@@ -10,6 +10,7 @@ class AddressListTile extends StatelessWidget {
   final String subTitle;
   final TextStyle subTitleStyle;
   final Color color;
+
   const AddressListTile({
     Key key,
     this.onTap,
@@ -21,27 +22,54 @@ class AddressListTile extends StatelessWidget {
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        child: _ListTile(
-          leading: SvgPicture.asset(Constants.mapPin, width: 40, height: 40),
-          title: Text(
-            title,
-            style: TextStyle(
-              fontSize: 12,
-              color: CColors.headerText,
-            ).merge(titleStyle),
-          ),
-          subtitle: Text(
-            subTitle,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w300,
-            ).merge(subTitleStyle),
+    final AppTranslations trs = AppTranslations.of(context);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: double.infinity,
+            child: _ListTile(
+              leading: SvgPicture.asset(Constants.mapPin,color:color, width: 40, height: 40),
+              title: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: CColors.headerText,
+                ).merge(titleStyle),
+              ),
+              subtitle: Text(
+                subTitle,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w300,
+                ).merge(subTitleStyle),
+              ),
+            ),
           ),
         ),
-      ),
+        Positioned.directional(
+          textDirection: trs.textDirection,
+          end: -10,
+          top: -10,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color,
+              border: Border.all(color: CColors.white, width: 3),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(3.0),
+              child: Icon(
+                Icons.edit,
+                color: Colors.white,
+                size: 14,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:harvest/customer/models/products.dart';
 
+import 'delivery-data.dart';
+
 class CartItem {
   int id;
   int userId;
@@ -46,6 +48,25 @@ class CartItem {
 }
 
 class Cart with ChangeNotifier {
+  double total;
+  String additionalNote;
+  DeliveryAddresses deliveryAddresses;
+
+  void setAddress(DeliveryAddresses addresses){
+    deliveryAddresses = addresses;
+    notifyListeners();
+  }
+
+  void setTotal(double tot){
+    total = tot;
+    notifyListeners();
+  }
+
+  void setAdditional(String note){
+    additionalNote = note;
+    notifyListeners();
+  }
+
   Map<String, CartItem> _cartItems = {};
 
   Map<String, CartItem> get items {

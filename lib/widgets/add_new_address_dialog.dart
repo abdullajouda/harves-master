@@ -136,7 +136,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
   @override
   void initState() {
     // _determinePosition();
-    print(widget.deliveryAddresses.lat);
+    // print(widget.deliveryAddresses.lat);
     _initialCameraPosition = CameraPosition(
       target: LatLng(widget.deliveryAddresses.lat ?? 30,
           widget.deliveryAddresses.lan ?? 40),
@@ -461,7 +461,6 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                               child: Text(
                                                 'Save',
                                                 style: TextStyle(
-                                                  fontFamily: 'SF Pro Rounded',
                                                   fontSize: 12,
                                                   color:
                                                       const Color(0xffffffff),
@@ -498,7 +497,6 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                           child: Text(
                                             'Add Extra Details ',
                                             style: TextStyle(
-                                              fontFamily: 'SF Pro Rounded',
                                               fontSize: 11,
                                               color: const Color(0xff3c984f),
                                               fontWeight: FontWeight.w500,
@@ -524,7 +522,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                     //         child: Text(
                                     //       'Done',
                                     //       style: TextStyle(
-                                    //         fontFamily: 'SF Pro Rounded',
+                                    //
                                     //         fontSize: 12,
                                     //         color: const Color(0xffffffff),
                                     //         fontWeight: FontWeight.w500,
@@ -542,7 +540,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 50),
+            padding: const EdgeInsets.only(bottom: 20),
             child: GestureDetector(
               onTap: () => save(),
               child: Container(
@@ -556,7 +554,6 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                   child: Text(
                     'Continue ',
                     style: TextStyle(
-                      fontFamily: 'SF Pro Rounded',
                       fontSize: 16,
                       color: const Color(0xffffffff),
                     ),

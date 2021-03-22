@@ -4,7 +4,8 @@ import 'package:harvest/customer/widgets/custom_main_button.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
-
+import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
+import 'package:provider/provider.dart';
 class OrderDone extends StatelessWidget {
   const OrderDone({Key key}) : super(key: key);
 
@@ -83,7 +84,7 @@ class OrderDone extends StatelessWidget {
                         Text(
                           "2\t" + "days".trs(context),
                           style: TextStyle(
-                            color: CColors.lightOrange,
+                            color: CColors.darkOrange,
                             fontSize: 35,
                           ),
                         ),
@@ -99,17 +100,22 @@ class OrderDone extends StatelessWidget {
                           child: Row(
                             children: [
                               Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: CColors.lightGreen, width: 2),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: SvgPicture.asset(
-                                      Constants.homeMenuIcon,
-                                      color: CColors.lightGreen,
-                                      width: 20,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: CColors.lightGreen, width: 2),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: SvgPicture.asset(
+                                        Constants.homeMenuIcon,
+                                        color: CColors.lightGreen,
+                                        width: 20,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -117,10 +123,12 @@ class OrderDone extends StatelessWidget {
                               SizedBox(width: 12),
                               Expanded(
                                 flex: 3,
-                                child: MainButton(
+                                child: MainButton(onTap: () {
+                                  context.read<PTVController>().jumbToTab(AppTabs.Orders);
+                                },
                                   constraints: BoxConstraints(),
                                   titlePadding: EdgeInsets.all(12),
-                                  title: "Order_Details".trs(context),
+                                  title: "order_details".trs(context),
                                 ),
                               ),
                             ],
