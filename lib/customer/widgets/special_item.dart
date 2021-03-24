@@ -3,7 +3,7 @@ import 'package:harvest/customer/models/featured_product.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/products.dart';
 import 'package:harvest/helpers/color_converter.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 class SpecialItem extends StatelessWidget {
   final FeaturedProduct fruit;
 
@@ -80,7 +80,7 @@ class SpecialItem extends StatelessWidget {
                     textAlign: TextAlign.left,
                   ),
                   Text(
-                    '${fruit.price}\$/${fruit.typeName}',
+                    '${fruit.price}${'Q.R'.trs(context)}/${fruit.typeName}',
                     style: TextStyle(
                       fontSize: 12,
                       color: const Color(0xffffffff),

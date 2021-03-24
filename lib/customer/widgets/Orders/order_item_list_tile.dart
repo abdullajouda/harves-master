@@ -1,13 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:harvest/helpers/colors.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 //TODO: Change the image to be `image.Netwrok()`
 class OrderItemListTile extends StatelessWidget {
   final String name;
   final TextStyle nameStyle;
   final String itemsNum;
   final String image;
+  final String type;
   final double price;
   final double pricePerKilo;
   final VoidCallback onTap;
@@ -20,7 +21,7 @@ class OrderItemListTile extends StatelessWidget {
     @required this.image,
     @required this.price,
     @required this.pricePerKilo,
-    this.onTap,
+    this.onTap, this.type,
   }) : super(key: key);
 
   @override
@@ -66,7 +67,7 @@ class OrderItemListTile extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        "$pricePerKilo\$/kilo",
+                        "$pricePerKilo ${'Q.R'.trs(context)}/$type",
                         style: TextStyle(
                           color: CColors.lightGreen,
                           fontSize: 13,
@@ -74,7 +75,7 @@ class OrderItemListTile extends StatelessWidget {
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "$itemsNum items",
+                        "$itemsNum ${'items'.trs(context)}",
                         style: TextStyle(
                           color: CColors.headerText,
                           fontSize: 13,
@@ -84,7 +85,7 @@ class OrderItemListTile extends StatelessWidget {
                   ),
                   Text.rich(
                     TextSpan(
-                      text: " \$",
+                      text: " ${'Q.R'.trs(context)}",
                       style: TextStyle(
                         fontSize: 13,
                         color: CColors.darkOrange,

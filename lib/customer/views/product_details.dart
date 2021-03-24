@@ -41,7 +41,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
       'Accept': 'application/json',
       'fcmToken': prefs.getString('fcm_token'),
-      'Accept-Language': LangProvider().getLocaleCode(),
+      'Accept-Language': prefs.getString('language'),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
@@ -103,7 +103,7 @@ class _ProductDetailsState extends State<ProductDetails> {
     }, headers: {
       'Accept': 'application/json',
       'fcmToken': prefs.getString('fcm_token'),
-      'Accept-Language': LangProvider().getLocaleCode(),
+      'Accept-Language': prefs.getString('language'),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
@@ -141,7 +141,7 @@ class _ProductDetailsState extends State<ProductDetails> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    var cart = Provider.of<Cart>(context);
+    // var cart = Provider.of<Cart>(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,

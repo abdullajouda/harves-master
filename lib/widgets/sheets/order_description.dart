@@ -135,7 +135,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
             ),
           ),
           Text(
-            "\$${cart.total}",
+            "${'Q.R'.trs(context)}${cart.total}",
             style: TextStyle(
               fontSize: 14,
               color: CColors.headerText,
@@ -154,7 +154,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
             ),
           ),
           Text(
-            "\$$_deliveryCost",
+            "${'Q.R'.trs(context)}$_deliveryCost",
             style: TextStyle(
               fontSize: 12,
               color: CColors.headerText,
@@ -179,7 +179,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
               : Row(
                   children: [
                     Text(
-                      "\$${cart.total.toDouble() + _deliveryCost.toDouble()}",
+                      "${'Q.R'.trs(context)}${cart.total.toDouble() + _deliveryCost.toDouble()}",
                       style: TextStyle(
                           fontSize: _discount != null ? 12 : 15,
                           color: _discount != null
@@ -191,7 +191,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
                     ),
                     _discount != null
                         ? Text(
-                            "\$${(_total) - (_total * _discount / 100)}",
+                            "${'Q.R'.trs(context)}${(_total) - (_total * _discount / 100)}",
                             style: TextStyle(
                               fontSize: 15,
                               color: CColors.headerText,

@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/models/category.dart';
 import 'package:harvest/customer/models/favorite.dart';
+import 'package:harvest/customer/models/offers_slider.dart';
 import 'package:harvest/customer/views/Basket/basket.dart';
 import 'package:harvest/customer/views/home/special_products_details.dart';
 import 'package:harvest/customer/widgets/Fruit_item.dart';
@@ -18,10 +19,10 @@ import 'package:provider/provider.dart';
 import '../product_details.dart';
 
 class OffersPage extends StatefulWidget {
-  final Category category;
+  final Offers offers;
   final String color;
 
-  const OffersPage({Key key, this.category, this.color}) : super(key: key);
+  const OffersPage({Key key, this.offers, this.color}) : super(key: key);
 
   @override
   _OffersPageState createState() => _OffersPageState();
@@ -64,31 +65,38 @@ class _OffersPageState extends State<OffersPage> {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           child: Container(
-            decoration: BoxDecoration(
-              // color: Colors.teal,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Text.rich(
-              TextSpan(
-                text: "Save Up to 50%" + "\t\t",
+              decoration: BoxDecoration(
+                // color: Colors.teal,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Text(
+                widget.offers.title,
                 style: TextStyle(
                   color: HexColor.fromHex(widget.color),
                   fontWeight: FontWeight.w500,
                 ),
-                children: [
-                  TextSpan(
-                    text: "April Offers",
-                    style: TextStyle(
-                      color: CColors.normalText,
-                      fontWeight: FontWeight.normal,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
+              )
+              // Text.rich(
+              //   TextSpan(
+              //     text: "Save Up to 50%" + "\t\t",
+              //     style: TextStyle(
+              //       color: HexColor.fromHex(widget.color),
+              //       fontWeight: FontWeight.w500,
+              //     ),
+              //     children: [
+              //       TextSpan(
+              //         text: "April Offers",
+              //         style: TextStyle(
+              //           color: CColors.normalText,
+              //           fontWeight: FontWeight.normal,
+              //           fontSize: 13,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
               ),
-            ),
-          ),
         ),
         children: [
           // FlatButton(
@@ -122,7 +130,7 @@ class _OffersPageState extends State<OffersPage> {
               physics: NeverScrollableScrollPhysics(),
               itemBuilder: (context, index) {
                 if (op.homeItems.values.toList()[index].categoryId ==
-                    widget.category.id) {
+                    widget.offers.category.id) {
                   return GestureDetector(
                     onTap: () =>
                         Navigator.of(context, rootNavigator: true).push(

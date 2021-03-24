@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:harvest/helpers/Localization/localization.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -71,14 +72,15 @@ class _AccountActivationState extends State<AccountActivation>
       FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
       final fToken = await _firebaseMessaging.getToken();
       prefs.setString('fcm_token', fToken);
-      var request = await post(ApiHelper.api + 'verifyCode',
-          body: {
-            'code': code,
-            'mobile': widget.mobile,
-            'device_type': deviceType,
-            'fcm_token': fToken
-          },
-          headers: ApiHelper.headers);
+      var request = await post(ApiHelper.api + 'verifyCode', body: {
+        'code': code,
+        'mobile': widget.mobile,
+        'device_type': deviceType,
+        'fcm_token': fToken
+      }, headers: {
+        'Accept': 'application/json',
+        'Accept-Language': LangProvider().getLocaleCode(),
+      });
       var response = json.decode(request.body);
       Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
@@ -130,8 +132,12 @@ class _AccountActivationState extends State<AccountActivation>
       loadResend = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var response = await post(ApiHelper.api + 'reSendCode',
-        headers: ApiHelper.headers, body: {'mobile': widget.mobile});
+    var response = await post(ApiHelper.api + 'reSendCode', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+    }, body: {
+      'mobile': widget.mobile
+    });
 
     var res = json.decode(response.body);
     if (res['status'] == true) {
@@ -188,9 +194,8 @@ class _AccountActivationState extends State<AccountActivation>
                   Padding(
                     padding: const EdgeInsets.only(bottom: 30),
                     child: Text(
-                      'Account Activation',
+                      'account_activation'.trs(context),
                       style: TextStyle(
-                        fontFamily: 'SF Pro Rounded',
                         fontSize: 22,
                         color: const Color(0xff3c4959),
                         fontWeight: FontWeight.w500,
@@ -280,7 +285,7 @@ class _AccountActivationState extends State<AccountActivation>
                                       child: loadResend
                                           ? LoadingBtn()
                                           : Text(
-                                              "Resend code",
+                                              "Resend code".trs(context),
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 color: const Color(0xccf88518),
@@ -299,6 +304,7 @@ class _AccountActivationState extends State<AccountActivation>
                               width: 260,
                               child: Center(
                                 child: TextFormField(
+                                  keyboardType: TextInputType.number,
                                     onChanged: (newValue) {
                                       setState(() {
                                         code = newValue;
@@ -306,12 +312,12 @@ class _AccountActivationState extends State<AccountActivation>
                                     },
                                     validator: (value) {
                                       if (value.isEmpty) {
-                                        return "* Required";
+                                        return "* Required".trs(context);
                                       } else
                                         return null;
                                     },
                                     decoration:
-                                        inputDecoration(' Activation Code')),
+                                        inputDecoration('activation_code'.trs(context))),
                               ),
                             ),
                           ),
@@ -329,9 +335,8 @@ class _AccountActivationState extends State<AccountActivation>
                               child: load
                                   ? LoadingBtn()
                                   : Text(
-                                      'Activate ',
+                                      'activate'.trs(context),
                                       style: TextStyle(
-                                        fontFamily: 'SF Pro Rounded',
                                         fontSize: 16,
                                         color: const Color(0xffffffff),
                                       ),
@@ -345,9 +350,8 @@ class _AccountActivationState extends State<AccountActivation>
                           child: TextButton(
                             onPressed: () => Navigator.pop(context),
                             child: Text(
-                              'Return ',
+                              'return'.trs(context),
                               style: TextStyle(
-                                fontFamily: 'SF Pro Rounded',
                                 fontSize: 12,
                                 color: const Color(0xfffdaa5c),
                               ),

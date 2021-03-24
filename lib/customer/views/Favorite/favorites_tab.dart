@@ -21,6 +21,7 @@ import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/dialogs/signup_first.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
+import 'package:harvest/widgets/not_authenticated.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,6 +35,7 @@ class FavoritesTab extends StatefulWidget {
 class _FavoritesTabState extends State<FavoritesTab> {
   bool load = false;
   bool loadButton = false;
+  bool isAuthenticated = false;
   Products _selectedIndex;
 
   // List<FavoriteModel> _fruits = [];
@@ -46,10 +48,10 @@ class _FavoritesTabState extends State<FavoritesTab> {
         load = true;
       });
       FavoriteOperations op =
-      Provider.of<FavoriteOperations>(context, listen: false);
+          Provider.of<FavoriteOperations>(context, listen: false);
       var request = await get(ApiHelper.api + 'getMyFavorites', headers: {
         'Accept': 'application/json',
-        'Accept-Language': 'en',
+        'Accept-Language': prefs.getString('language'),
         'Authorization': 'Bearer ${prefs.getString('userToken')}'
       });
       var response = json.decode(request.body);
@@ -64,14 +66,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
       setState(() {
         load = false;
       });
-    }else{
-      showCupertinoDialog(
-        context: context,
-        builder: (context) => SignUpFirst(),
-      );
     }
-
-
   }
 
   Future removeFav(Products fruit) async {
@@ -85,7 +80,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
     var request =
         await get(ApiHelper.api + 'deleteFromFavorit/${fruit.id}', headers: {
       'Accept': 'application/json',
-      'Accept-Language': 'en',
+      'Accept-Language': prefs.getString('language'),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
@@ -103,9 +98,24 @@ class _FavoritesTabState extends State<FavoritesTab> {
     });
   }
 
+  isAuth() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('userToken') != null) {
+      getFavorite();
+      setState(() {
+        isAuthenticated = true;
+      });
+    } else {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => SignUpFirst(),
+      );
+    }
+  }
+
   @override
   void initState() {
-    getFavorite();
+    isAuth();
     super.initState();
   }
 
@@ -119,7 +129,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
         backgroundGradient: CColors.greenAppBarGradient(),
         actions: [HomePopUpMenu()],
         leading: BasketButton(),
-        bottomView: Padding(
+        bottomView:!isAuthenticated?Container(): Padding(
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Container(
             // width: 298.0,
@@ -160,48 +170,52 @@ class _FavoritesTabState extends State<FavoritesTab> {
             ),
           ),
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Text(
-              "favorite_item".trs(context),
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: CColors.headerText,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          load
-              ? Center(child: Loader())
-              : GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(top: 10, bottom: 40)
-                      .add(EdgeInsets.symmetric(horizontal: 20)),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      childAspectRatio: 1,
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 0,
-                      mainAxisSpacing: 0),
-                  itemCount: op.items.length,
-                  itemBuilder: (context, index) {
-                    final bool _isSelected =
-                        _isIndexSelected(op.items.values.toList()[index]);
-                    return Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        FavoriteItem(
-                          remove: () {
-                            removeFav(op.items.values.toList()[index]);
-                          },
-                          fruit: op.items.values.toList()[index],
-                        ),
-                        _isSelected ? Loader() : Container()
-                      ],
-                    );
-                  }),
-        ],
+        child: !isAuthenticated ? NotAuthPage() : null,
+        children: !isAuthenticated
+            ? null
+            : [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: Text(
+                    "favorite_item".trs(context),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: CColors.headerText,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                load
+                    ? Center(child: Loader())
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        // padding: EdgeInsets.only(top: 10, bottom: 40)
+                        //     .add(EdgeInsets.symmetric(horizontal: 20)),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            childAspectRatio: 1,
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 0,
+                            mainAxisSpacing: 0),
+                        itemCount: op.items.length,
+                        itemBuilder: (context, index) {
+                          final bool _isSelected =
+                              _isIndexSelected(op.items.values.toList()[index]);
+                          return Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              FavoriteItem(
+                                remove: () {
+                                  removeFav(op.items.values.toList()[index]);
+                                },
+                                fruit: op.items.values.toList()[index],
+                              ),
+                              _isSelected ? Loader() : Container()
+                            ],
+                          );
+                        }),
+              ],
       ),
     );
   }

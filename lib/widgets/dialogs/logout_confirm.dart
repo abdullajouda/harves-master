@@ -44,7 +44,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
-    Fluttertoast.showToast(msg: response['message']);
+    // Fluttertoast.showToast(msg: response['message']);
     op.clearFav();
     op.clearHome();
     no.clearNotes();

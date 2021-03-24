@@ -14,6 +14,8 @@ import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/color_converter.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/alerts/removed_from_cart.dart';
+import 'package:harvest/widgets/button_loader.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,8 +33,7 @@ class ProductBundleDetails extends StatefulWidget {
 }
 
 class _ProductBundleDetailsState extends State<ProductBundleDetails> {
-  final _productDescription =
-      "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.";
+
   bool _isFavorite = false;
   bool load = false;
 
@@ -67,6 +68,46 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
       load = false;
     });
   }
+
+  changeQnt(int type, int id) async {
+    setState(() {
+      load = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'changeQuantity', body: {
+      'type': type.toString(),
+      'product_id': id.toString()
+    }, headers: {
+      'Accept': 'application/json',
+      'fcmToken': prefs.getString('fcm_token'),
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    if (response['message'] == 'product deleted') {
+      showGeneralDialog(
+        barrierDismissible: true,
+        barrierLabel: '',
+        barrierColor: Colors.black.withOpacity(0.1),
+        transitionDuration: Duration(milliseconds: 500),
+        context: context,
+        pageBuilder: (context, anim1, anim2) {
+          return RemovedFromCart();
+        },
+        transitionBuilder: (context, anim1, anim2, child) {
+          return SlideTransition(
+            position:
+            Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
+            child: child,
+          );
+        },
+      );
+    }
+    setState(() {
+      load = false;
+    });
+  }
+
 
 
   @override
@@ -134,15 +175,15 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                 fontSize: 20,
                               ),
                             ),
-                            SizedBox(width: 10),
-                            Text(
-                              "${widget.fruit.qty} ${widget.fruit.typeName}",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                color: CColors.headerText.withAlpha(150),
-                                fontSize: 15,
-                              ),
-                            ),
+                            // SizedBox(width: 10),
+                            // Text(
+                            //   "${widget.fruit.qty} ${widget.fruit.typeName}",
+                            //   style: TextStyle(
+                            //     fontWeight: FontWeight.w400,
+                            //     color: CColors.headerText.withAlpha(150),
+                            //     fontSize: 15,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
@@ -153,11 +194,12 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                               children: [
                                 Row(
                                   children: [
-                                    if (widget.fruit.minQty > 0) ...[
                                       CIconButton(
                                         onTap: () {
+                                          changeQnt(2, widget.fruit.id);
                                           setState(() {
-                                            widget.fruit.inCart= widget.fruit.inCart - widget.fruit.unitRate;
+                                            widget.fruit.inCart =
+                                                widget.fruit.inCart - widget.fruit.unitRate;
                                           });
                                         },
                                         icon: Icon(Icons.remove,
@@ -179,12 +221,17 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                           ),
                                         ),
                                       ),
-                                    ],
                                     CIconButton(
                                       onTap: () {
-                                        setState(() {
-                                          widget.fruit.inCart= widget.fruit.inCart + widget.fruit.unitRate;
-                                        });
+                                        widget.fruit.inCart == 0
+                                            ? addToBasket(widget.fruit.id)
+                                            : changeQnt(1, widget.fruit.id);
+                                        setState(widget.fruit.inCart != 0
+                                            ? () {
+                                          widget.fruit.inCart =
+                                              widget.fruit.inCart + widget.fruit.unitRate;
+                                        }
+                                            : () {});
                                       },
                                       icon: Icon(Icons.add,
                                           color: CColors.headerText, size: 25),
@@ -196,7 +243,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                   ],
                                 ),
                                 Text(
-                                  "\$${widget.fruit.price}",
+                                  "${'Q.R'.trs(context)}${widget.fruit.price}",
                                   style: TextStyle(
                                     color: CColors.headerText,
                                     fontSize: 22,
@@ -214,7 +261,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                               Expanded(
                                 child: SingleChildScrollView(
                                   child: Text(
-                                    _productDescription,
+                                    widget.fruit.description??'',
                                     style: TextStyle(
                                       color: CColors.normalText,
                                       fontSize: 14,
@@ -264,7 +311,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                           widget.fruit.inCart != 0
                               ? Container()
                               : Expanded(
-                                  child: MainButton(
+                                  child: load?Center(child: LoadingBtn()):MainButton(
                                     onTap: () {
                                       addToBasket(widget.fruit.id);
 
@@ -318,11 +365,11 @@ class _BundleProduct extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 70),
-                      child: Text(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 70),
+                  child: Row(
+                    children: [
+                      Text(
                         title ?? '',
                         style: TextStyle(
                           color: CColors.headerText,
@@ -330,16 +377,16 @@ class _BundleProduct extends StatelessWidget {
                           fontSize: 15,
                         ),
                       ),
-                    ),
-                    Spacer(),
-                    Text(
-                      "$numOfItems items",
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: const Color(0xcc3c4959),
+                      Spacer(),
+                      Text(
+                        "$numOfItems items",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: const Color(0xcc3c4959),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

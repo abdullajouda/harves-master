@@ -49,6 +49,7 @@ class CartItem {
 }
 
 class Cart with ChangeNotifier {
+  List<int> _errors = [];
   double total;
   double totalPrice;
   String additionalNote;
@@ -97,6 +98,10 @@ class Cart with ChangeNotifier {
     return {..._cartItems};
   }
 
+  List<int> get errors{
+    return _errors;
+  }
+
   int get itemCount {
     return _cartItems.length;
   }
@@ -108,6 +113,10 @@ class Cart with ChangeNotifier {
       _cartItems.putIfAbsent(item.id.toString(), () => item);
     }
     notifyListeners();
+  }
+
+  void addError(int index){
+    _errors.add(index);
   }
 
   void removeFav(CartItem item) {

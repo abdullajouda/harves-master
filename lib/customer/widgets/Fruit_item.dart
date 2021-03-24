@@ -20,6 +20,7 @@ import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+
 class FruitItem extends StatefulWidget {
   final Products fruit;
   final Color color;
@@ -123,7 +124,7 @@ class _FruitItemState extends State<FruitItem> {
 
   @override
   Widget build(BuildContext context) {
-    var cart = Provider.of<Cart>(context);
+    var lang = Provider.of<LangProvider>(context);
     return widget.fruit.available == 0
         ? Container(
             height: 160,
@@ -165,7 +166,7 @@ class _FruitItemState extends State<FruitItem> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: Text(
-                          'Sold Out',
+                          'Sold Out'.trs(context),
                           style: TextStyle(
                             fontSize: 14,
                             color: const Color(0xff3c4959),
@@ -252,9 +253,8 @@ class _FruitItemState extends State<FruitItem> {
                           ),
                           child: Center(
                             child: Text(
-                              '${widget.fruit.discount}% Off',
+                              '${widget.fruit.discount}% ${'Off'.trs(context)}',
                               style: TextStyle(
-                                fontFamily: 'SF Pro Rounded',
                                 fontSize: 10,
                                 color: const Color(0xffffffff),
                               ),
@@ -265,8 +265,9 @@ class _FruitItemState extends State<FruitItem> {
                       )
                     : Container(),
                 Positioned(
-                  left: 20,
-                  bottom: widget.fruit.inCart != 0 ? 40 : 13,
+                  left: lang.getLocaleCode() == 'ar'?null:20,
+                  right: lang.getLocaleCode() == 'ar'?20:null,
+                  bottom: widget.fruit.inCart != 0 ? 40 : lang.getLocaleCode() == 'ar'?23:13,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,30 +275,27 @@ class _FruitItemState extends State<FruitItem> {
                       Text(
                         widget.fruit.name ?? '',
                         style: TextStyle(
-                          fontFamily: 'SF Pro Rounded',
                           fontSize: 12,
                           color: const Color(0xff3c4959),
                           fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.left,
                       ),
-                      Padding(
+                      widget.fruit.description!=null ?Padding(
                         padding: const EdgeInsets.symmetric(vertical: 3),
                         child: Text(
-                          widget.fruit.description ?? '',
+                          widget.fruit.description,
                           style: TextStyle(
-                            fontFamily: 'SF Pro Rounded',
                             fontSize: 10,
                             color: const Color(0xffe3e7eb),
                             fontWeight: FontWeight.w300,
                           ),
                           textAlign: TextAlign.left,
                         ),
-                      ),
+                      ):Container(),
                       Text(
-                        '${widget.fruit.price}\$/kilo',
+                        '${widget.fruit.price}${'Q.R'.trs(context)}/${widget.fruit.typeName}',
                         style: TextStyle(
-                          fontFamily: 'SF Pro Rounded',
                           fontSize: 12,
                           color: widget.color != null
                               ? widget.color

@@ -62,7 +62,7 @@ class WalletAmount extends StatelessWidget {
               baseColor: load?Colors.grey:Colors.white,
               highlightColor: Colors.white,
               child: Text(
-                "\$" + (amount ?? '0.00'),
+                "${'Q.R'.trs(context)}" + (amount ?? '0.00'),
                 style: TextStyle(
                   color: CColors.white,
                   fontSize: 17,

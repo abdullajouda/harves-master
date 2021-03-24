@@ -12,11 +12,11 @@ class Order {
   double totalPrice;
   int status;
   int payment;
-  Null note;
+  String note;
   int isPaid;
   String transId;
   int driverId;
-  Null deliveryDate;
+  String deliveryDate;
   String createdAt;
   String statusName;
   int discount;

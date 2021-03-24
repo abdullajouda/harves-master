@@ -16,6 +16,7 @@ import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
+import 'package:harvest/widgets/not_authenticated.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,30 +29,46 @@ class SupportTab extends StatefulWidget {
 
 class _SupportTabState extends State<SupportTab> {
   TextEditingController _textEditingController;
+  bool isAuthenticated = false;
   bool load = false;
 
   sendMessage() async {
-    setState(() {
-      load = true;
-    });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var request = await post(ApiHelper.api + 'contactUs', body: {
-      'message': _textEditingController.text
-    }, headers: {
-      'Accept': 'application/json',
-      'Accept-Language': LangProvider().getLocaleCode(),
-      'Authorization': 'Bearer ${prefs.getString('userToken')}'
-    });
-    var res = json.decode(request.body);
-    Fluttertoast.showToast(msg: res['message']);
-
-    setState(() {
-      load = false;
-    });
+    if(_textEditingController.text != ''){
+      setState(() {
+        load = true;
+      });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var request = await post(ApiHelper.api + 'contactUs', body: {
+        'message': _textEditingController.text
+      }, headers: {
+        'Accept': 'application/json',
+        'Accept-Language': LangProvider().getLocaleCode(),
+        'Authorization': 'Bearer ${prefs.getString('userToken')}'
+      });
+      var res = json.decode(request.body);
+      Fluttertoast.showToast(msg: res['message']);
+      setState(() {
+        _textEditingController.clear();
+        load = false;
+      });
+    }else{
+      Fluttertoast.showToast(msg: 'EnterMessageFirst'.trs(context));
+    }
   }
+
+  isAuth() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('userToken') != null) {
+      setState(() {
+        isAuthenticated = true;
+      });
+    }
+  }
+
 
   @override
   void initState() {
+    isAuth();
     _textEditingController = TextEditingController();
     super.initState();
   }
@@ -72,7 +89,10 @@ class _SupportTabState extends State<SupportTab> {
         actions: [HomePopUpMenu()],
         leading: BasketButton(),
         contentPadding: EdgeInsets.symmetric(horizontal: 20),
-        children: [
+        child: !isAuthenticated ? NotAuthPage() : null,
+        children:  !isAuthenticated
+            ? null
+            : [
           Text(
             "personal_assistant".trs(context),
             style: TextStyle(
@@ -114,7 +134,7 @@ class _SupportTabState extends State<SupportTab> {
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
                       child: Text(
-                        "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration..",
+                        "To perfectly support you, please write down in details your inquires.".trs(context),
                         style: TextStyle(
                           color: CColors.lightGreen,
                           fontWeight: FontWeight.normal,

@@ -19,7 +19,7 @@ import 'package:harvest/widgets/my_animation.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 class SearchResults extends StatefulWidget {
   final String search;
 
@@ -43,7 +43,8 @@ class _SearchResultsState extends State<SearchResults> {
           ApiHelper.api + 'search?text=$value',
           headers: {
             'Accept': 'application/json',
-            'Accept-Language': 'en',
+            'fcmToken': prefs.getString('fcm_token'),
+            'Accept-Language': LangProvider().getLocaleCode(),
             'Authorization': 'Bearer ${prefs.getString('userToken')}'
           });
       var response = json.decode(request.body);
@@ -91,7 +92,7 @@ class _SearchResultsState extends State<SearchResults> {
               searchProducts(value);
             },
             decoration: searchDecoration(
-              'Search products',
+              'search_products'.trs(context),
               Container(
                 height: 14,
                 width: 14,
@@ -120,7 +121,7 @@ class _SearchResultsState extends State<SearchResults> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Text(
-              '${op.homeCount} Results Found',
+              '${op.homeCount} ${'results_found'.trs(context)}',
               style: TextStyle(
                 fontSize: 20,
                 color: const Color(0xff3c4959),

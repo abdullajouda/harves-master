@@ -2,16 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:harvest/Widgets/remove_icon.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/city.dart';
-import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/customer/views/Basket/free_shipping_slider.dart';
-import 'package:harvest/customer/views/Drop-Menu-Views/Profile/user_addresses.dart';
 import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
-import 'package:harvest/Widgets/remove_icon.dart';
 import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:harvest/widgets/no_data.dart';
@@ -35,7 +33,8 @@ class _BasketStepState extends State<BasketStep> {
   bool load = true;
   bool showFree = false;
   double total;
-  List<int> _errorIndexes = [];
+
+  // List<int> _errorIndexes = [];
   City _city;
   double remains;
   List<City> _cities = [];
@@ -66,7 +65,7 @@ class _BasketStepState extends State<BasketStep> {
       CartItem item = CartItem.fromJson(items[i]);
       cart.addItem(item);
       if (item.quantity > item.product.available) {
-        _errorIndexes.add(i);
+        cart.addError(i);
       }
     }
     // items.forEach((element) {
@@ -185,8 +184,10 @@ class _BasketStepState extends State<BasketStep> {
       'Accept': 'application/json',
       'Accept-Language': LangProvider().getLocaleCode(),
     });
-    var request =
-        await get(ApiHelper.api + 'getCities', headers: ApiHelper.headers);
+    var request = await get(ApiHelper.api + 'getCities', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+    });
     var response = json.decode(request.body);
     var items = response['cities'];
     items.forEach((element) {
@@ -257,6 +258,8 @@ class _BasketStepState extends State<BasketStep> {
 
   ListView _buildItemsBody(Size size) {
     var cart = Provider.of<Cart>(context);
+    bool _itemHasError(int index) => cart.errors.contains(index);
+
     return cart.items.length == 0
         ? ListView(
             children: [NoData()],
@@ -281,9 +284,9 @@ class _BasketStepState extends State<BasketStep> {
                                 .product
                                 .available <
                             cart.items.values.toList()[index].quantity) {
-                          _errorIndexes.add(index);
+                          cart.addError(index);
                         } else {
-                          _errorIndexes.remove(index);
+                          cart.errors.remove(index);
                         }
                       });
                     },
@@ -355,7 +358,7 @@ class _BasketStepState extends State<BasketStep> {
                               ),
                               child: ListTile(
                                 contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 10),
+                                    horizontal: 10, vertical: 10),
                                 leading: Image.network(
                                     cart.items.values
                                         .toList()[index]
@@ -405,14 +408,14 @@ class _BasketStepState extends State<BasketStep> {
                                     Row(
                                       children: [
                                         Text(
-                                          "${cart.items.values.toList()[index].product.price}\$/${cart.items.values.toList()[index].product.typeName}",
+                                          "${cart.items.values.toList()[index].product.price}${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
                                           style: TextStyle(
                                             fontSize: 10,
                                             color: const Color(0xff3c984f),
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        SizedBox(width: 10),
+                                        SizedBox(width: 5),
                                         CIconButton(
                                           onTap: () {
                                             if (cart.items.values
@@ -430,9 +433,9 @@ class _BasketStepState extends State<BasketStep> {
                                                     cart.items.values
                                                         .toList()[index]
                                                         .quantity) {
-                                                  _errorIndexes.add(index);
+                                                  cart.addError(index);
                                                 } else {
-                                                  _errorIndexes.remove(index);
+                                                  cart.errors.remove(index);
                                                 }
                                               });
                                               changeQnt(
@@ -471,9 +474,9 @@ class _BasketStepState extends State<BasketStep> {
                                                   cart.items.values
                                                       .toList()[index]
                                                       .quantity) {
-                                                _errorIndexes.add(index);
+                                                cart.addError(index);
                                               } else {
-                                                _errorIndexes.remove(index);
+                                                cart.errors.remove(index);
                                               }
                                             });
                                             changeQnt(
@@ -490,7 +493,7 @@ class _BasketStepState extends State<BasketStep> {
                                     ),
                                     Text.rich(
                                       TextSpan(
-                                        text: " \$",
+                                        text: "Q.R".trs(context),
                                         style: TextStyle(
                                           fontSize: 11,
                                           color: const Color(0xfff88518),
@@ -664,7 +667,7 @@ class _BasketStepState extends State<BasketStep> {
                                                           horizontal: 10,
                                                           vertical: 5),
                                                       child: Text(
-                                                        "${remains.toString()}\$",
+                                                        "${remains.toString()}${"Q.R".trs(context)}",
                                                         style: TextStyle(
                                                             color:
                                                                 CColors.white),
@@ -730,7 +733,7 @@ class _BasketStepState extends State<BasketStep> {
                                                 ),
                                                 Text.rich(
                                                   TextSpan(
-                                                    text: "\$",
+                                                    text: "Q.R".trs(context),
                                                     style: TextStyle(
                                                       fontSize: 14,
                                                       color: CColors.darkOrange,
@@ -754,7 +757,7 @@ class _BasketStepState extends State<BasketStep> {
                                             splashColor: Colors.transparent,
                                             highlightColor: Colors.transparent,
                                             onTap: () {
-                                              if (_errorIndexes.length == 0) {
+                                              if (cart.errors.length == 0) {
                                                 if (_textEditingController
                                                         .text !=
                                                     null) {
@@ -786,8 +789,11 @@ class _BasketStepState extends State<BasketStep> {
                                                             'Try to remove or adjust the number of this items',
                                                         color: CColors
                                                             .coldPaleBloodRed,
-                                                        icon: Icon(Icons
-                                                            .warning_amber_rounded,color: CColors.white,),
+                                                        icon: Icon(
+                                                          Icons
+                                                              .warning_amber_rounded,
+                                                          color: CColors.white,
+                                                        ),
                                                       ),
                                                     );
                                                   },
@@ -850,8 +856,6 @@ class _BasketStepState extends State<BasketStep> {
             },
           );
   }
-
-  bool _itemHasError(int index) => _errorIndexes.contains(index);
 
   Widget _buildRemainingItemsCard(BuildContext context, index, cart) {
     return Card(

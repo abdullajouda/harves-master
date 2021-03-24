@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'customer/models/city.dart';
+import 'helpers/Localization/lang_provider.dart';
 
 class Splash extends StatefulWidget {
   @override
@@ -22,9 +23,7 @@ class Splash extends StatefulWidget {
 class _SplashState extends State<Splash> {
   startTime() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString('language') == null) {
-      prefs.setString('language', 'en');
-    }
+    prefs.setString('language', LangProvider().getLocaleCode());
     var _duration = new Duration(seconds: 2);
     return Timer(_duration, setLandingPage);
   }
@@ -57,8 +56,10 @@ class _SplashState extends State<Splash> {
 
   getCities() async {
     var op = Provider.of<CityOperations>(context, listen: false);
-    var request =
-        await get(ApiHelper.api + 'getCities', headers: ApiHelper.headers);
+    var request = await get(ApiHelper.api + 'getCities', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+    });
     var response = json.decode(request.body);
     var items = response['cities'];
     items.forEach((element) {

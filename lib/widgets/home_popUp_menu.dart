@@ -10,11 +10,13 @@ import 'package:harvest/customer/views/Drop-Menu-Views/privacy.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/main.dart';
 import 'package:harvest/widgets/dialogs/logout_confirm.dart';
 import 'package:provider/provider.dart';
 import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/Localization/app_translations.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/find_us.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePopUpMenuModel {
   final String iconPath;
@@ -40,9 +42,27 @@ class HomePopUpMenu extends StatefulWidget {
 class _HomePopUpMenuState extends State<HomePopUpMenu> {
   signOut() async {
     showCupertinoDialog(
-      context: context,useRootNavigator: true,
+      context: context,
+      useRootNavigator: true,
       builder: (context) => Center(child: ConfirmDialog()),
     );
+  }
+
+  bool isAuthenticated = false;
+
+  isAuth() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('userToken') != null) {
+      setState(() {
+        isAuthenticated = true;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    isAuth();
+    super.initState();
   }
 
   @override
@@ -53,28 +73,30 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
         title: 'Home',
         onPressed: () => context.read<PTVController>().jumbToTab(AppTabs.Home),
       ),
-      HomePopUpMenuModel(
-        iconPath: Constants.profileMenuIcon,
-        title: 'Profile',
-        onPressed: () {
-          Navigator.push(
-            context,
-            CupertinoPageRoute(
-              // context: context,
-              builder: (context) => UserProfile(),
-            ),
-          );
-        },
-      ),
-      HomePopUpMenuModel(
-        iconPath: 'assets/icons/credit-card.svg',
-        title: 'wallet',
-        onPressed: () {
-          Navigator.of(context, rootNavigator: true).push(CupertinoPageRoute(
-            builder: (context) => Wallet(),
-          ));
-        },
-      ),
+      if (isAuthenticated)
+        HomePopUpMenuModel(
+          iconPath: Constants.profileMenuIcon,
+          title: 'Profile',
+          onPressed: () {
+            Navigator.push(
+              context,
+              CupertinoPageRoute(
+                // context: context,
+                builder: (context) => UserProfile(),
+              ),
+            );
+          },
+        ),
+      if (isAuthenticated)
+        HomePopUpMenuModel(
+          iconPath: 'assets/icons/credit-card.svg',
+          title: 'wallet',
+          onPressed: () {
+            Navigator.of(context, rootNavigator: true).push(CupertinoPageRoute(
+              builder: (context) => Wallet(),
+            ));
+          },
+        ),
       HomePopUpMenuModel(
         iconPath: 'assets/icons/info.svg',
         title: 'About Us',
@@ -99,17 +121,18 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
           );
         },
       ),
-      HomePopUpMenuModel(
-        iconPath: 'assets/icons/bell.svg',
-        title: 'Notifications',
-        onPressed: () => Navigator.push(
-          context,
-          platformPageRoute(
-            context: context,
-            builder: (context) => Notifications(),
+      if (isAuthenticated)
+        HomePopUpMenuModel(
+          iconPath: 'assets/icons/bell.svg',
+          title: 'Notifications',
+          onPressed: () => Navigator.push(
+            context,
+            platformPageRoute(
+              context: context,
+              builder: (context) => Notifications(),
+            ),
           ),
         ),
-      ),
       HomePopUpMenuModel(
         iconPath: Constants.termsMenuIcon,
         title: 'Terms of use',
@@ -132,13 +155,27 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
           ),
         ),
       ),
-      HomePopUpMenuModel(
-        iconPath: Constants.logoutMenuIcon,
-        title: 'Sign out',
-        onPressed: () {
-          signOut();
-        },
-      ),
+      if (isAuthenticated)
+        HomePopUpMenuModel(
+          iconPath: Constants.logoutMenuIcon,
+          title: 'Sign out',
+          onPressed: () {
+            signOut();
+          },
+        ),
+      if (!isAuthenticated)
+        HomePopUpMenuModel(
+          iconPath: Constants.profileMenuIcon,
+          title: 'SignIn',
+          onPressed: () {
+            Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.of(context, rootNavigator: true).pushReplacement(
+                platformPageRoute(
+                  context: context,
+                  builder: (context) => MyApp(),
+                ));
+          },
+        ),
     ];
     return PopupMenuButton<int>(
       icon: SvgPicture.asset(Constants.menuIcon, width: 15, height: 15),

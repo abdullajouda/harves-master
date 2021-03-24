@@ -11,6 +11,7 @@ import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RootScreen extends StatefulWidget {
   @override

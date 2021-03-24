@@ -77,6 +77,11 @@ class _BasketState extends State<Basket> {
         builder: (context) => MinimumChargeDialog(),
       );
     } else if (response['code'] == 205) {
+      var list = response['items'];
+      // cart.addError(index);
+      list.forEach((element) {
+        cart.addError(int.parse(element.toString()));
+      });
       setState(() {
         _step = 0;
       });

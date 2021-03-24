@@ -116,10 +116,10 @@ class _BillingStepState extends State<BillingStep> {
                         ),
                         Text.rich(
                           TextSpan(
-                            text: " \$",
+                            text: "${'Q.R'.trs(context)}",
                             style: TextStyle(
                               fontSize: 14,
-                              color: CColors.lightOrange,
+                              color: CColors.darkOrange,
                             ),
                             children: [
                               TextSpan(

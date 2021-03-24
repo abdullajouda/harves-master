@@ -9,8 +9,11 @@ import 'package:harvest/customer/views/Orders/old_orders.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
+import 'package:harvest/widgets/not_authenticated.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum _OrdersTabs { Current, Old }
 
@@ -21,6 +24,22 @@ class OrdersTab extends StatefulWidget {
 
 class _OrdersTabState extends State<OrdersTab> {
   _OrdersTabs _ordersTab = _OrdersTabs.Current;
+  bool isAuthenticated = false;
+
+  isAuth() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('userToken') != null) {
+      setState(() {
+        isAuthenticated = true;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    isAuth();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,19 +52,34 @@ class _OrdersTabState extends State<OrdersTab> {
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
         actions: [HomePopUpMenu()],
-        leading: BasketButton(),
-        topHeader: PinnedTopHeader(
-          maxHeight: 43,
-          margin: EdgeInsetsDirectional.only(start: 10)
-              .add(EdgeInsets.symmetric(vertical: 10)),
-          child: _buildTopSelector(_orderTabsTitles, context),
-        ),
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                CustomPageRoute(
+                  // context: context,
+                  builder: (context) => Basket(),
+                ),
+              );
+            },
+            child: BasketButton()),
+        topHeader: !isAuthenticated
+            ? null
+            : PinnedTopHeader(
+                maxHeight: 43,
+                margin: EdgeInsetsDirectional.only(start: 10)
+                    .add(EdgeInsets.symmetric(vertical: 10)),
+                child: _buildTopSelector(_orderTabsTitles, context),
+              ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 30),
-          child:
-              _ordersTab == _OrdersTabs.Current ? CurrentOrders() : OldOrders(),
-        ),
+        child: !isAuthenticated
+            ? NotAuthPage()
+            : Padding(
+                padding: const EdgeInsets.only(bottom: 30),
+                child: _ordersTab == _OrdersTabs.Current
+                    ? CurrentOrders()
+                    : OldOrders(),
+              ),
       ),
     );
   }
@@ -79,9 +113,8 @@ class _OrdersTabState extends State<OrdersTab> {
                 child: Text(
                   _orderTabsTitles[index].trs(context),
                   style: TextStyle(
-                    color: _isSelected ? CColors.white : CColors.boldBlack,
-                    height: 1.2
-                  ),
+                      color: _isSelected ? CColors.white : CColors.boldBlack,
+                      height: 1.2),
                 ),
               ),
             ),

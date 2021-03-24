@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'helpers/Localization/localization.dart';
 import 'package:harvest/customer/components/slider_item.dart';
 import 'package:harvest/customer/models/slider.dart';
 import 'package:harvest/helpers/api.dart';
@@ -28,8 +29,12 @@ class _SplashScreenState extends State<SplashScreen> {
   int _current = 0;
 
   getSplash() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var request =
-        await get(ApiHelper.api + 'getAds', headers: ApiHelper.headers);
+        await get(ApiHelper.api + 'getAds',headers: {
+          'Accept': 'application/json',
+          'Accept-Language': prefs.getString('language'),
+        });
     var response = json.decode(request.body);
     var items = response['items'];
     // Fluttertoast.showToast(msg: response['message']);
@@ -124,7 +129,6 @@ class _SplashScreenState extends State<SplashScreen> {
                                 child: Text(
                                   '   ',
                                   style: TextStyle(
-                                    fontFamily: 'SF Pro Rounded',
                                     fontSize: 17,
                                     color: const Color(0xfffdaa5c),
                                     letterSpacing: 0.4999999904632568,
@@ -182,9 +186,8 @@ class _SplashScreenState extends State<SplashScreen> {
                                       builder: (context) => RootScreen(),
                                     )),
                                 child: Text(
-                                  'Skip',
+                                  'skip'.trs(context),
                                   style: TextStyle(
-                                    fontFamily: 'SF Pro Rounded',
                                     fontSize: 17,
                                     color: const Color(0xfffdaa5c),
                                     letterSpacing: 0.4999999904632568,
@@ -225,9 +228,8 @@ class _SplashScreenState extends State<SplashScreen> {
                               ),
                               child: Center(
                                 child: Text(
-                                  'Get Started',
+                                  'get_started'.trs(context),
                                   style: TextStyle(
-                                    fontFamily: 'SF Pro Rounded',
                                     fontSize: 18,
                                     color: const Color(0xff313131),
                                   ),
@@ -240,16 +242,16 @@ class _SplashScreenState extends State<SplashScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 30),
                             child: TextButton(
                               onPressed: () {
-                                Navigator.of(context).pushReplacement(CustomPageRoute(
+                                Navigator.of(context)
+                                    .pushReplacement(CustomPageRoute(
                                   builder: (context) {
                                     return Login();
                                   },
                                 ));
                               },
                               child: Text(
-                                'Log In',
+                                'Log In'.trs(context),
                                 style: TextStyle(
-                                  fontFamily: 'SF Pro Rounded',
                                   fontSize: 18,
                                   color: const Color(0xffffffff),
                                 ),

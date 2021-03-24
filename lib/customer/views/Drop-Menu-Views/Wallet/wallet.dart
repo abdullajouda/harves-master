@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/views/Basket/basket.dart';
@@ -10,6 +11,7 @@ import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/widgets/basket_button.dart';
+import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -26,6 +28,7 @@ class Wallet extends StatefulWidget {
 class _WalletState extends State<Wallet> {
   TextEditingController _controller;
   bool load = false;
+  bool loadConvert = false;
   String balance;
   int points;
   int _selectedIndex = -1;
@@ -37,7 +40,7 @@ class _WalletState extends State<Wallet> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getWallet', headers: {
       'Accept': 'application/json',
-      'Accept-Language': 'en',
+      'Accept-Language': '${prefs.getString('language')}',
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
@@ -57,13 +60,63 @@ class _WalletState extends State<Wallet> {
       'balance': '${_controller.text}',
     }, headers: {
       'Accept': 'application/json',
-      'Accept-Language': 'en',
+      'Accept-Language': '${prefs.getString('language')}',
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
     print(response);
     getWallet();
     setState(() {
+      load = false;
+    });
+  }
+
+  convertPoints() async {
+    setState(() {
+      loadConvert = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'convertPointsToWallet', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': '${prefs.getString('language')}',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    if (response['code'] == 203) {
+      showGeneralDialog(
+        barrierDismissible: true,
+        barrierLabel: '',
+        barrierColor: Colors.black.withOpacity(0.1),
+        transitionDuration: Duration(milliseconds: 500),
+        context: context,
+        pageBuilder: (context, anim1, anim2) {
+          return GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: AlertBuilder(
+              title: 'NOT ENOUGH POINTS'.trs(context),
+              subTitle: response['message'],
+              color: CColors.lightOrangeAccent,
+              icon: Icon(
+                Icons.warning_amber_rounded,
+                color: CColors.white,
+                size: 25,
+              ),
+            ),
+          );
+        },
+        transitionBuilder: (context, anim1, anim2, child) {
+          return SlideTransition(
+            position:
+                Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
+            child: child,
+          );
+        },
+      );
+    } else if (response['code'] == 200) {
+      getWallet();
+    }
+    setState(() {
+      loadConvert = false;
       load = false;
     });
   }
@@ -156,10 +209,12 @@ class _WalletState extends State<Wallet> {
                                     SizedBox(width: 8),
                                 itemBuilder: (context, index) {
                                   final _isSelected = _selectedIndex == index;
-                                  final _textColor =
-                                  _isSelected ? CColors.white : CColors.lightGreen;
-                                  final _backgroundColor =
-                                  !_isSelected ? CColors.white : CColors.lightGreen;
+                                  final _textColor = _isSelected
+                                      ? CColors.white
+                                      : CColors.lightGreen;
+                                  final _backgroundColor = !_isSelected
+                                      ? CColors.white
+                                      : CColors.lightGreen;
                                   return GestureDetector(
                                     onTap: () {
                                       setState(() => _selectedIndex = index);
@@ -171,21 +226,23 @@ class _WalletState extends State<Wallet> {
                                     },
                                     child: Container(
                                       margin: EdgeInsets.symmetric(vertical: 4),
-                                      padding:
-                                      const EdgeInsets.symmetric(horizontal: 12),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12),
                                       decoration: BoxDecoration(
                                         color: _backgroundColor,
                                         border: Border.all(
-                                            color: CColors.lightGreen, width: 1),
+                                            color: CColors.lightGreen,
+                                            width: 1),
                                         borderRadius: BorderRadius.circular(15),
                                       ),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             "${50 * (index + 1)}",
                                             style: TextStyle(
-                                              fontFamily: 'SF Pro Rounded',
+
                                               fontSize: 16,
                                               color: _textColor,
                                               fontWeight: FontWeight.w700,
@@ -229,21 +286,24 @@ class _WalletState extends State<Wallet> {
                                       },
                                       decoration: InputDecoration(
                                         prefix: Text(
-                                          '\$',
+                                          '${'Q.R'.trs(context)}',
                                           style: TextStyle(
-                                            fontFamily: 'SF Pro Rounded',
+
                                             fontSize: 8,
                                             color: const Color(0x993c984f),
                                           ),
                                           textAlign: TextAlign.left,
                                         ),
                                         isDense: true,
-                                        contentPadding: EdgeInsetsDirectional.only(
-                                            start: 10, top: 9, bottom: 9),
+                                        contentPadding:
+                                            EdgeInsetsDirectional.only(
+                                                start: 10, top: 9, bottom: 9),
                                         hintStyle: TextStyle(fontSize: 12),
                                         border: _buildVoucherTextFieldBorder(),
-                                        focusedBorder: _buildVoucherTextFieldBorder(),
-                                        enabledBorder: _buildVoucherTextFieldBorder(),
+                                        focusedBorder:
+                                            _buildVoucherTextFieldBorder(),
+                                        enabledBorder:
+                                            _buildVoucherTextFieldBorder(),
                                       ),
                                     ),
                                   ],
@@ -338,8 +398,10 @@ class _WalletState extends State<Wallet> {
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: MainButton(
-                onTap: () {addAmount();},
-                title: 'Submit',
+                onTap: () {
+                  addAmount();
+                },
+                title: 'Submit'.trs(context),
               ),
             )
           ],
@@ -390,8 +452,10 @@ class _WalletState extends State<Wallet> {
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
-              onPressed: () {},
-              icon: SvgPicture.asset(Constants.moneyExchange, width: 14),
+              onPressed: () {
+                convertPoints();
+              },
+              icon: loadConvert?SpinKitFadingCircle(color: CColors.white,size: 14,):SvgPicture.asset(Constants.moneyExchange, width: 14),
               label: Text(
                 "convert_to_wallet".trs(context),
                 style: TextStyle(
@@ -406,6 +470,7 @@ class _WalletState extends State<Wallet> {
       ),
     );
   }
+
   ShapeBorder _buildVoucherTextFieldBorder() {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(5),
@@ -413,4 +478,3 @@ class _WalletState extends State<Wallet> {
     );
   }
 }
-

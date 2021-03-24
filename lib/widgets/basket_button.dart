@@ -11,45 +11,43 @@ class BasketButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var cart = Provider.of<Cart>(context);
-    return GestureDetector(
-      child: Container(
-        width: 33,
-        height: 25,
-        child: Center(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Positioned(
-                  bottom: 0,
-                  left: 0,
-                  child: SvgPicture.asset(Constants.basketIcon)),
-              cart.items.length == 0
-                  ? Container()
-                  : Positioned(
-                      top: 0,
-                      right: 0,
-                      child: Container(
-                        height: 15,
-                        width: 15,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                              Radius.elliptical(9999.0, 9999.0)),
-                          color: const Color(0xfff88518),
-                        ),
-                        child: Center(
-                          child: Text(
-                            cart.items.length.toString(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: const Color(0xffffffff),
-                              fontWeight: FontWeight.w500,
-                            ),
+    return Container(
+      width: 33,
+      height: 25,
+      child: Center(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+                bottom: 0,
+                left: 0,
+                child: SvgPicture.asset(Constants.basketIcon)),
+            cart.items.length == 0
+                ? Container()
+                : Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      height: 15,
+                      width: 15,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                            Radius.elliptical(9999.0, 9999.0)),
+                        color: const Color(0xfff88518),
+                      ),
+                      child: Center(
+                        child: Text(
+                          cart.items.length.toString(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: const Color(0xffffffff),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ),
-            ],
-          ),
+                  ),
+          ],
         ),
       ),
     );

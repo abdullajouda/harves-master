@@ -12,6 +12,8 @@ import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/button_loader.dart';
 import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:harvest/helpers/Localization/localization.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -28,8 +30,13 @@ class _LoginState extends State<Login> {
       load = true;
     });
     if (_formKey.currentState.validate()) {
-      var request = await post(ApiHelper.api + 'sendLoginCode',
-          body: {'mobile': mobile}, headers: ApiHelper.headers);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var request = await post(ApiHelper.api + 'sendLoginCode', body: {
+        'mobile': mobile
+      }, headers: {
+        'Accept': 'application/json',
+        'Accept-Language': prefs.getString('language'),
+      });
       var response = json.decode(request.body);
       Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
@@ -40,7 +47,7 @@ class _LoginState extends State<Login> {
                 mobile: mobile,
               ),
             ));
-      } else{
+      } else {
         setState(() {
           load = false;
         });
@@ -71,9 +78,8 @@ class _LoginState extends State<Login> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 30),
                     child: Text(
-                      'Login',
+                      'Log In'.trs(context),
                       style: TextStyle(
-                        fontFamily: 'SF Pro Rounded',
                         fontSize: 22,
                         color: const Color(0xff3c4959),
                         fontWeight: FontWeight.w500,
@@ -151,13 +157,13 @@ class _LoginState extends State<Login> {
                                     },
                                     validator: (value) {
                                       if (value.isEmpty) {
-                                        return "* Required";
+                                        return "* Required".trs(context);
                                       } else
                                         return null;
                                     },
                                     keyboardType: TextInputType.number,
                                     decoration: inputDecorationWithIcon(
-                                      'Phone Number',
+                                      'phoneNumber'.trs(context),
                                       SvgPicture.asset(
                                           'assets/icons/mobile.svg'),
                                     )),
@@ -178,9 +184,8 @@ class _LoginState extends State<Login> {
                               child: load
                                   ? LoadingBtn()
                                   : Text(
-                                      'Continue ',
+                                      'continue'.trs(context),
                                       style: TextStyle(
-                                        fontFamily: 'SF Pro Rounded',
                                         fontSize: 16,
                                         color: const Color(0xffffffff),
                                       ),
@@ -201,24 +206,26 @@ class _LoginState extends State<Login> {
                             Row(
                               children: [
                                 Text(
-                                  'By Continuing you agree to our',
+                                  'By Continuing you agree to our'.trs(context),
                                   style: TextStyle(
-                                    fontFamily: 'SF Pro Rounded',
                                     fontSize: 10,
                                     color: const Color(0xff888a8d),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
                                 TextButton(
-                                  onPressed: () { Navigator.push(
-                                      context,
-                                      CustomPageRoute(
-                                        builder: (context) => Terms(path: 'this',),
-                                      ));},
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        CustomPageRoute(
+                                          builder: (context) => Terms(
+                                            path: 'this',
+                                          ),
+                                        ));
+                                  },
                                   child: Text(
-                                    'Terms Of Use',
+                                    'terms'.trs(context),
                                     style: TextStyle(
-                                      fontFamily: 'SF Pro Rounded',
                                       fontSize: 10,
                                       color: const Color(0xff3c984f),
                                     ),
@@ -236,9 +243,8 @@ class _LoginState extends State<Login> {
                                     ));
                               },
                               child: Text(
-                                'Skip',
+                                'skip'.trs(context),
                                 style: TextStyle(
-                                  fontFamily: 'SF Pro Rounded',
                                   fontSize: 10,
                                   color: const Color(0xfffdaa5c),
                                 ),

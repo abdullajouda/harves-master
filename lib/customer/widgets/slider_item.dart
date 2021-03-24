@@ -16,7 +16,7 @@ class HomeSlider extends StatelessWidget {
               Navigator.of(context).push(
                 CupertinoPageRoute(
                   builder: (context) => OffersPage(
-                    category: offers.category,
+                    offers: offers,
                     color: offers.backgroundColor,
                   ),
                 ),

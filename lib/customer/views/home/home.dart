@@ -49,7 +49,6 @@ class _HomeState extends State<Home> {
   );
   int _current = 0;
   final CarouselController _carouselController = CarouselController();
-  List _list = [];
   List<Offers> _offers = [];
   List<Category> _categories = [];
 
@@ -213,7 +212,7 @@ class _HomeState extends State<Home> {
                       builder: (context) => SearchResults(
                         search: value,
                       ),
-                    ));
+                    )).then((value) => getProductsByCategories(_selectedIndex));
               },
               decoration: searchDecoration(
                 'search_products'.trs(context),
@@ -283,7 +282,7 @@ class _HomeState extends State<Home> {
                             height: 132,
                             enlargeStrategy: CenterPageEnlargeStrategy.height,
                             enableInfiniteScroll:
-                                _list.length == 1 ? false : true,
+                            _offers.length == 1 ? false : true,
                             onPageChanged: (index, reason) {
                               setState(() {
                                 _current = index;

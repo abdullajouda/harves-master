@@ -53,7 +53,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
     var request = await get(ApiHelper.api + 'getOrderDetail/${widget.order.id}',
         headers: {
           'Accept': 'application/json',
-          'Accept-Language': LangProvider().getLocaleCode(),
+          'Accept-Language': prefs.getString('language'),
           'Authorization': 'Bearer ${prefs.getString('userToken')}'
         });
     var response = json.decode(request.body);
@@ -174,6 +174,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                                     SizedBox(height: 10),
                                 itemBuilder: (context, index) {
                                   return OrderItemListTile(
+                                    type: _order.orderProduct[index].product.typeName,
                                     name:
                                         _order.orderProduct[index].product.name,
                                     itemsNum:
@@ -213,7 +214,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              "Bill No.",
+              "Bill No.".trs(context),
               style: TextStyle(
                 fontSize: 13,
                 color: CColors.headerText,
@@ -262,7 +263,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  "\$${_order.myOrder.deliveryCost}",
+                  "${'Q.R'.trs(context)}${_order.myOrder.deliveryCost}",
                   style: TextStyle(
                     color: CColors.headerText,
                     fontWeight: FontWeight.normal,
@@ -298,7 +299,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
             Row(
               children: [
                 Text(
-                  "Total" + "\t" * 2,
+                  "${'total'.trs(context)}" + "\t" * 2,
                   style: TextStyle(
                     color: CColors.headerText,
                     fontSize: 15,
@@ -307,7 +308,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                 ),
                 Text.rich(
                   TextSpan(
-                    text: "\$",
+                    text: "${'Q.R'.trs(context)}",
                     style: TextStyle(
                       fontSize: 12,
                       color: CColors.darkOrange,
@@ -328,25 +329,25 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
             )
           ],
         ),
-        widget.order.status == 3 || widget.order.status == 4
-            ? FlatButton.icon(
-                onPressed: () => Navigator.pop(context),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                color: CColors.lightGreen,
-                icon:
-                    Icon(FontAwesomeIcons.redo, size: 13, color: CColors.white),
-                label: Text(
-                  "re_order".trs(context),
-                  style: TextStyle(
-                    color: CColors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-              )
-            : Container(),
+        // widget.order.status == 3 || widget.order.status == 4
+        //     ? FlatButton.icon(
+        //         onPressed: () => Navigator.pop(context),
+        //         shape: RoundedRectangleBorder(
+        //             borderRadius: BorderRadius.circular(5)),
+        //         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        //         color: CColors.lightGreen,
+        //         icon:
+        //             Icon(FontAwesomeIcons.redo, size: 13, color: CColors.white),
+        //         label: Text(
+        //           "re_order".trs(context),
+        //           style: TextStyle(
+        //             color: CColors.white,
+        //             fontSize: 13,
+        //             fontWeight: FontWeight.normal,
+        //           ),
+        //         ),
+        //       )
+        //     : Container(),
       ],
     );
   }
