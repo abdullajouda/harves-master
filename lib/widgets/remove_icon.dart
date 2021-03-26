@@ -67,7 +67,8 @@ class RemoveIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!enabled) return child;
     return Stack(
-      clipBehavior: Clip.none, children: [
+      clipBehavior: Clip.none,
+      children: [
         child,
         PositionedDirectional(
           end: 0,
@@ -83,7 +84,9 @@ class RemoveIcon extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: deocation.backgroundColor,
-                  border: Border.all(color: deocation.borderColor, width: deocation.borderWidth),
+                  border: Border.all(
+                      color: deocation.borderColor,
+                      width: deocation.borderWidth),
                   boxShadow: deocation.elevation == null ? null : shadow,
                 ),
                 child: Padding(

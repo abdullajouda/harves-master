@@ -65,7 +65,7 @@ class _BasketStepState extends State<BasketStep> {
       CartItem item = CartItem.fromJson(items[i]);
       cart.addItem(item);
       if (item.quantity > item.product.available) {
-        cart.addError(i);
+        // cart.addError(i);
       }
     }
     // items.forEach((element) {
@@ -258,8 +258,8 @@ class _BasketStepState extends State<BasketStep> {
 
   ListView _buildItemsBody(Size size) {
     var cart = Provider.of<Cart>(context);
-    bool _itemHasError(int index) => cart.errors.contains(index);
-
+    bool _itemHasError(CartItem cartItem) =>
+        cart.errors.contains(cartItem.productId);
     return cart.items.length == 0
         ? ListView(
             children: [NoData()],
@@ -268,12 +268,13 @@ class _BasketStepState extends State<BasketStep> {
             itemCount: cart.items.length,
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
             separatorBuilder: (context, index) {
-              final _hasError = _itemHasError(index + 1);
-              if (_hasError) return SizedBox(height: 5);
+              // final _hasError = _itemHasError(cart.items.values.toList()[index]);
+              // if (_hasError) return SizedBox(height: 5);
               return SizedBox(height: 25);
             },
             itemBuilder: (context, index) {
-              final bool _hasError = _itemHasError(index);
+              final bool _hasError =
+                  _itemHasError(cart.items.values.toList()[index]);
               return Column(
                 children: [
                   GestureDetector(
@@ -284,7 +285,7 @@ class _BasketStepState extends State<BasketStep> {
                                 .product
                                 .available <
                             cart.items.values.toList()[index].quantity) {
-                          cart.addError(index);
+                          // cart.addError(index);
                         } else {
                           cart.errors.remove(index);
                         }
@@ -433,7 +434,7 @@ class _BasketStepState extends State<BasketStep> {
                                                     cart.items.values
                                                         .toList()[index]
                                                         .quantity) {
-                                                  cart.addError(index);
+                                                  // cart.addError(index);
                                                 } else {
                                                   cart.errors.remove(index);
                                                 }
@@ -474,7 +475,7 @@ class _BasketStepState extends State<BasketStep> {
                                                   cart.items.values
                                                       .toList()[index]
                                                       .quantity) {
-                                                cart.addError(index);
+                                                // cart.addError(index);
                                               } else {
                                                 cart.errors.remove(index);
                                               }

@@ -1,19 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:harvest/customer/views/auth/login.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
-import 'package:harvest/main.dart';
-import 'package:provider/provider.dart';
 
-class SignUpFirst extends StatefulWidget {
-  @override
-  _SignUpFirstState createState() => _SignUpFirstState();
-}
 
-class _SignUpFirstState extends State<SignUpFirst> {
+class ChooseTime extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     // Size size = MediaQuery.of(context).size;
@@ -55,14 +48,15 @@ class _SignUpFirstState extends State<SignUpFirst> {
                             color: const Color(0xa3f88518),
                           ),
                           child: Center(
-                              child: SvgPicture.asset('assets/user.svg')),
+                              child: SvgPicture.asset(
+                                  'assets/calender.svg')),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Column(
                             children: [
                               Text(
-                                'SignUp First'.trs(context),
+                                'Choose delivery time/date'.trs(context),
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: const Color(0xff3c4959),
@@ -76,27 +70,19 @@ class _SignUpFirstState extends State<SignUpFirst> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.popUntil(
-                                context, (route) => route.isFirst);
-                            Navigator.of(context, rootNavigator: true)
-                                .pushReplacement(
-                              platformPageRoute(
-                                context: context,
-                                builder: (context) => Login(),
-                              ),
-                            );
+                            Navigator.pop(context);
                           },
                           child: Center(
                             child: Container(
                               height: 35,
-                              width: 140,
+                              width: 82,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(7.0),
                                 color: CColors.darkOrange,
                               ),
                               child: Center(
                                 child: Text(
-                                  'SignUp'.trs(context),
+                                  'OK'.trs(context),
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: const Color(0xffffffff),
@@ -112,32 +98,32 @@ class _SignUpFirstState extends State<SignUpFirst> {
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      height: 24,
-                      width: 24,
-                      decoration: BoxDecoration(
-                        borderRadius:
-                            BorderRadius.all(Radius.elliptical(9999.0, 9999.0)),
-                        color: Colors.white60,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0x12000000),
-                            offset: Offset(0, 2),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: SvgPicture.asset('assets/icons/cancel.svg'),
-                      ),
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   top: 0,
+                //   right: 0,
+                //   child: GestureDetector(
+                //     onTap: () => Navigator.pop(context),
+                //     child: Container(
+                //       height: 24,
+                //       width: 24,
+                //       decoration: BoxDecoration(
+                //         borderRadius:
+                //         BorderRadius.all(Radius.elliptical(9999.0, 9999.0)),
+                //         color: Colors.white60,
+                //         boxShadow: [
+                //           BoxShadow(
+                //             color: const Color(0x12000000),
+                //             offset: Offset(0, 2),
+                //             blurRadius: 8,
+                //           ),
+                //         ],
+                //       ),
+                //       child: Center(
+                //         child: SvgPicture.asset('assets/icons/cancel.svg'),
+                //       ),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),

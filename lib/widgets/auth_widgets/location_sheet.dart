@@ -69,6 +69,7 @@ class _LocationSheetState extends State<LocationSheet> {
       // Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
         prefs.setString('userToken', response['user']['access_token']);
+        prefs.setInt('loginCount', 1);
         Navigator.push(
             context,
             CustomPageRoute(

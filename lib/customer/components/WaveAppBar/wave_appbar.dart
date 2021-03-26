@@ -2,8 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/constants.dart';
-
 
 export 'appBar_body.dart';
 export 'pinned_header.dart';
@@ -19,6 +19,7 @@ double _degreeToRadian(double degree) => degree * (pi / 180);
 
 class _DefaultWaveAppBarTag {
   const _DefaultWaveAppBarTag();
+
   @override
   String toString() => '<default WaveAppBar tag>';
 }
@@ -32,7 +33,7 @@ class WaveAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Gradient backgroundGradient;
   final Object heroTag;
   final double height;
-  final double raduis;
+  final double radius;
   final double elevation;
   final Color shadowColor;
   final Brightness brightness;
@@ -47,7 +48,7 @@ class WaveAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundGradient,
     this.heroTag = const _DefaultWaveAppBarTag(),
     this.height = kWaveAppBarHeight,
-    this.raduis = kWaveAppBarRadius,
+    this.radius = kWaveAppBarRadius,
     this.elevation = 0.0,
     this.shadowColor,
     this.brightness = Brightness.light,
@@ -60,15 +61,18 @@ class WaveAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: brightness != Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      value: brightness != Brightness.dark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
       child: Material(
         elevation: elevation,
         shadowColor: shadowColor,
         child: Stack(
-          clipBehavior: Clip.none, children: [
+          clipBehavior: Clip.none,
+          children: [
             ClipPath(
               clipper: OvalBottomBorderClipper(
-                raduis: raduis,
+                radius: radius,
               ),
               child: Stack(
                 children: [
@@ -108,13 +112,15 @@ class WaveAppBar extends StatelessWidget implements PreferredSizeWidget {
                 child: Center(child: bottomView),
               ),
             Positioned(
-                left: 10,
+                left: LangProvider().getLocaleCode() == 'ar' ? null : 10,
+                right: LangProvider().getLocaleCode() == 'ar' ? 10 : null,
                 top: 40,
                 child: leading),
             Positioned(
-                right: 0,
+                right: LangProvider().getLocaleCode() == 'ar' ? null : 0,
+                left: LangProvider().getLocaleCode() == 'ar' ? 0 : null,
                 top: 30,
-                child: actions[0]??Container()),
+                child: actions[0] ?? Container()),
           ],
         ),
       ),
@@ -123,28 +129,29 @@ class WaveAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class OvalBottomBorderClipper extends CustomClipper<Path> {
-  final double raduis;
+  final double radius;
 
   const OvalBottomBorderClipper({
-    this.raduis,
+    this.radius,
   });
+
   @override
   Path getClip(Size size) {
     const double ratio = 20 / 50;
     Path path = Path();
     path.lineTo(0, 0);
-    path.lineTo(0, size.height - raduis);
+    path.lineTo(0, size.height - radius);
     path.quadraticBezierTo(
       size.width / 4,
-      size.height - raduis * ratio,
+      size.height - radius * ratio,
       size.width / 2,
-      size.height - raduis * ratio,
+      size.height - radius * ratio,
     );
     path.quadraticBezierTo(
       size.width - size.width / 4,
-      size.height - raduis * ratio,
+      size.height - radius * ratio,
       size.width,
-      size.height - raduis,
+      size.height - radius,
     );
     path.lineTo(size.width, 0);
     path.lineTo(0, 0);

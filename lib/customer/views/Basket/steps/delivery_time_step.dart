@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/widgets/address_list_tile.dart';
 import 'package:harvest/widgets/sheets/available_dates_sheet.dart';
+
 // import 'package:intl/intl.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/colors.dart';
@@ -21,8 +22,6 @@ class DeliveryTimeStep extends StatefulWidget {
 class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
   DateTime _currentDateTime;
   Set<Marker> _markers = {};
-
-
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
@@ -47,11 +46,6 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
       );
     });
   }
-
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(37.42796133580664, -122.085749655962),
-    zoom: 12,
-  );
 
   @override
   void initState() {
@@ -174,165 +168,166 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(top: 10),
-          child: Column(
-            children: [
-              cart.availableDates!= null?
-              Container(
-                decoration: BoxDecoration(
-                  color: CColors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(7),
-                      offset: Offset(0, 5.0),
-                      spreadRadius: 1,
-                      blurRadius: 10,
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        height: 50,
-                        width: 5,
-                        color: CColors.lightGreen,
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            SizedBox(width: 10),
-                            Column(
-                              children: [
-                                Text(
-                                  cart.availableDates.dayName,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: CColors.lightGreen,
-                                  ),
-                                ),
-                                Text(
-                                  cart.availableDates.dayId.toString(),
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w600,
-                                    color: CColors.lightGreen,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 15),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                                  children: [
-                                    Text(
-                                      "${cart.availableDates.dayName}, ",
-                                      style: TextStyle(
-                                        color: CColors.headerText,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    Text(
-                                      " ${cart.time.from} ${'to'.trs(context)} ",
-                                      style: TextStyle(
-                                        color: CColors.headerText,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    Text(
-                                      " ${cart.time.to} ",
-                                      style: TextStyle(
-                                        color: CColors.headerText,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                Text(
-                                  "at_this_time".trs(context),
-                                  style: TextStyle(
-                                    color: CColors.normalText,
-                                  ),
-                                ),
-                              ],
+            padding: EdgeInsets.only(top: 10),
+            child: Column(
+              children: [
+                cart.availableDates != null
+                    ? Container(
+                        decoration: BoxDecoration(
+                          color: CColors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(7),
+                              offset: Offset(0, 5.0),
+                              spreadRadius: 1,
+                              blurRadius: 10,
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                height: 50,
+                                width: 5,
+                                color: CColors.lightGreen,
+                              ),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: 10),
+                                    Column(
+                                      children: [
+                                        Text(
+                                          cart.availableDates.dayName,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            color: CColors.lightGreen,
+                                          ),
+                                        ),
+                                        Text(
+                                          cart.availableDates.dayId.toString(),
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w600,
+                                            color: CColors.lightGreen,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(width: 15),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.baseline,
+                                          children: [
+                                            Text(
+                                              "${cart.availableDates.dayName}, ",
+                                              style: TextStyle(
+                                                color: CColors.headerText,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                            Text(
+                                              " ${cart.time.from != null ? cart.time.from : ''} ${'to'.trs(context)} ",
+                                              style: TextStyle(
+                                                color: CColors.headerText,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                            Text(
+                                              " ${cart.time.to != null ? cart.time.to : ''} ",
+                                              style: TextStyle(
+                                                color: CColors.headerText,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Text(
+                                          "at_this_time".trs(context),
+                                          style: TextStyle(
+                                            color: CColors.normalText,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Container(),
+                SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Text(
+                    "pickup_new_suitable_date".trs(context),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: CColors.grey,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
-              ):Container(),
-              SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Text(
-                  "pickup_new_suitable_date".trs(context),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: CColors.grey,
-                    fontSize: 11,
+                FlatButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: CColors.transparent,
+                      enableDrag: true,
+                      builder: (context) => AvailableDatesSheet(),
+                    );
+                    // DatePicker.showDateTimePicker(
+                    //   context,
+                    //   onConfirm: (time) {
+                    //     setState(() {
+                    //       _deliveryTime = _DeliveryTimeModel.fromTime(time);
+                    //     });
+                    //   },
+                    //   onChanged: (time) {
+                    //     final String _time = DateFormat("h:mm a").format(time);
+                    //     // ignore: unused_local_variable
+                    //     final String _date = DateFormat("d").format(time);
+                    //     // ignore: unused_local_variable
+                    //     final String _month = DateFormat("MMMM").format(time);
+                    //     // ignore: unused_local_variable
+                    //     final _timeFormated2 = DateFormat("EE, MMMM d, h:mm aaa").format(time);
+                    //     print(_time);
+                    //     setState(() {
+                    //       _deliveryTime = _DeliveryTimeModel.fromTime(time);
+                    //     });
+                    //   },
+                    //   currentTime: DateTime.now(),
+                    //   maxTime: DateTime.now().add(Duration(days: 30)),
+                    //   minTime: DateTime.now().subtract(Duration(days: 30)),
+                    //   locale: LocaleType.ar,
+                    // );
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  color: CColors.fadeBlue,
+                  child: Text(
+                    "change_date_time".trs(context),
+                    style: TextStyle(
+                      color: CColors.darkGreen,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 10,
+                    ),
                   ),
                 ),
-              ),
-              FlatButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: CColors.transparent,
-                    enableDrag: true,
-                    builder: (context) => AvailableDatesSheet(),
-                  );
-                  // DatePicker.showDateTimePicker(
-                  //   context,
-                  //   onConfirm: (time) {
-                  //     setState(() {
-                  //       _deliveryTime = _DeliveryTimeModel.fromTime(time);
-                  //     });
-                  //   },
-                  //   onChanged: (time) {
-                  //     final String _time = DateFormat("h:mm a").format(time);
-                  //     // ignore: unused_local_variable
-                  //     final String _date = DateFormat("d").format(time);
-                  //     // ignore: unused_local_variable
-                  //     final String _month = DateFormat("MMMM").format(time);
-                  //     // ignore: unused_local_variable
-                  //     final _timeFormated2 = DateFormat("EE, MMMM d, h:mm aaa").format(time);
-                  //     print(_time);
-                  //     setState(() {
-                  //       _deliveryTime = _DeliveryTimeModel.fromTime(time);
-                  //     });
-                  //   },
-                  //   currentTime: DateTime.now(),
-                  //   maxTime: DateTime.now().add(Duration(days: 30)),
-                  //   minTime: DateTime.now().subtract(Duration(days: 30)),
-                  //   locale: LocaleType.ar,
-                  // );
-                },
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                color: CColors.fadeBlue,
-                child: Text(
-                  "change_date_time".trs(context),
-                  style: TextStyle(
-                    color: CColors.darkGreen,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 10,
-                  ),
-                ),
-              ),
-            ],
-          )
-        ),
+              ],
+            )),
         // BasketPagesControlles(),
       ],
     );

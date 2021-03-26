@@ -142,7 +142,7 @@ class _WaveAppBarPersistentHeaderDelegate extends SliverPersistentHeaderDelegate
       dropShadow = progress >= 0.8 && radius == 0.0;
     }
     Widget appBar = WaveAppBar(
-      raduis: (1 - progress) * kWaveAppBarRadius,
+      radius: (1 - progress) * kWaveAppBarRadius,
       elevation: disableElevation ? 0.0 : (dropShadow ? (progress * kShadowElevation) : 0),
       bottomViewOffset: Offset(0, progress * (maxExtent - minExtent)) + bottomViewOffset,
       brightness: brightness,

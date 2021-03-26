@@ -9,6 +9,7 @@ import 'package:harvest/widgets/remove_icon.dart';
 class UserAddressListTile extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
   final VoidCallback onRemove;
   final int index;
   final DeliveryAddresses address;
@@ -19,7 +20,7 @@ class UserAddressListTile extends StatelessWidget {
     this.onTap,
     this.index,
     this.address,
-    this.onRemove,
+    this.onRemove, this.onEdit,
   }) : super(key: key);
 
   @override
@@ -71,18 +72,21 @@ class UserAddressListTile extends StatelessWidget {
             textDirection: trs.textDirection,
             end: -10,
             top: -10,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: CColors.darkOrange,
-                border: Border.all(color: CColors.white, width: 3),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                  size: 14,
+            child: GestureDetector(
+              onTap: onEdit,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: CColors.darkOrange,
+                  border: Border.all(color: CColors.white, width: 3),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(3.0),
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.white,
+                    size: 14,
+                  ),
                 ),
               ),
             ),

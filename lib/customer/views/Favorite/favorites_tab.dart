@@ -193,17 +193,18 @@ class _FavoritesTabState extends State<FavoritesTab> {
                         physics: NeverScrollableScrollPhysics(),
                         // padding: EdgeInsets.only(top: 10, bottom: 40)
                         //     .add(EdgeInsets.symmetric(horizontal: 20)),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            childAspectRatio: 1,
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 0,
-                            mainAxisSpacing: 0),
-                        itemCount: op.items.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        childAspectRatio: 1,
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 18,
+                        mainAxisSpacing: 18),
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    itemCount: op.items.length,
                         itemBuilder: (context, index) {
                           final bool _isSelected =
                               _isIndexSelected(op.items.values.toList()[index]);
                           return Stack(
-                            alignment: Alignment.center,
+                            alignment: Alignment.center,fit: StackFit.expand,
                             children: [
                               FavoriteItem(
                                 remove: () {
@@ -211,7 +212,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
                                 },
                                 fruit: op.items.values.toList()[index],
                               ),
-                              _isSelected ? Loader() : Container()
+                              _isSelected ? Center(child: Loader()) : Container()
                             ],
                           );
                         }),

@@ -3,6 +3,7 @@ import 'package:harvest/customer/models/products.dart';
 
 import 'delivery-data.dart';
 import 'delivery_time_avaiable.dart';
+import 'error.dart';
 
 class CartItem {
   int id;
@@ -49,7 +50,7 @@ class CartItem {
 }
 
 class Cart with ChangeNotifier {
-  List<int> _errors = [];
+  List<ErrorModel> _errors = [];
   double total;
   double totalPrice;
   String additionalNote;
@@ -77,6 +78,7 @@ class Cart with ChangeNotifier {
     total = tot;
     notifyListeners();
   }
+
   void setTotalPrice(double tot) {
     totalPrice = tot;
     notifyListeners();
@@ -98,7 +100,7 @@ class Cart with ChangeNotifier {
     return {..._cartItems};
   }
 
-  List<int> get errors{
+  List<ErrorModel> get errors {
     return _errors;
   }
 
@@ -107,25 +109,39 @@ class Cart with ChangeNotifier {
   }
 
   void addItem(CartItem item) {
-    if (_cartItems.containsKey(item.id)) {
-      _cartItems.update(item.id.toString(), (existing) => item);
+    if (_cartItems.containsKey(item.productId)) {
+      _cartItems.update(item.productId.toString(), (existing) => item);
     } else {
-      _cartItems.putIfAbsent(item.id.toString(), () => item);
+      _cartItems.putIfAbsent(item.productId.toString(), () => item);
     }
     notifyListeners();
   }
 
-  void addError(int index){
-    _errors.add(index);
+  void addError(ErrorModel error) {
+    _errors.add(error);
   }
 
-  void removeFav(CartItem item) {
-    _cartItems.remove(item);
+  void removeCartItem(int id) {
+    _cartItems.removeWhere((key, value) => key == id.toString());
+    items.removeWhere((key, value) => key == id.toString());
     notifyListeners();
   }
 
   void clearFav() {
     _cartItems = {};
     notifyListeners();
+  }
+  void clearAll(){
+    _cartItems = {};
+    _errors = [];
+    total =null;
+    totalPrice =null;
+    additionalNote =null;
+    promo =null;
+    deliveryAddresses =null;
+    availableDates =null;
+    time =null;
+    notifyListeners();
+
   }
 }

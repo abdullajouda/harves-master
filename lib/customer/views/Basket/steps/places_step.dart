@@ -22,7 +22,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PlaceStep extends StatefulWidget {
-
   @override
   _PlaceStepState createState() => _PlaceStepState();
 }
@@ -50,7 +49,7 @@ class _PlaceStepState extends State<PlaceStep> {
       addresses = [];
       load = true;
     });
-    var cart = Provider.of<Cart>(context,listen: false);
+    var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'allAddressForUser', headers: {
       'Accept': 'application/json',
@@ -97,26 +96,27 @@ class _PlaceStepState extends State<PlaceStep> {
 
   @override
   void initState() {
-    getAddresses().then((value) => WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(Duration(milliseconds: 500));
-      if (mounted)
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => _AddressConfirmationDialog(
-            address: _selected,
-            onTapNewOne: () => showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              enableDrag: false,
-              backgroundColor: Colors.transparent,
-              builder: (_) => AddNewAddressDialog(
-                deliveryAddresses: _selected,
-              ),
-            ).then((value) => getAddresses()),
-          ),
-        );
-    }));
+    getAddresses().then(
+        (value) => WidgetsBinding.instance.addPostFrameCallback((_) async {
+              // await Future.delayed(Duration(milliseconds: 100));
+              if (mounted)
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => _AddressConfirmationDialog(
+                    address: _selected,
+                    onTapNewOne: () => showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      enableDrag: false,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => AddNewAddressDialog(
+                        deliveryAddresses: _selected,
+                      ),
+                    ).then((value) => getAddresses()),
+                  ),
+                );
+            }));
     // addMarker(_kGooglePlex.target.latitude, _kGooglePlex.target.longitude);
     super.initState();
   }
@@ -233,6 +233,22 @@ class _PlaceStepState extends State<PlaceStep> {
                                                   cart.setAddress(_selected);
                                                 },
                                                 child: AddressListTile(
+                                                  onEdit: () {
+                                                    showModalBottomSheet(
+                                                      context: context,
+                                                      isScrollControlled: true,
+                                                      enableDrag: false,
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      builder: (_) =>
+                                                          AddNewAddressDialog(
+                                                        path: 1,
+                                                        deliveryAddresses:
+                                                            _selected,
+                                                      ),
+                                                    ).then((value) =>
+                                                        getAddresses());
+                                                  },
                                                   color: _isSelected
                                                       ? CColors.darkOrange
                                                       : CColors.grey,
@@ -311,7 +327,6 @@ class _PlaceStepState extends State<PlaceStep> {
 
   bool _isAddressSelected(DeliveryAddresses index) => _selected == index;
 }
-
 
 class _AddressConfirmationDialog extends StatelessWidget {
   final VoidCallback onTapContinue;

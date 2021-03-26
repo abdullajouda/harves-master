@@ -13,7 +13,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'customer/models/city.dart';
+import 'customer/views/auth/login.dart';
 import 'helpers/Localization/lang_provider.dart';
+import 'helpers/custom_page_transition.dart';
 
 class Splash extends StatefulWidget {
   @override
@@ -32,26 +34,38 @@ class _SplashState extends State<Splash> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var op = Provider.of<UserFunctions>(context, listen: false);
     String token = prefs.getString('userToken');
-    if (token != null) {
-      op.setUser(User(
-          id: prefs.getInt('id'),
-          name: prefs.getString('username'),
-          mobile: prefs.getString('mobile'),
-          email: prefs.getString('email'),
-          cityId: prefs.getInt('cityId'),
-          imageProfile: prefs.getString('avatar')));
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RootScreen(),
+    int loginCount = prefs.getInt('loginCount');
+      if (token != null) {
+        op.setUser(User(
+            id: prefs.getInt('id'),
+            name: prefs.getString('username'),
+            mobile: prefs.getString('mobile'),
+            email: prefs.getString('email'),
+            cityId: prefs.getInt('cityId'),
+            imageProfile: prefs.getString('avatar')));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RootScreen(),
+            ));
+      }else {
+        if(loginCount == 1){
+          Navigator.of(context)
+              .pushReplacement(CustomPageRoute(
+            builder: (context) {
+              return Login();
+            },
           ));
-    } else {
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SplashScreen(),
-          ));
-    }
+        }else {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SplashScreen(),
+              ));
+        }
+      }
+
+
   }
 
   getCities() async {

@@ -239,7 +239,9 @@ class _UserProfileState extends State<UserProfile> {
                           fit: BoxFit.cover,
                           image: selectedImage != null
                               ? FileImage(selectedImage)
-                              : op.user.imageProfile!= null?NetworkImage(op.user.imageProfile):AssetImage(''),
+                              : op.user.imageProfile != null
+                                  ? NetworkImage(op.user.imageProfile)
+                                  : AssetImage(''),
                         ),
                       ),
                     ),
@@ -274,7 +276,7 @@ class _UserProfileState extends State<UserProfile> {
             Padding(
               padding: const EdgeInsets.only(top: 5),
               child: Text(
-                op.user.name??'',
+                op.user.name ?? '',
                 style: TextStyle(
                   color: CColors.headerText,
                   fontWeight: FontWeight.w600,
@@ -420,7 +422,9 @@ class _UserProfileState extends State<UserProfile> {
                               ),
                               _SettingsButton(
                                 onTap: () {
-                                  context.read<PTVController>().jumbToTab(AppTabs.Support);
+                                  context
+                                      .read<PTVController>()
+                                      .jumbToTab(AppTabs.Support);
                                 },
                                 iconPath: Constants.questionIcon,
                                 title: "help".trs(context),

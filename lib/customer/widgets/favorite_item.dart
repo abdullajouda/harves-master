@@ -189,7 +189,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                         child: Text(
                           '${widget.fruit.discount}% Off',
                           style: TextStyle(
-                            fontFamily: 'SF Pro Rounded',
+
                             fontSize: 10,
                             color: const Color(0xffffffff),
                           ),
@@ -209,7 +209,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                   Text(
                     widget.fruit.name,
                     style: TextStyle(
-                      fontFamily: 'SF Pro Rounded',
+
                       fontSize: 12,
                       color: const Color(0xff3c4959),
                       fontWeight: FontWeight.w500,
@@ -221,7 +221,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                     child: Text(
                       widget.fruit.description ?? '',
                       style: TextStyle(
-                        fontFamily: 'SF Pro Rounded',
+
                         fontSize: 10,
                         color: const Color(0xffe3e7eb),
                         fontWeight: FontWeight.w300,
@@ -232,7 +232,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                   Text(
                     '${widget.fruit.price}\$/kilo',
                     style: TextStyle(
-                      fontFamily: 'SF Pro Rounded',
+
                       fontSize: 12,
                       color: const Color(0xff3c984f),
                       fontWeight: FontWeight.w600,
@@ -281,7 +281,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                             size: 15,
                           )
                         : Text(
-                            '$widget.fruit.inCart',
+                            '${widget.fruit.inCart}',
                             style: TextStyle(
                               fontSize: 16,
                               color: const Color(0xff3c4959),

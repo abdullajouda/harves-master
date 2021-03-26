@@ -5,6 +5,7 @@ import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 class AddressListTile extends StatelessWidget {
   final VoidCallback onTap;
+  final VoidCallback onEdit;
   final String title;
   final TextStyle titleStyle;
   final String subTitle;
@@ -18,7 +19,7 @@ class AddressListTile extends StatelessWidget {
     this.titleStyle,
     @required this.subTitle,
     this.subTitleStyle,
-    this.color,
+    this.color, this.onEdit,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -53,18 +54,21 @@ class AddressListTile extends StatelessWidget {
           textDirection: trs.textDirection,
           end: -10,
           top: -10,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color,
-              border: Border.all(color: CColors.white, width: 3),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(3.0),
-              child: Icon(
-                Icons.edit,
-                color: Colors.white,
-                size: 14,
+          child: GestureDetector(
+            onTap: onEdit,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: color,
+                border: Border.all(color: CColors.white, width: 3),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                  size: 14,
+                ),
               ),
             ),
           ),

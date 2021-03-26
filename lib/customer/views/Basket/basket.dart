@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/delivery-data.dart';
+import 'package:harvest/customer/models/error.dart';
 import 'package:harvest/customer/views/Basket/pages_controlles.dart';
 import 'package:harvest/customer/views/Basket/stepper.dart';
 import 'package:harvest/customer/views/Basket/steps/basket_step.dart';
@@ -15,6 +16,7 @@ import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/dialogs/choose%20time.dart';
 import 'package:harvest/widgets/dialogs/minimun_charge.dart';
 import 'package:harvest/widgets/dialogs/no_delivery_location.dart';
 import 'package:harvest/widgets/dialogs/signup_dialog.dart';
@@ -65,7 +67,7 @@ class _BasketState extends State<Basket> {
     var response = json.decode(request.body);
     print(response);
     if (response['code'] == 200) {
-      cart.clearFav();
+      cart.clearAll();
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -80,8 +82,12 @@ class _BasketState extends State<Basket> {
       var list = response['items'];
       // cart.addError(index);
       list.forEach((element) {
-        cart.addError(int.parse(element.toString()));
+        ErrorModel model = ErrorModel.fromJson(element);
+        cart.addError(model);
+
+        // cart.addError(int.parse(element.toString()));
       });
+
       setState(() {
         _step = 0;
       });
@@ -179,29 +185,42 @@ class _BasketState extends State<Basket> {
                   onContinuePressed: () {
                     setState(() {
                       if (index != 3) {
-                        if (index != 1) {
-                          _step++;
-                          return _jumpTo();
-                        } else {
-                          if (cart.deliveryAddresses == null) {
+                        if(index != 2){
+                          if (index != 1) {
+                            _step++;
+                            return _jumpTo();
+                          }
+                          else {
+                            if (cart.deliveryAddresses == null) {
+                              showCupertinoDialog(
+                                context: context,
+                                builder: (context) => NoLocationFound(),
+                              );
+                            }
+                            showModalBottomSheet(
+                                context: context,
+                                backgroundColor: CColors.transparent,
+                                builder: (context) => OrderDescription(
+                                  onTap: () {
+                                    if (cart.totalPrice != null) {
+                                      Navigator.pop(context);
+                                      _step++;
+                                      return _jumpTo();
+                                    }
+                                  },
+                                ),
+                                isScrollControlled: true);
+                          }
+                        }else{
+                          if (cart.availableDates == null || cart.time == null) {
                             showCupertinoDialog(
                               context: context,
-                              builder: (context) => NoLocationFound(),
+                              builder: (context) => ChooseTime(),
                             );
+                          }else{
+                            _step++;
+                            return _jumpTo();
                           }
-                          showModalBottomSheet(
-                              context: context,
-                              backgroundColor: CColors.transparent,
-                              builder: (context) => OrderDescription(
-                                    onTap: () {
-                                      if (cart.totalPrice != null) {
-                                        Navigator.pop(context);
-                                        _step++;
-                                        return _jumpTo();
-                                      }
-                                    },
-                                  ),
-                              isScrollControlled: true);
                         }
                       } else {
                         checkOut();

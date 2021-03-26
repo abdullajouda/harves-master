@@ -98,38 +98,17 @@ class _UserAddressesState extends State<UserAddresses> {
     });
   }
 
-  openMap() {
+  openMap(DeliveryAddresses address) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       enableDrag: false,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddNewAddressDialog(),
-    ).then((value) {
-      if (value is Map<String, dynamic>) {
-        if (value['addressLine'] == null) {
-          //   setState(() {
-          //     lat = value['latitude'];
-          //     lng = value['longitude'];
-          //     city = value['city'];
-          //     buildingNo = value['buildingNo'];
-          //     unitNo = value['unitNo'];
-          //     additionalNotes = value['additionalNotes'];
-          //   });
-          //   return;
-          // }
-          // setState(() {
-          //   fullAddress = value['addressLine'];
-          //   lat = value['latitude'];
-          //   lng = value['longitude'];
-          //   city = value['city'];
-          //   buildingNo = value['buildingNo'];
-          //   unitNo = value['unitNo'];
-          //   additionalNotes = value['additionalNotes'];
-        }
-        // );
-      }
-    });
+      builder: (context) => AddNewAddressDialog(
+        path: 1,
+        deliveryAddresses: address,
+      ),
+    ).then((value) => getAddresses());
   }
 
   @override
@@ -157,6 +136,10 @@ class _UserAddressesState extends State<UserAddresses> {
                       alignment: Alignment.center,
                       children: [
                         UserAddressListTile(
+                          index: index,
+                          onEdit: () {
+                            openMap(addresses[index]);
+                          },
                           onRemove: () {
                             deleteAddress(addresses[index]);
                           },

@@ -95,6 +95,7 @@ class _AccountActivationState extends State<AccountActivation>
               response['user']['email'],
               response['user']['mobile'],
               response['user']['image_profile']);
+          prefs.setInt('loginCount', 1);
           Navigator.pushReplacement(
               context,
               CustomPageRoute(

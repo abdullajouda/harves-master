@@ -87,6 +87,7 @@ class _FruitItemState extends State<FruitItem> {
     setState(() {
       load = true;
     });
+    var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await post(ApiHelper.api + 'changeQuantity', body: {
       'type': type.toString(),
@@ -99,6 +100,7 @@ class _FruitItemState extends State<FruitItem> {
     });
     var response = json.decode(request.body);
     if (response['message'] == 'product deleted') {
+      cart.removeCartItem(widget.fruit.id);
       showGeneralDialog(
         barrierDismissible: true,
         barrierLabel: '',

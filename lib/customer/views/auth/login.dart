@@ -40,7 +40,7 @@ class _LoginState extends State<Login> {
       var response = json.decode(request.body);
       Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
-        Navigator.pushReplacement(
+        Navigator.push(
             context,
             CustomPageRoute(
               builder: (context) => AccountActivation(

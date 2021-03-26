@@ -10,6 +10,7 @@ class Login2 extends StatefulWidget {
   final String mobile;
 
   const Login2({Key key, this.mobile}) : super(key: key);
+
   @override
   _Login2State createState() => _Login2State();
 }
@@ -19,17 +20,16 @@ class _Login2State extends State<Login2> {
   bool load = false;
   String name;
 
-
   onContinue() {
     if (_login2Key.currentState.validate()) {
       showModalBottomSheet(
-      context: context,
-      enableDrag: true,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => LocationSheet(name: name,mobile:widget.mobile)
-    );
-  }
+          context: context,
+          enableDrag: true,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) =>
+              LocationSheet(name: name, mobile: widget.mobile));
+    }
   }
 
   @override
@@ -53,7 +53,6 @@ class _Login2State extends State<Login2> {
                     child: Text(
                       'Login',
                       style: TextStyle(
-                        fontFamily: 'SF Pro Rounded',
                         fontSize: 22,
                         color: const Color(0xff3c4959),
                         fontWeight: FontWeight.w500,
@@ -164,7 +163,6 @@ class _Login2State extends State<Login2> {
                               child: Text(
                                 'Continue ',
                                 style: TextStyle(
-                                  fontFamily: 'SF Pro Rounded',
                                   fontSize: 16,
                                   color: const Color(0xffffffff),
                                 ),
@@ -187,22 +185,24 @@ class _Login2State extends State<Login2> {
                                 Text(
                                   'By Continuing you agree to our',
                                   style: TextStyle(
-                                    fontFamily: 'SF Pro Rounded',
                                     fontSize: 10,
                                     color: const Color(0xff888a8d),
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
                                 TextButton(
-                                  onPressed: () {Navigator.push(
-                                      context,
-                                      CustomPageRoute(
-                                        builder: (context) => Terms(path: 'this',),
-                                      ));},
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        CustomPageRoute(
+                                          builder: (context) => Terms(
+                                            path: 'this',
+                                          ),
+                                        ));
+                                  },
                                   child: Text(
                                     'Terms Of Use',
                                     style: TextStyle(
-                                      fontFamily: 'SF Pro Rounded',
                                       fontSize: 10,
                                       color: const Color(0xff3c984f),
                                     ),
@@ -222,7 +222,6 @@ class _Login2State extends State<Login2> {
                               child: Text(
                                 'Skip',
                                 style: TextStyle(
-                                  fontFamily: 'SF Pro Rounded',
                                   fontSize: 10,
                                   color: const Color(0xfffdaa5c),
                                 ),
