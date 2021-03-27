@@ -85,7 +85,7 @@ class OrderItemListTile extends StatelessWidget {
                   ),
                   Text.rich(
                     TextSpan(
-                      text: " ${'Q.R'.trs(context)}",
+                      text: " ${'Q.R'.trs(context)}  ",
                       style: TextStyle(
                         fontSize: 13,
                         color: CColors.darkOrange,

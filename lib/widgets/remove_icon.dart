@@ -71,7 +71,7 @@ class RemoveIcon extends StatelessWidget {
       children: [
         child,
         PositionedDirectional(
-          end: 0,
+          end: -10,
           bottom: iconAlignment.y == 1.0 ? -10 : null,
           top: iconAlignment.y == 1.0 ? null : -10,
           child: GestureDetector(

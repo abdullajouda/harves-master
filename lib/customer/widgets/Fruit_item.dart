@@ -296,7 +296,7 @@ class _FruitItemState extends State<FruitItem> {
                         ),
                       ):Container(),
                       Text(
-                        '${widget.fruit.price}${'Q.R'.trs(context)}/${widget.fruit.typeName}',
+                        '${widget.fruit.price}  ${'Q.R'.trs(context)}/${widget.fruit.typeName}',
                         style: TextStyle(
                           fontSize: 12,
                           color: widget.color != null

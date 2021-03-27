@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:harvest/customer/models/city.dart';
+import 'package:harvest/customer/models/delivery-data.dart';
 
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
@@ -20,12 +21,18 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 
-class AddNewAddressDialog extends StatefulWidget {
+class EditAddressDialog extends StatefulWidget {
+  final DeliveryAddresses deliveryAddresses;
+  final int path;
+
+  const EditAddressDialog({Key key, this.deliveryAddresses, this.path})
+      : super(key: key);
+
   @override
-  _AddNewAddressDialogState createState() => _AddNewAddressDialogState();
+  _EditAddressDialogState createState() => _EditAddressDialogState();
 }
 
-class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
+class _EditAddressDialogState extends State<EditAddressDialog> {
   City city;
   TextEditingController fullAddress, buildingNo, unitNo, additionalNotes;
   double lat, lng;
@@ -37,7 +44,6 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
   bool _load = false;
   bool _expand = false;
   bool loadFunc = false;
-  bool isDefault = false;
   Coordinates coordinates;
 
   Future<Uint8List> getBytesFromAsset(String path, int width) async {
@@ -64,54 +70,30 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
     });
   }
 
-  // Future<Position> _determinePosition() async {
-  //   final Uint8List markerIcon = await getBytesFromAsset('assets/Pin.png', 100);
-  //   bool serviceEnabled;
-  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  //   if (serviceEnabled) {
-  //     Position position = await Geolocator.getCurrentPosition(
-  //         desiredAccuracy: LocationAccuracy.high);
-  //     _controller.animateCamera(CameraUpdate.newLatLngZoom(
-  //         LatLng(position.latitude, position.longitude), 15));
-  //     setState(() {
-  //       coordinates = new Coordinates(position.latitude, position.longitude);
-  //       markers = [];
-  //       markers.add(Marker(
-  //           icon: BitmapDescriptor.fromBytes(markerIcon),
-  //           position: LatLng(position.latitude, position.longitude),
-  //           markerId: MarkerId('0')));
-  //       _load = false;
-  //       _visible = true;
-  //     });
-  //   }
-  //   setState(() {
-  //     _load = false;
-  //     _visible = true;
-  //   });
-  //   return await Geolocator.getCurrentPosition();
-  // }
-
-  save() async {
+  editAddress() async {
     if (city != null) {
       setState(() {
         _load = true;
       });
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      var request = await post(ApiHelper.api + 'addNewAddress', body: {
-        'lat': '$lat',
-        'lan': '$lng',
-        'address_name': '${fullAddress.text != null ? fullAddress.text : ''}',
-        'address': '${fullAddress.text != null ? fullAddress.text : ''}',
-        'city_id': '${city.id}',
-        'building_number': '${buildingNo.text != null ? buildingNo.text : ''}',
-        'unit_number': '${unitNo.text != null ? unitNo.text : ''}',
-        'note': '${additionalNotes.text != null ? additionalNotes.text : ''}',
-        'is_default': '${isDefault ? 1 : 0}',
-      }, headers: {
-        'Accept': 'application/json',
-        'Accept-Language': 'en',
-        'Authorization': 'Bearer ${prefs.getString('userToken')}'
-      });
+      var request = await post(
+          ApiHelper.api + 'editAddress/${widget.deliveryAddresses.id}',
+          body: {
+            'lat': '${lat != null ? lat : widget.deliveryAddresses.lat}',
+            'lan': '${lng != null ? lng : widget.deliveryAddresses.lan}',
+            'address_name': '${fullAddress.text}',
+            'address': '${fullAddress.text}',
+            'city_id': '${city.id}',
+            'building_number': '${buildingNo.text}',
+            'unit_number': '${unitNo.text}',
+            'note': '${additionalNotes.text}',
+            'is_default': '${widget.deliveryAddresses.isDefault}',
+          },
+          headers: {
+            'Accept': 'application/json',
+            'Accept-Language': 'en',
+            'Authorization': 'Bearer ${prefs.getString('userToken')}'
+          });
       var response = json.decode(request.body);
       print(response);
       if (response['status'] == true) {
@@ -127,15 +109,27 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
 
   @override
   void initState() {
-    fullAddress = TextEditingController();
-    buildingNo = TextEditingController();
-    unitNo = TextEditingController();
-    additionalNotes = TextEditingController();
+    widget.path == 1 ? city = widget.deliveryAddresses.city : city = null;
+    fullAddress =
+        TextEditingController(text: widget.deliveryAddresses.address) ?? '';
+    buildingNo = TextEditingController(
+        text: widget.deliveryAddresses.buildingNumber != null
+            ? widget.deliveryAddresses.buildingNumber.toString()
+            : '');
+    unitNo = TextEditingController(
+        text: widget.deliveryAddresses.unitNumber != null
+            ? widget.deliveryAddresses.unitNumber.toString()
+            : '');
+    additionalNotes = TextEditingController(
+        text: widget.deliveryAddresses.note != null
+            ? widget.deliveryAddresses.note
+            : '');
     _initialCameraPosition = CameraPosition(
-      target: LatLng(30, 40),
+      target:
+          LatLng(widget.deliveryAddresses.lat, widget.deliveryAddresses.lan),
       zoom: 14.4746,
     );
-    addMarker(30, 40);
+    addMarker(widget.deliveryAddresses.lat, widget.deliveryAddresses.lan);
     super.initState();
   }
 
@@ -220,7 +214,6 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                 lat = latLng.latitude;
                                 lng = latLng.longitude;
                               });
-                              print(latLng);
                               addMarker(latLng.latitude, latLng.longitude);
                             },
                           ),
@@ -315,7 +308,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                                   child: Text(
                                                     value.name,
                                                     style: TextStyle(
-                                                      fontSize: 8,
+                                                      fontSize: 10,
                                                       color: const Color(
                                                           0xff525768),
                                                     ),
@@ -338,7 +331,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                       child: Container(
                                         child: TextFormField(
                                             style: TextStyle(
-                                              fontSize: 8,
+                                              fontSize: 10,
                                               color: const Color(0xff525768),
                                             ),
                                             controller: fullAddress,
@@ -360,7 +353,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                             child: Center(
                                               child: TextFormField(
                                                   style: TextStyle(
-                                                    fontSize: 8,
+                                                    fontSize: 10,
                                                     color:
                                                         const Color(0xff525768),
                                                   ),
@@ -378,7 +371,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                             child: Center(
                                               child: TextFormField(
                                                   style: TextStyle(
-                                                    fontSize: 8,
+                                                    fontSize: 10,
                                                     color:
                                                         const Color(0xff525768),
                                                   ),
@@ -402,7 +395,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                           children: [
                                             TextFormField(
                                                 style: TextStyle(
-                                                  fontSize: 8,
+                                                  fontSize: 10,
                                                   color:
                                                       const Color(0xff525768),
                                                 ),
@@ -424,7 +417,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.only(
-                                          top: 25, right: 20, left: 10),
+                                          top: 25, right: 20,left: 10),
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
@@ -445,11 +438,23 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                                 ),
                                                 Switch(
                                                   activeColor: CColors.darkOrange,
-                                                  value: isDefault,
+                                                  value: widget.deliveryAddresses
+                                                              .isDefault ==
+                                                          1
+                                                      ? true
+                                                      : false,
                                                   onChanged: (value) {
-                                                    setState(() {
-                                                      isDefault = value;
-                                                    });
+                                                    value
+                                                        ? setState(() {
+                                                            widget
+                                                                .deliveryAddresses
+                                                                .isDefault = 1;
+                                                          })
+                                                        : setState(() {
+                                                            widget
+                                                                .deliveryAddresses
+                                                                .isDefault = 0;
+                                                          });
                                                   },
                                                 ),
                                               ],
@@ -561,7 +566,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
           Padding(
             padding: const EdgeInsets.only(bottom: 20),
             child: GestureDetector(
-              onTap: () => save(),
+              onTap: () => editAddress(),
               child: Container(
                 height: 60,
                 width: 260,
@@ -571,7 +576,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                 ),
                 child: Center(
                   child: Text(
-                    'continue'.trs(context),
+                    'done_edit'.trs(context),
                     style: TextStyle(
                       fontSize: 16,
                       color: const Color(0xffffffff),

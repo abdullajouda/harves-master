@@ -46,9 +46,9 @@ class _LocationSheetState extends State<LocationSheet> {
       load = true;
     });
     if (lat != null && lng != null) {
-      FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
-      final fToken = await _firebaseMessaging.getToken();
-      prefs.setString('fcm_token', fToken);
+      // FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+      // final fToken = await _firebaseMessaging.getToken();
+      String fToken = prefs.getString('fcm_token');
       var request = await post(ApiHelper.api + 'signUp', body: {
         'name': widget.name,
         'mobile': widget.mobile,

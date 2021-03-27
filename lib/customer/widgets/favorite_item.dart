@@ -15,7 +15,7 @@ import 'package:harvest/helpers/colors.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 class FavoriteItem extends StatefulWidget {
   final Products fruit;
   final VoidCallback remove;
@@ -230,7 +230,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                     ),
                   ),
                   Text(
-                    '${widget.fruit.price}\$/kilo',
+                    '${widget.fruit.price} ${'Q.R'.trs(context)} /${widget.fruit.typeName}',
                     style: TextStyle(
 
                       fontSize: 12,

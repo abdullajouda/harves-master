@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/customer/views/root_screen.dart';
@@ -25,6 +26,9 @@ class Splash extends StatefulWidget {
 class _SplashState extends State<Splash> {
   startTime() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+    final fToken = await _firebaseMessaging.getToken();
+    prefs.setString('fcm_token', fToken);
     prefs.setString('language', LangProvider().getLocaleCode());
     var _duration = new Duration(seconds: 2);
     return Timer(_duration, setLandingPage);

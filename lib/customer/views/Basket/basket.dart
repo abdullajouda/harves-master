@@ -18,8 +18,10 @@ import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/widgets/dialogs/choose%20time.dart';
 import 'package:harvest/widgets/dialogs/minimun_charge.dart';
+import 'package:harvest/widgets/dialogs/select_payment.dart';
 import 'package:harvest/widgets/dialogs/no_delivery_location.dart';
 import 'package:harvest/widgets/dialogs/signup_dialog.dart';
+import 'package:harvest/widgets/dialogs/use_wallet.dart';
 import 'package:harvest/widgets/sheets/order_description.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -55,7 +57,7 @@ class _BasketState extends State<Basket> {
       'delivery_date_id': cart.availableDates.id.toString(),
       'delivery_time_id': cart.time.id.toString(),
       'delivery_date': '${cart.availableDates.date}',
-      'payment_method': '0',
+      'payment_method': '${cart.paymentType}',
       'note': '${cart.additionalNote != null ? cart.additionalNote : ''}',
       'promoCode_name': '${cart.promo != null ? cart.promo : ''}'
     }, headers: {
@@ -185,12 +187,11 @@ class _BasketState extends State<Basket> {
                   onContinuePressed: () {
                     setState(() {
                       if (index != 3) {
-                        if(index != 2){
+                        if (index != 2) {
                           if (index != 1) {
                             _step++;
                             return _jumpTo();
-                          }
-                          else {
+                          } else {
                             if (cart.deliveryAddresses == null) {
                               showCupertinoDialog(
                                 context: context,
@@ -201,29 +202,40 @@ class _BasketState extends State<Basket> {
                                 context: context,
                                 backgroundColor: CColors.transparent,
                                 builder: (context) => OrderDescription(
-                                  onTap: () {
-                                    if (cart.totalPrice != null) {
-                                      Navigator.pop(context);
-                                      _step++;
-                                      return _jumpTo();
-                                    }
-                                  },
-                                ),
+                                      onTap: () {
+                                        if (cart.totalPrice != null) {
+                                          Navigator.pop(context);
+                                          _step++;
+                                          return _jumpTo();
+                                        }
+                                      },
+                                    ),
                                 isScrollControlled: true);
                           }
-                        }else{
-                          if (cart.availableDates == null || cart.time == null) {
+                        } else {
+                          if (cart.availableDates == null ||
+                              cart.time == null) {
                             showCupertinoDialog(
                               context: context,
                               builder: (context) => ChooseTime(),
                             );
-                          }else{
+                          } else {
                             _step++;
                             return _jumpTo();
                           }
                         }
                       } else {
-                        checkOut();
+                        if (cart.paymentType == null) {
+                          showCupertinoDialog(
+                            context: context,
+                            builder: (context) => SelectPaymentDialog(),
+                          );
+                        } else {
+                          showCupertinoDialog(
+                            context: context,
+                            builder: (context) => UseWallet(),
+                          ).then((value) => checkOut());
+                        }
                       }
                     });
                   },

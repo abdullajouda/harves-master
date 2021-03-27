@@ -9,6 +9,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/delivery-data.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/Profile/edit_address_dialog.dart';
 
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
@@ -111,7 +112,6 @@ class _PlaceStepState extends State<PlaceStep> {
                       enableDrag: false,
                       backgroundColor: Colors.transparent,
                       builder: (_) => AddNewAddressDialog(
-                        deliveryAddresses: _selected,
                       ),
                     ).then((value) => getAddresses()),
                   ),
@@ -241,7 +241,7 @@ class _PlaceStepState extends State<PlaceStep> {
                                                       backgroundColor:
                                                           Colors.transparent,
                                                       builder: (_) =>
-                                                          AddNewAddressDialog(
+                                                          EditAddressDialog(
                                                         path: 1,
                                                         deliveryAddresses:
                                                             _selected,
@@ -281,7 +281,6 @@ class _PlaceStepState extends State<PlaceStep> {
                                           enableDrag: false,
                                           backgroundColor: Colors.transparent,
                                           builder: (_) => AddNewAddressDialog(
-                                            deliveryAddresses: _selected,
                                           ),
                                         ).then((value) => getAddresses());
                                         // showModalBottomSheet(

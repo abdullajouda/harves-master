@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/Widgets/remove_icon.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/city.dart';
+import 'package:harvest/customer/models/error.dart';
 import 'package:harvest/customer/views/Basket/free_shipping_slider.dart';
 import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
@@ -111,8 +112,8 @@ class _BasketStepState extends State<BasketStep> {
           return GestureDetector(
             onTap: () => Navigator.pop(context),
             child: AlertBuilder(
-              title: 'The Item Removed',
-              subTitle: 'The item was removed from your cart',
+              title: 'The Item Removed'.trs(context),
+              subTitle: 'The item was removed from your cart'.trs(context),
               color: CColors.lightOrangeAccent,
               icon: SvgPicture.asset('assets/trash.svg'),
             ),
@@ -156,8 +157,8 @@ class _BasketStepState extends State<BasketStep> {
           return GestureDetector(
             onTap: () => Navigator.pop(context),
             child: AlertBuilder(
-              title: 'The Item Removed',
-              subTitle: 'The item was removed from your cart',
+              title: 'The Item Removed'.trs(context),
+              subTitle: 'The item was removed from your cart'.trs(context),
               color: CColors.lightOrangeAccent,
               icon: SvgPicture.asset('assets/trash.svg'),
             ),
@@ -258,8 +259,7 @@ class _BasketStepState extends State<BasketStep> {
 
   ListView _buildItemsBody(Size size) {
     var cart = Provider.of<Cart>(context);
-    bool _itemHasError(CartItem cartItem) =>
-        cart.errors.contains(cartItem.productId);
+
     return cart.items.length == 0
         ? ListView(
             children: [NoData()],
@@ -273,23 +273,38 @@ class _BasketStepState extends State<BasketStep> {
               return SizedBox(height: 25);
             },
             itemBuilder: (context, index) {
+              bool _itemHasError(CartItem cartItem) {
+                if (cart.errors.contains(cartItem.product.id)) return true;
+                return false;
+              }
+
               final bool _hasError =
                   _itemHasError(cart.items.values.toList()[index]);
               return Column(
                 children: [
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        if (cart.items.values
-                                .toList()[index]
-                                .product
-                                .available <
-                            cart.items.values.toList()[index].quantity) {
-                          // cart.addError(index);
-                        } else {
-                          cart.errors.remove(index);
-                        }
-                      });
+                      setState(
+                        () {
+                          if (cart.items.values
+                                  .toList()[index]
+                                  .product
+                                  .available <
+                              cart.items.values.toList()[index].quantity) {
+                            cart.addError(ErrorModel(
+                                id: cart.items.values.toList()[index].productId,
+                                remain: cart.items.values
+                                    .toList()[index]
+                                    .product
+                                    .available));
+                            // cart.addError(index);
+                          } else {
+                            cart.errors.removeWhere((element) =>
+                                element.id.toString() ==
+                                cart.items.values.toList()[index].toString());
+                          }
+                        },
+                      );
                     },
                     child: Column(
                       children: [
@@ -409,14 +424,14 @@ class _BasketStepState extends State<BasketStep> {
                                     Row(
                                       children: [
                                         Text(
-                                          "${cart.items.values.toList()[index].product.price}${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
+                                          "${cart.items.values.toList()[index].product.price}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
                                           style: TextStyle(
                                             fontSize: 10,
                                             color: const Color(0xff3c984f),
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        SizedBox(width: 5),
+                                        SizedBox(width: 3),
                                         CIconButton(
                                           onTap: () {
                                             if (cart.items.values
@@ -475,9 +490,22 @@ class _BasketStepState extends State<BasketStep> {
                                                   cart.items.values
                                                       .toList()[index]
                                                       .quantity) {
+                                                cart.addError(ErrorModel(
+                                                    id: cart.items.values
+                                                        .toList()[index]
+                                                        .productId,
+                                                    remain: cart.items.values
+                                                        .toList()[index]
+                                                        .product
+                                                        .available));
                                                 // cart.addError(index);
                                               } else {
-                                                cart.errors.remove(index);
+                                                cart.errors.removeWhere(
+                                                    (element) =>
+                                                        element.id.toString() ==
+                                                        cart.items.values
+                                                            .toList()[index]
+                                                            .toString());
                                               }
                                             });
                                             changeQnt(
@@ -503,9 +531,9 @@ class _BasketStepState extends State<BasketStep> {
                                         children: [
                                           TextSpan(
                                             text:
-                                                "${cart.items.values.toList()[index].quantity * cart.items.values.toList()[index].product.price}",
+                                                " ${cart.items.values.toList()[index].quantity * cart.items.values.toList()[index].product.price}",
                                             style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               color: const Color(0xff3c4959),
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -668,7 +696,7 @@ class _BasketStepState extends State<BasketStep> {
                                                           horizontal: 10,
                                                           vertical: 5),
                                                       child: Text(
-                                                        "${remains.toString()}${"Q.R".trs(context)}",
+                                                        "${remains.toString()} ${"Q.R".trs(context)} ",
                                                         style: TextStyle(
                                                             color:
                                                                 CColors.white),
@@ -697,153 +725,147 @@ class _BasketStepState extends State<BasketStep> {
                                           ),
                                         )
                                       : Container(),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                            horizontal: size.width * 0.13)
-                                        .add(EdgeInsets.only(
-                                            bottom: 15, top: 15)),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        color: const Color(0xffffffff),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: const Color(0x14000000),
-                                            offset: Offset(0, 6),
-                                            blurRadius: 21,
-                                          ),
-                                        ],
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsetsDirectional
-                                                .only(start: 15),
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "total".trs(context) +
-                                                      "\t" * 2,
-                                                  style: TextStyle(
-                                                    color: CColors.grey,
-                                                    fontSize: 13,
-                                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      color: const Color(0xffffffff),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0x14000000),
+                                          offset: Offset(0, 6),
+                                          blurRadius: 21,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.only(
+                                                  start: 15),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "total".trs(context) + "\t" * 2,
+                                                style: TextStyle(
+                                                  color: CColors.grey,
+                                                  fontSize: 13,
                                                 ),
-                                                Text.rich(
-                                                  TextSpan(
-                                                    text: "Q.R".trs(context),
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: CColors.darkOrange,
-                                                    ),
-                                                    children: [
-                                                      TextSpan(
-                                                        text: "$total",
-                                                        style: TextStyle(
-                                                          fontSize: 18,
-                                                          color: CColors
-                                                              .headerText,
-                                                        ),
-                                                      ),
-                                                    ],
+                                              ),
+                                              Text.rich(
+                                                TextSpan(
+                                                  text: "Q.R".trs(context),
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: CColors.darkOrange,
                                                   ),
+                                                  children: [
+                                                    TextSpan(
+                                                      text: " $total ",
+                                                      style: TextStyle(
+                                                        fontSize: 18,
+                                                        color:
+                                                            CColors.headerText,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        InkWell(
+                                          splashColor: Colors.transparent,
+                                          highlightColor: Colors.transparent,
+                                          onTap: () {
+                                            if (cart.errors.length == 0) {
+                                              if (_textEditingController.text !=
+                                                  null) {
+                                                cart.setAdditional(
+                                                    _textEditingController
+                                                        .text);
+                                              }
+                                              cart.setTotal(total);
+                                              widget.onContinuePressed.call();
+                                            } else {
+                                              showGeneralDialog(
+                                                barrierDismissible: true,
+                                                barrierLabel: '',
+                                                barrierColor: Colors.black
+                                                    .withOpacity(0.1),
+                                                transitionDuration:
+                                                    Duration(milliseconds: 400),
+                                                context: context,
+                                                pageBuilder:
+                                                    (context, anim1, anim2) {
+                                                  return GestureDetector(
+                                                    onTap: () =>
+                                                        Navigator.pop(context),
+                                                    child: AlertBuilder(
+                                                      title:
+                                                          'The Highlighted items not available'
+                                                              .trs(context),
+                                                      subTitle:
+                                                          'Try to remove or adjust the number of this items'
+                                                              .trs(context),
+                                                      color: CColors
+                                                          .coldPaleBloodRed,
+                                                      icon: Icon(
+                                                        Icons
+                                                            .warning_amber_rounded,
+                                                        color: CColors.white,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                transitionBuilder: (context,
+                                                    anim1, anim2, child) {
+                                                  return SlideTransition(
+                                                    position: Tween(
+                                                            begin:
+                                                                Offset(0, -1),
+                                                            end: Offset(0, 0))
+                                                        .animate(anim1),
+                                                    child: child,
+                                                  );
+                                                },
+                                              );
+                                            }
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: CColors.lightGreen,
+                                              borderRadius:
+                                                  BorderRadius.circular(9),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color:
+                                                      Colors.black.withAlpha(5),
+                                                  offset: Offset(0, 5.0),
+                                                  spreadRadius: 1,
+                                                  blurRadius: 10,
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                          InkWell(
-                                            splashColor: Colors.transparent,
-                                            highlightColor: Colors.transparent,
-                                            onTap: () {
-                                              if (cart.errors.length == 0) {
-                                                if (_textEditingController
-                                                        .text !=
-                                                    null) {
-                                                  cart.setAdditional(
-                                                      _textEditingController
-                                                          .text);
-                                                }
-                                                cart.setTotal(total);
-                                                widget.onContinuePressed.call();
-                                              } else {
-                                                showGeneralDialog(
-                                                  barrierDismissible: true,
-                                                  barrierLabel: '',
-                                                  barrierColor: Colors.black
-                                                      .withOpacity(0.1),
-                                                  transitionDuration: Duration(
-                                                      milliseconds: 400),
-                                                  context: context,
-                                                  pageBuilder:
-                                                      (context, anim1, anim2) {
-                                                    return GestureDetector(
-                                                      onTap: () =>
-                                                          Navigator.pop(
-                                                              context),
-                                                      child: AlertBuilder(
-                                                        title:
-                                                            'The Highlighted items not available',
-                                                        subTitle:
-                                                            'Try to remove or adjust the number of this items',
-                                                        color: CColors
-                                                            .coldPaleBloodRed,
-                                                        icon: Icon(
-                                                          Icons
-                                                              .warning_amber_rounded,
-                                                          color: CColors.white,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                  transitionBuilder: (context,
-                                                      anim1, anim2, child) {
-                                                    return SlideTransition(
-                                                      position: Tween(
-                                                              begin:
-                                                                  Offset(0, -1),
-                                                              end: Offset(0, 0))
-                                                          .animate(anim1),
-                                                      child: child,
-                                                    );
-                                                  },
-                                                );
-                                              }
-                                            },
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: CColors.lightGreen,
-                                                borderRadius:
-                                                    BorderRadius.circular(9),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withAlpha(5),
-                                                    offset: Offset(0, 5.0),
-                                                    spreadRadius: 1,
-                                                    blurRadius: 10,
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 30,
-                                                        vertical: 13),
-                                                child: Text(
-                                                  "continue".trs(context),
-                                                  style: TextStyle(
-                                                    color: CColors.white,
-                                                    fontSize: 15,
-                                                  ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 30,
+                                                      vertical: 13),
+                                              child: Text(
+                                                "continue".trs(context),
+                                                style: TextStyle(
+                                                  color: CColors.white,
+                                                  fontSize: 15,
                                                 ),
                                               ),
                                             ),
-                                          )
-                                        ],
-                                      ),
+                                          ),
+                                        )
+                                      ],
                                     ),
                                   ),
                                 ],

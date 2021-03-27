@@ -264,7 +264,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   ],
                                 ),
                                 Text(
-                                  "\$${widget.fruit.price}",
+                                  "${"Q.R".trs(context)} ${widget.fruit.price} ",
                                   style: TextStyle(
                                     color: CColors.headerText,
                                     fontSize: 22,

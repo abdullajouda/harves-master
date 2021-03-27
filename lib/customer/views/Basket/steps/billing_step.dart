@@ -65,10 +65,10 @@ class _BillingStepState extends State<BillingStep> {
   @override
   Widget build(BuildContext context) {
     List<PaymentMethod> _paymentMethods = [
-      PaymentMethod(title: "Bank Account", iconPath: 'assets/images/bank.svg'),
-      PaymentMethod(title: "Card", iconPath: 'assets/images/credit-card.svg'),
-      PaymentMethod(title: "PayPal", iconPath: 'assets/images/paypal.svg'),
+      // PaymentMethod(title: "Bank Account", iconPath: 'assets/images/bank.svg'),
       PaymentMethod(title: "Cash", iconPath: 'assets/images/cash.svg'),
+      PaymentMethod(title: "Card", iconPath: 'assets/images/credit-card.svg'),
+      // PaymentMethod(title: "PayPal", iconPath: 'assets/images/paypal.svg'),
     ];
     var cart = Provider.of<Cart>(context);
     return Column(
@@ -116,7 +116,7 @@ class _BillingStepState extends State<BillingStep> {
                         ),
                         Text.rich(
                           TextSpan(
-                            text: "${'Q.R'.trs(context)}",
+                            text: "${'Q.R'.trs(context)} ",
                             style: TextStyle(
                               fontSize: 14,
                               color: CColors.darkOrange,
@@ -155,7 +155,10 @@ class _BillingStepState extends State<BillingStep> {
                       final _paymentMethod = _paymentMethods[index];
                       final _isSelected = _chosenIndex == index;
                       return GestureDetector(
-                        onTap: () => setState(() => _chosenIndex = index),
+                        onTap: () {
+                          setState(() => _chosenIndex = index);
+                          cart.setPaymentType(index);
+                        },
                         child: Container(
                           margin: EdgeInsets.all(10),
                           decoration: BoxDecoration(

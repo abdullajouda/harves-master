@@ -20,7 +20,7 @@ class OldOrders extends StatefulWidget {
 }
 
 class _OldOrdersState extends State<OldOrders> {
-  bool loadOrders = false;
+  bool loadOrders = true;
   List<Order> _orders = [];
 
   getOrders() async {

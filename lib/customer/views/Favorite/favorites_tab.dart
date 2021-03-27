@@ -24,6 +24,7 @@ import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:harvest/widgets/not_authenticated.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../product_details.dart';
 
@@ -42,13 +43,13 @@ class _FavoritesTabState extends State<FavoritesTab> {
 
   getFavorite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    FavoriteOperations op =
+    Provider.of<FavoriteOperations>(context, listen: false);
     if (prefs.getString('userToken') != null) {
       setState(() {
+        op.clearFav();
         load = true;
       });
-      FavoriteOperations op =
-          Provider.of<FavoriteOperations>(context, listen: false);
       var request = await get(ApiHelper.api + 'getMyFavorites', headers: {
         'Accept': 'application/json',
         'Accept-Language': prefs.getString('language'),
@@ -113,6 +114,16 @@ class _FavoritesTabState extends State<FavoritesTab> {
     }
   }
 
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  void _onRefresh() async {
+    // monitor network fetch
+    await  getFavorite();
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
+
   @override
   void initState() {
     isAuth();
@@ -124,101 +135,125 @@ class _FavoritesTabState extends State<FavoritesTab> {
     FavoriteOperations op = Provider.of<FavoriteOperations>(context);
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: WaveAppBarBody(
-        bottomViewOffset: Offset(0, -10),
-        backgroundGradient: CColors.greenAppBarGradient(),
-        actions: [HomePopUpMenu()],
-        leading: BasketButton(),
-        bottomView:!isAuthenticated?Container(): Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 50),
-          child: Container(
-            // width: 298.0,
-            // height: 40.0,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20.0),
-              color: const Color(0xffffffff),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0x18000000),
-                  offset: Offset(0, 2),
-                  blurRadius: 8,
-                ),
-              ],
-            ),
-            child: TextFormField(
-              onFieldSubmitted: (value) {
-                Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                      builder: (context) => SearchResults(
-                        search: value,
-                      ),
-                    ));
-              },
-              decoration: searchDecoration(
-                'search_products'.trs(context),
-                Container(
-                  height: 14,
-                  width: 14,
-                  child: Center(
-                    child: SvgPicture.asset(
-                      'assets/icons/search.svg',
+        appBar: WaveAppBar(
+          bottomViewOffset: Offset(0, -10),
+          backgroundGradient: CColors.greenAppBarGradient(),
+          actions: [HomePopUpMenu()],
+          leading: BasketButton(),
+          bottomView: !isAuthenticated
+              ? Container()
+              : Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 50),
+                  child: Container(
+                    // width: 298.0,
+                    // height: 40.0,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      color: const Color(0xffffffff),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0x18000000),
+                          offset: Offset(0, 2),
+                          blurRadius: 8,
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        child: !isAuthenticated ? NotAuthPage() : null,
-        children: !isAuthenticated
-            ? null
-            : [
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: Text(
-                    "favorite_item".trs(context),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      color: CColors.headerText,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                load
-                    ? Center(child: Loader())
-                    : GridView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        // padding: EdgeInsets.only(top: 10, bottom: 40)
-                        //     .add(EdgeInsets.symmetric(horizontal: 20)),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        childAspectRatio: 1,
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 18,
-                        mainAxisSpacing: 18),
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                    itemCount: op.items.length,
-                        itemBuilder: (context, index) {
-                          final bool _isSelected =
-                              _isIndexSelected(op.items.values.toList()[index]);
-                          return Stack(
-                            alignment: Alignment.center,fit: StackFit.expand,
-                            children: [
-                              FavoriteItem(
-                                remove: () {
-                                  removeFav(op.items.values.toList()[index]);
-                                },
-                                fruit: op.items.values.toList()[index],
+                    child: TextFormField(
+                      onFieldSubmitted: (value) {
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                              builder: (context) => SearchResults(
+                                search: value,
                               ),
-                              _isSelected ? Center(child: Loader()) : Container()
-                            ],
-                          );
-                        }),
-              ],
-      ),
-    );
+                            ));
+                      },
+                      decoration: searchDecoration(
+                        'search_products'.trs(context),
+                        Container(
+                          height: 14,
+                          width: 14,
+                          child: Center(
+                            child: SvgPicture.asset(
+                              'assets/icons/search.svg',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+        ),
+        body:SmartRefresher(
+            enablePullDown: true,
+            header: WaterDropMaterialHeader(
+              color: CColors.lightOrange,
+              backgroundColor: CColors.darkGreen,
+            ),
+            controller: _refreshController,
+            onRefresh: _onRefresh,
+            child:ListView(
+          children: [
+            !isAuthenticated
+                ? NotAuthPage()
+                : Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 20),
+                        child: Row(
+                          children: [
+                            Text(
+                              "favorite_item".trs(context),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: CColors.headerText,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      load
+                          ? Center(child: Loader())
+                          : GridView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              // padding: EdgeInsets.only(top: 10, bottom: 40)
+                              //     .add(EdgeInsets.symmetric(horizontal: 20)),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                      childAspectRatio: 1,
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 18,
+                                      mainAxisSpacing: 18),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 15),
+                              itemCount: op.items.length,
+                              itemBuilder: (context, index) {
+                                final bool _isSelected = _isIndexSelected(
+                                    op.items.values.toList()[index]);
+                                return Stack(
+                                  alignment: Alignment.center,
+                                  fit: StackFit.expand,
+                                  children: [
+                                    FavoriteItem(
+                                      remove: () {
+                                        removeFav(
+                                            op.items.values.toList()[index]);
+                                      },
+                                      fruit: op.items.values.toList()[index],
+                                    ),
+                                    _isSelected
+                                        ? Center(child: Loader())
+                                        : Container()
+                                  ],
+                                );
+                              }),
+                    ],
+                  ),
+          ],
+        )));
   }
 
   Widget _buildSearchTextField(Size size) {

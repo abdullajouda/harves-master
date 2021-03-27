@@ -40,7 +40,7 @@ class OrderCurrentListTile extends StatelessWidget {
       ),
       _OrderCurrentListTileSection(
         title: "bill_total".trs(context),
-        subTitle: "${'Q.R'.trs(context)}" + '${billTotal ?? 0.0}',
+        subTitle: "${'Q.R'.trs(context)} " + '${billTotal ?? 0.0}',
       ),
     ];
     return InkWell(

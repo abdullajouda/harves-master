@@ -14,6 +14,7 @@ import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:http/http.dart';
@@ -116,7 +117,7 @@ class _SearchResultsState extends State<SearchResults> {
                 ),
               );
             },
-            child: SvgPicture.asset(Constants.basketIcon)),
+            child: BasketButton()),
         children: [
           Padding(
             padding: const EdgeInsets.all(20.0),

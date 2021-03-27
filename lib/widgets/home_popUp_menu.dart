@@ -8,8 +8,10 @@ import 'package:harvest/customer/views/Drop-Menu-Views/about_us.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/notifications.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/privacy.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
+import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/main.dart';
 import 'package:harvest/widgets/dialogs/logout_confirm.dart';
 import 'package:provider/provider.dart';
@@ -71,7 +73,13 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
       HomePopUpMenuModel(
         iconPath: Constants.homeMenuIcon,
         title: 'Home',
-        onPressed: () => context.read<PTVController>().jumbToTab(AppTabs.Home),
+        onPressed: () =>
+            Navigator.of(context, rootNavigator: true).pushReplacement(
+          CustomPageRoute(
+            // context: context,
+            builder: (context) => RootScreen(),
+          ),
+        ),
       ),
       if (isAuthenticated)
         HomePopUpMenuModel(
@@ -92,7 +100,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
           iconPath: 'assets/icons/credit-card.svg',
           title: 'wallet',
           onPressed: () {
-            Navigator.of(context, rootNavigator: true).push(CupertinoPageRoute(
+            Navigator.of(context).push(CupertinoPageRoute(
               builder: (context) => Wallet(),
             ));
           },
@@ -169,11 +177,11 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
           title: 'SignIn',
           onPressed: () {
             Navigator.popUntil(context, (route) => route.isFirst);
-            Navigator.of(context, rootNavigator: true).pushReplacement(
-                platformPageRoute(
-                  context: context,
-                  builder: (context) => MyApp(),
-                ));
+            Navigator.of(context, rootNavigator: true)
+                .pushReplacement(platformPageRoute(
+              context: context,
+              builder: (context) => MyApp(),
+            ));
           },
         ),
     ];
@@ -183,7 +191,8 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
       offset: Offset(-50, 10),
       onSelected: (index) {
         final _item = _options[index];
-        if (_item.onPressed != null) _item.onPressed();
+        if (_item.onPressed != null)
+          _item.onPressed();
       },
       onCanceled: null,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

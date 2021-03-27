@@ -9,32 +9,27 @@ class SliderItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-
-    return SizedBox(
-      // height: size.height * 0.5,
-      width: size.width,
+    return Container(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // SizedBox(height: size.height * 0.1),
-          Expanded(
-            flex: 2,
-            child: SizedBox(
-              height: size.width * 0.7,
-              width: size.width * 0.7,
-              child: Image.network(slider.image, fit: BoxFit.fitWidth),
-            ),
-          ),
+          Image.network(slider.image,errorBuilder: (context, error, stackTrace) => Expanded(child: Container()), fit: BoxFit.fill),
           // SizedBox(height: size.height * 0.02),
-          Expanded(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 50),
             child: Column(
               children: [
-                Text(
-                  slider.title??'',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: CColors.headerText,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    slider.title??'',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: CColors.headerText,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 Text(

@@ -51,6 +51,8 @@ class CartItem {
 
 class Cart with ChangeNotifier {
   List<ErrorModel> _errors = [];
+  int paymentType;
+  int useWallet;
   double total;
   double totalPrice;
   String additionalNote;
@@ -91,6 +93,15 @@ class Cart with ChangeNotifier {
 
   void setPromo(String code) {
     promo = code;
+    notifyListeners();
+  }
+
+  void setPaymentType(int type) {
+    paymentType = type;
+    notifyListeners();
+  }
+  void setUseWallet(int type) {
+    useWallet = type;
     notifyListeners();
   }
 

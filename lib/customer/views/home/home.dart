@@ -33,6 +33,9 @@ import 'package:harvest/widgets/my-opacity.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+// import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'search_page.dart';
@@ -61,6 +64,10 @@ class _HomeState extends State<Home> {
   bool loadBasket = true;
 
   getOffers() async {
+    setState(() {
+      loadOffers = true;
+      _offers =[];
+    });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getSliders', headers: {
       'Accept': 'application/json',
@@ -81,6 +88,9 @@ class _HomeState extends State<Home> {
   }
 
   Future getCategories() async {
+    setState(() {
+      _categories = [];
+    });
     var request = await get(ApiHelper.api + 'getCategories', headers: {
       'Accept': 'application/json',
       'Accept-Language': LangProvider().getLocaleCode(),
@@ -98,6 +108,9 @@ class _HomeState extends State<Home> {
   }
 
   getFeaturedProducts() async {
+    setState(() {
+      _featuredProducts =[];
+    });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var settings = await get(ApiHelper.api + 'getSetting', headers: {
       'Accept': 'application/json',
@@ -172,20 +185,32 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    getOffers();
-    getCategories().then((value) => getProductsByCategories(_selectedIndex));
-    getFeaturedProducts();
     getCart();
+    getOffers();
+    getFeaturedProducts();
+    getCategories().then((value) => getProductsByCategories(_selectedIndex));
     super.initState();
+  }
+
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  void _onRefresh() async {
+    // monitor network fetch
+    await getCart();
+    await getOffers();
+    await getFeaturedProducts();
+    await getCategories().then((value) => getProductsByCategories(_selectedIndex));
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
   }
 
   @override
   Widget build(BuildContext context) {
     FavoriteOperations op = Provider.of<FavoriteOperations>(context);
     const Radius _chipBorderRadius = const Radius.circular(12.5);
-
     return Scaffold(
-      body: WaveAppBarBody(
+      appBar: WaveAppBar(
         backgroundGradient: CColors.greenAppBarGradient(),
         bottomViewOffset: Offset(0, -10),
         bottomView: Padding(
@@ -241,231 +266,248 @@ class _HomeState extends State<Home> {
               ).then((value) => getProductsByCategories(_selectedIndex));
             },
             child: BasketButton()),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              children: [
-                Text(
-                  'Offers'.trs(context),
-                  style: TextStyle(
-                    fontFamily: 'SF Pro Rounded',
-                    fontSize: 18,
-                    color: const Color(0xff3c4959),
+      ),
+      body: SmartRefresher(
+        enablePullDown: true,
+        header: WaterDropMaterialHeader(
+          color: CColors.lightOrange,
+          backgroundColor: CColors.darkGreen,
+        ),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  Text(
+                    'Offers'.trs(context),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: const Color(0xff3c4959),
+                    ),
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Stack(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    loadOffers ? Loader() : MyOpacity(
-                      load: loadOffers,
-                      child: CarouselSlider.builder(
-                        itemCount: _offers.length,
-                        itemBuilder: (context, index, realIndex) {
-                          return HomeSlider(
-                            offers: _offers[index],
-                          );
-                        },
-                        options: CarouselOptions(
-                            viewportFraction: 1.0,
-                            enlargeCenterPage: false,
-                            autoPlayAnimationDuration:
-                                Duration(milliseconds: 800),
-                            height: 132,
-                            enlargeStrategy: CenterPageEnlargeStrategy.height,
-                            enableInfiniteScroll:
-                            _offers.length == 1 ? false : true,
-                            onPageChanged: (index, reason) {
-                              setState(() {
-                                _current = index;
-                              });
-                            }),
-                        carouselController: _carouselController,
-                      ),
-                    ),
-                  ],
-                ),
-                Positioned(
-                  bottom: 15,
-                  right: 15,
-                  child: Container(
-                    height: 20,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: _offers.length,
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index) {
-                        return Align(
-                          alignment: Alignment.bottomCenter,
-                          child: _current == index
-                              ? Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Container(
-                                    height: 7,
-                                    width: 7,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.elliptical(9999.0, 9999.0)),
-                                      color: CColors.darkOrange,
-                                    ),
-                                  ),
-                                )
-                              : Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Container(
-                                    height: 7,
-                                    width: 7,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.elliptical(9999.0, 9999.0)),
-                                      color: CColors.white,
-                                    ),
-                                  ),
-                                ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          _featuredProducts.length == 0
-              ? Container()
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Text(
-                        'Special For You'.trs(context),
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: const Color(0xff3c4959),
-                        ),
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                    Container(
-                      height: 170,
-                      child: ListView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        itemCount: _featuredProducts.length,
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) => GestureDetector(
-                            onTap: () =>
-                                Navigator.of(context, rootNavigator: true)
-                                    .push(CupertinoPageRoute(
-                                  builder: (context) => ProductBundleDetails(
-                                    fruit: _featuredProducts[index],
-                                  ),
-                                )),
-                            child: SpecialItem(
-                              fruit: _featuredProducts[index],
-                            )),
-                      ),
-                    ),
-                  ],
-                ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: MyOpacity(
-              load: loadCategories,
-              child: Container(
-                  height: 30,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    controller: _controller,
-                    padding: EdgeInsetsDirectional.only(start: 23),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _categories.length,
-                    itemBuilder: (context, index) {
-                      final _category = _categories[index];
-                      final bool _isSelected =
-                          _isIndexSelected(_categories[index]);
-                      return AutoScrollTag(
-                        controller: _controller,
-                        index: index,
-                        key: ValueKey(index),
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() => _selectedIndex = _categories[index]);
-                            // helper.setCat(_selectedIndex);
-                            getProductsByCategories(_selectedIndex);
-                            _controller.scrollToIndex(index);
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(right: 5),
-                            padding: EdgeInsets.symmetric(horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: _isSelected
-                                  ? CColors.darkOrange
-                                  : CColors.transparent,
-                              borderRadius: BorderRadiusDirectional.only(
-                                topStart: _chipBorderRadius,
-                                bottomStart: _chipBorderRadius,
-                                topEnd: _chipBorderRadius,
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Stack(
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      loadOffers
+                          ? Center(child: Loader())
+                          : MyOpacity(
+                              load: loadOffers,
+                              child: CarouselSlider.builder(
+                                itemCount: _offers.length,
+                                itemBuilder: (context, index, realIndex) {
+                                  return HomeSlider(
+                                    offers: _offers[index],
+                                  );
+                                },
+                                options: CarouselOptions(
+                                    viewportFraction: 1.0,
+                                    enlargeCenterPage: false,
+                                    autoPlayAnimationDuration:
+                                        Duration(milliseconds: 800),
+                                    height: 132,
+                                    enlargeStrategy:
+                                        CenterPageEnlargeStrategy.height,
+                                    enableInfiniteScroll:
+                                        _offers.length == 1 ? false : true,
+                                    onPageChanged: (index, reason) {
+                                      setState(() {
+                                        _current = index;
+                                      });
+                                    }),
+                                carouselController: _carouselController,
                               ),
                             ),
-                            child: Center(
-                              child: Text(
-                                _category.name ?? '',
-                                style: TextStyle(
-                                  color: _isSelected
-                                      ? CColors.white
-                                      : CColors.grey,
-                                  fontSize: 14,
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 15,
+                    right: 15,
+                    child: Container(
+                      height: 20,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _offers.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          return Align(
+                            alignment: Alignment.bottomCenter,
+                            child: _current == index
+                                ? Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: Container(
+                                      height: 7,
+                                      width: 7,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.elliptical(9999.0, 9999.0)),
+                                        color: CColors.darkOrange,
+                                      ),
+                                    ),
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.all(2.0),
+                                    child: Container(
+                                      height: 7,
+                                      width: 7,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.elliptical(9999.0, 9999.0)),
+                                        color: CColors.white,
+                                      ),
+                                    ),
+                                  ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            _featuredProducts.length == 0
+                ? Container()
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Text(
+                          'Special For You'.trs(context),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: const Color(0xff3c4959),
+                          ),
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                      Container(
+                        height: 170,
+                        child: ListView.builder(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: _featuredProducts.length,
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) => GestureDetector(
+                              onTap: () =>
+                                  Navigator.of(context, rootNavigator: true)
+                                      .push(CupertinoPageRoute(
+                                    builder: (context) => ProductBundleDetails(
+                                      fruit: _featuredProducts[index],
+                                    ),
+                                  )),
+                              child: SpecialItem(
+                                fruit: _featuredProducts[index],
+                              )),
+                        ),
+                      ),
+                    ],
+                  ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: MyOpacity(
+                load: loadCategories,
+                child: Container(
+                    height: 30,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      controller: _controller,
+                      padding: EdgeInsetsDirectional.only(start: 23),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _categories.length,
+                      itemBuilder: (context, index) {
+                        final _category = _categories[index];
+                        final bool _isSelected =
+                            _isIndexSelected(_categories[index]);
+                        return AutoScrollTag(
+                          controller: _controller,
+                          index: index,
+                          key: ValueKey(index),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(
+                                  () => _selectedIndex = _categories[index]);
+                              // helper.setCat(_selectedIndex);
+                              getProductsByCategories(_selectedIndex);
+                              _controller.scrollToIndex(index);
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(right: 5),
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: _isSelected
+                                    ? CColors.darkOrange
+                                    : CColors.transparent,
+                                borderRadius: BorderRadiusDirectional.only(
+                                  topStart: _chipBorderRadius,
+                                  bottomStart: _chipBorderRadius,
+                                  topEnd: _chipBorderRadius,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  _category.name ?? '',
+                                  style: TextStyle(
+                                    color: _isSelected
+                                        ? CColors.white
+                                        : CColors.grey,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  )),
+                        );
+                      },
+                    )),
+              ),
             ),
-          ),
-          loadProducts
-              ? Center(
-                  child:
-                      Container(height: 200, width: 200, child: LoadingPhone()))
-              : GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      childAspectRatio: 1,
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 18,
-                      mainAxisSpacing: 18),
-                  itemCount: op.homeItems.length,
-                  shrinkWrap: true,
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                  physics: NeverScrollableScrollPhysics(),
-                  itemBuilder: (context, index) => GestureDetector(
-                    onTap: () =>
-                        Navigator.of(context, rootNavigator: true).push(
-                      CupertinoPageRoute(
-                        builder: (context) => ProductDetails(
-                          fruit: op.homeItems.values.toList()[index],
-                        ),
+            loadProducts
+                ? Center(
+                    child: Container(
+                        height: 200, width: 200, child: LoadingPhone()))
+                : GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        childAspectRatio: 1,
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 18,
+                        mainAxisSpacing: 18),
+                    itemCount: op.homeItems.length,
+                    shrinkWrap: true,
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    physics: NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) => GestureDetector(
+                      onTap: () => Navigator.of(context, rootNavigator: true)
+                          .push(
+                            CupertinoPageRoute(
+                              builder: (context) => ProductDetails(
+                                fruit: op.homeItems.values.toList()[index],
+                              ),
+                            ),
+                          )
+                          .then((value) =>
+                              getProductsByCategories(_selectedIndex)),
+                      child: FruitItem(
+                        fruit: op.homeItems.values.toList()[index],
                       ),
-                    ).then((value) => getProductsByCategories(_selectedIndex)),
-                    child: FruitItem(
-                      fruit: op.homeItems.values.toList()[index],
                     ),
                   ),
-                ),
-          SizedBox(
-            height: 50,
-          )
-        ],
+            SizedBox(
+              height: 50,
+            )
+          ],
+        ),
       ),
     );
   }

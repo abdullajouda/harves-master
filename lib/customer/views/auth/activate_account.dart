@@ -69,9 +69,8 @@ class _AccountActivationState extends State<AccountActivation>
       load = true;
     });
     if (_formKey.currentState.validate()) {
-      FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
-      final fToken = await _firebaseMessaging.getToken();
-      prefs.setString('fcm_token', fToken);
+
+      String fToken = prefs.getString('fcm_token');
       var request = await post(ApiHelper.api + 'verifyCode', body: {
         'code': code,
         'mobile': widget.mobile,

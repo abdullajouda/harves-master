@@ -15,6 +15,8 @@ import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'edit_address_dialog.dart';
+
 class UserAddresses extends StatefulWidget {
   @override
   _UserAddressesState createState() => _UserAddressesState();
@@ -35,11 +37,12 @@ class _UserAddressesState extends State<UserAddresses> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'allAddressForUser', headers: {
       'Accept': 'application/json',
-      'Accept-Language': 'en',
+      'Accept-Language': '${prefs.getString('language')}',
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
     List locations = response['items'];
+    print(locations);
     locations.forEach((element) {
       DeliveryAddresses deliveryAddress = DeliveryAddresses.fromJson(element);
       addresses.add(deliveryAddress);
@@ -50,26 +53,26 @@ class _UserAddressesState extends State<UserAddresses> {
     });
   }
 
-  setDefaultAddress(int id) async {
-    setState(() {
-      loadFunc = true;
-    });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var request =
-        await get(ApiHelper.api + 'changeDefultAddress/$id', headers: {
-      'Accept': 'application/json',
-      'Accept-Language': 'en',
-      'Authorization': 'Bearer ${prefs.getString('userToken')}'
-    });
-    var response = json.decode(request.body);
-    var op = Provider.of<UserFunctions>(context, listen: false);
-    User user = User.fromJson(response['items']);
-    op.setUser(user);
-    // Fluttertoast.showToast(msg: response['message']);
-    setState(() {
-      loadFunc = false;
-    });
-  }
+  // setDefaultAddress(int id) async {
+  //   setState(() {
+  //     loadFunc = true;
+  //   });
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   var request =
+  //       await get(ApiHelper.api + 'changeDefultAddress/$id', headers: {
+  //     'Accept': 'application/json',
+  //     'Accept-Language': '${prefs.getString('language')}',
+  //     'Authorization': 'Bearer ${prefs.getString('userToken')}'
+  //   });
+  //   var response = json.decode(request.body);
+  //   var op = Provider.of<UserFunctions>(context, listen: false);
+  //   User user = User.fromJson(response['items']);
+  //   op.setUser(user);
+  //   // Fluttertoast.showToast(msg: response['message']);
+  //   setState(() {
+  //     loadFunc = false;
+  //   });
+  // }
 
   Future deleteAddress(DeliveryAddresses address) async {
     setState(() {
@@ -79,7 +82,7 @@ class _UserAddressesState extends State<UserAddresses> {
     var request =
         await get(ApiHelper.api + 'deleteAddress/${address.id}', headers: {
       'Accept': 'application/json',
-      'Accept-Language': 'en',
+          'Accept-Language': '${prefs.getString('language')}',
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
@@ -104,7 +107,7 @@ class _UserAddressesState extends State<UserAddresses> {
       isScrollControlled: true,
       enableDrag: false,
       backgroundColor: Colors.transparent,
-      builder: (context) => AddNewAddressDialog(
+      builder: (context) => EditAddressDialog(
         path: 1,
         deliveryAddresses: address,
       ),
@@ -146,8 +149,8 @@ class _UserAddressesState extends State<UserAddresses> {
                           address: addresses[index],
                           isSelected: _isSelected,
                           onTap: () {
-                            setState(() => _selectedIndex = index);
-                            setDefaultAddress(addresses[index].id);
+                            // setState(() => _selectedIndex = index);
+                            // setDefaultAddress(addresses[index].id);
                           },
                         ),
                       ],
@@ -164,8 +167,8 @@ class _UserAddressesState extends State<UserAddresses> {
                       enableDrag: false,
                       backgroundColor: Colors.transparent,
                       builder: (_) => AddNewAddressDialog(
-                        deliveryAddresses: addresses[_selectedIndex],
-                      ),
+                          // deliveryAddresses: addresses[_selectedIndex],
+                          ),
                     ).then((value) => getAddresses());
                   },
                   shape: RoundedRectangleBorder(
