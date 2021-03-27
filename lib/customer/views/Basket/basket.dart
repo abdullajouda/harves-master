@@ -58,6 +58,7 @@ class _BasketState extends State<Basket> {
       'delivery_time_id': cart.time.id.toString(),
       'delivery_date': '${cart.availableDates.date}',
       'payment_method': '${cart.paymentType}',
+      'use_wallet': '${cart.useWallet}',
       'note': '${cart.additionalNote != null ? cart.additionalNote : ''}',
       'promoCode_name': '${cart.promo != null ? cart.promo : ''}'
     }, headers: {
@@ -231,10 +232,14 @@ class _BasketState extends State<Basket> {
                             builder: (context) => SelectPaymentDialog(),
                           );
                         } else {
-                          showCupertinoDialog(
-                            context: context,
-                            builder: (context) => UseWallet(),
-                          ).then((value) => checkOut());
+                          if (double.parse(cart.walletBalance.toString()) >=
+                              cart.totalPrice) {
+                            showCupertinoDialog(
+                              context: context,
+                              builder: (context) => UseWallet(),
+                            ).then((value) => checkOut());
+                          }
+
                         }
                       }
                     });

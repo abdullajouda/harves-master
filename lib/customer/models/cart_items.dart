@@ -50,12 +50,13 @@ class CartItem {
 }
 
 class Cart with ChangeNotifier {
-  List<ErrorModel> _errors = [];
+  Map<String,ErrorModel> _errors = {};
   int paymentType;
   int useWallet;
   double total;
   double totalPrice;
   String additionalNote;
+  String walletBalance;
   String promo;
   DeliveryAddresses deliveryAddresses;
   AvailableDates availableDates;
@@ -95,6 +96,10 @@ class Cart with ChangeNotifier {
     promo = code;
     notifyListeners();
   }
+  void setWalletBalance(String bal) {
+    walletBalance = bal;
+    notifyListeners();
+  }
 
   void setPaymentType(int type) {
     paymentType = type;
@@ -111,7 +116,7 @@ class Cart with ChangeNotifier {
     return {..._cartItems};
   }
 
-  List<ErrorModel> get errors {
+  Map<String,ErrorModel> get errors {
     return _errors;
   }
 
@@ -129,7 +134,12 @@ class Cart with ChangeNotifier {
   }
 
   void addError(ErrorModel error) {
-    _errors.add(error);
+    if (_errors.containsKey(error.id)) {
+      _errors.update(error.id.toString(), (existing) => error);
+    } else {
+      _errors.putIfAbsent(error.id.toString(), () => error);
+    }
+    notifyListeners();
   }
 
   void removeCartItem(int id) {
@@ -144,7 +154,7 @@ class Cart with ChangeNotifier {
   }
   void clearAll(){
     _cartItems = {};
-    _errors = [];
+    _errors = {};
     total =null;
     totalPrice =null;
     additionalNote =null;

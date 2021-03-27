@@ -191,10 +191,12 @@ class _AvailableDatesSheetState extends State<AvailableDatesSheet> {
                                   // )
                                 ],
                               ),
-                              SvgPicture.asset('assets/icons/seperator.svg',color: _isTimeSelected(
-                                  _selected.times[index])
-                                  ? CColors.white
-                                  : Color(0xff888a8d),),
+                              SvgPicture.asset(
+                                'assets/icons/seperator.svg',
+                                color: _isTimeSelected(_selected.times[index])
+                                    ? CColors.white
+                                    : Color(0xff888a8d),
+                              ),
                               Column(
                                 children: [
                                   Text(
@@ -233,8 +235,10 @@ class _AvailableDatesSheetState extends State<AvailableDatesSheet> {
             padding: const EdgeInsets.symmetric(vertical: 15),
             child: FlatButton(
               onPressed: () {
-                cart.setDate(_selected);
-                cart.setTime(_selectedTime);
+                if (_selected != null && _selectedTime != null) {
+                  cart.setDate(_selected);
+                  cart.setTime(_selectedTime);
+                }
                 Navigator.pop(context);
               },
               shape: RoundedRectangleBorder(

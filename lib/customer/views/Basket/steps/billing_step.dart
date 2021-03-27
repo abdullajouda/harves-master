@@ -42,6 +42,7 @@ class _BillingStepState extends State<BillingStep> {
     setState(() {
       load = true;
     });
+    var cart = Provider.of<Cart>(context,listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getWallet', headers: {
       'Accept': 'application/json',
@@ -51,6 +52,7 @@ class _BillingStepState extends State<BillingStep> {
     var response = json.decode(request.body);
     setState(() {
       balance = response['balance'];
+      cart.setWalletBalance(balance);
       points = response['points'];
       load = false;
     });

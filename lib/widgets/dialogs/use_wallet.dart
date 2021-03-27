@@ -59,7 +59,7 @@ class UseWallet extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                'Use Wallet For This Purchase?'.trs(context),
+                                '${'You Have a Wallet Balance Of'.trs(context)} ${cart.walletBalance} \n${'Use Wallet For This Purchase?'.trs(context)}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: const Color(0xff3c4959),

@@ -263,7 +263,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  "${'Q.R'.trs(context)}${_order.myOrder.deliveryCost}",
+                  "${'Q.R'.trs(context)}  ${_order.myOrder.deliveryCost}",
                   style: TextStyle(
                     color: CColors.headerText,
                     fontWeight: FontWeight.normal,
@@ -308,7 +308,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                 ),
                 Text.rich(
                   TextSpan(
-                    text: "${'Q.R'.trs(context)}",
+                    text: "${'Q.R'.trs(context)}  ",
                     style: TextStyle(
                       fontSize: 12,
                       color: CColors.darkOrange,

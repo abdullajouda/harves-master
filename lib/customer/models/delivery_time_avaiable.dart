@@ -4,6 +4,7 @@ class AvailableDates {
   String status;
   String createdAt;
   String dayName;
+  String month;
   String date;
   List<Times> times;
 
@@ -13,6 +14,7 @@ class AvailableDates {
         this.status,
         this.createdAt,
         this.dayName,
+        this.month,
         this.date,
         this.times});
 
@@ -22,6 +24,7 @@ class AvailableDates {
     status = json['status'];
     createdAt = json['created_at'];
     dayName = json['day_name'];
+    month = json['month'];
     date = json['date'];
     if (json['times'] != null) {
       times = new List<Times>();
@@ -38,6 +41,7 @@ class AvailableDates {
     data['status'] = this.status;
     data['created_at'] = this.createdAt;
     data['day_name'] = this.dayName;
+    data['month'] = this.month;
     data['date'] = this.date;
     if (this.times != null) {
       data['times'] = this.times.map((v) => v.toJson()).toList();

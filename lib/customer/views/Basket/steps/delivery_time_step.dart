@@ -202,14 +202,20 @@ class _DeliveryTimeStepState extends State<DeliveryTimeStep> {
                                     Column(
                                       children: [
                                         Text(
-                                          cart.availableDates.dayName,
+                                          cart.availableDates.month,
                                           style: TextStyle(
                                             fontSize: 15,
                                             color: CColors.lightGreen,
                                           ),
                                         ),
                                         Text(
-                                          cart.availableDates.dayId.toString(),
+                                          cart.availableDates.date
+                                              .replaceRange(
+                                                  6,
+                                                  cart.availableDates.date
+                                                      .length,
+                                                  '')
+                                              .replaceRange(0, 4, ''),
                                           style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.w600,

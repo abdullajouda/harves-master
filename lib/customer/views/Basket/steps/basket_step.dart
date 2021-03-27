@@ -274,8 +274,13 @@ class _BasketStepState extends State<BasketStep> {
             },
             itemBuilder: (context, index) {
               bool _itemHasError(CartItem cartItem) {
-                if (cart.errors.contains(cartItem.product.id)) return true;
-                return false;
+                if (cart.errors.containsKey(cartItem.productId.toString())) {
+                  return true;
+                } else {
+                  return false;
+                }
+                // if (cart.errors.keys.toList().contains(cartItem.productId)) return true;
+                // return false;
               }
 
               final bool _hasError =
@@ -299,9 +304,9 @@ class _BasketStepState extends State<BasketStep> {
                                     .available));
                             // cart.addError(index);
                           } else {
-                            cart.errors.removeWhere((element) =>
-                                element.id.toString() ==
-                                cart.items.values.toList()[index].toString());
+                            cart.errors.removeWhere((key, value) =>
+                                key.toString() ==
+                                cart.items.values.toList()[index].productId.toString());
                           }
                         },
                       );
@@ -314,22 +319,12 @@ class _BasketStepState extends State<BasketStep> {
                             child: Align(
                               alignment: AlignmentDirectional(-0.8, 0.0),
                               child: _buildRemainingItemsCard(
-                                  context, index, cart),
+                                  context, index, cart.errors.values.toList()[index]),
                             ),
                           ),
                         RemoveIcon(
                           onTap: () {
                             removeFromCart(cart.items.values.toList()[index]);
-                            // setState(() {
-                            //   cart.removeFav(cart.items.values.toList()[index]);
-                            //   if (cart.items.values.toList()[index].product.available <
-                            //       cart.items.values.toList()[index].quantity) {
-                            //     _errorIndexes.add(index);
-                            //   }else{
-                            //     _errorIndexes.remove(index);
-                            //
-                            //   }
-                            // });
                           },
                           iconAlignment: Alignment.topRight,
                           deocation: RemoveIconDecoration.copyWith(
@@ -351,198 +346,194 @@ class _BasketStepState extends State<BasketStep> {
                               blurRadius: 10,
                             ),
                           ],
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(13),
-                                border: Border.all(
-                                  color: _hasError
-                                      ? CColors.coldPaleBloodRed
-                                      : CColors.transparent,
-                                  width: 2,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withAlpha(10),
-                                    offset: Offset(0, 5.0),
-                                    spreadRadius: 1,
-                                    blurRadius: 10,
-                                  ),
-                                ],
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(13),
+                              border: Border.all(
+                                color: _hasError
+                                    ? CColors.coldPaleBloodRed
+                                    : CColors.transparent,
+                                width: 2,
                               ),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 10),
-                                leading: Image.network(
-                                    cart.items.values
-                                        .toList()[index]
-                                        .product
-                                        .image,
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover),
-                                title: Padding(
-                                  padding: const EdgeInsets.only(bottom: 5),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(10),
+                                  offset: Offset(0, 5.0),
+                                  spreadRadius: 1,
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              leading: Image.network(
+                                  cart.items.values
+                                      .toList()[index]
+                                      .product
+                                      .image,
+                                  width: 70,
+                                  height: 70,
+                                  fit: BoxFit.cover),
+                              title: Padding(
+                                padding: const EdgeInsets.only(bottom: 5),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      cart.items.values
+                                          .toList()[index]
+                                          .product
+                                          .name,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: const Color(0xff3c984f),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      cart.items.values
+                                              .toList()[index]
+                                              .product
+                                              .description ??
+                                          '',
+                                      style: TextStyle(
+
+                                        fontSize: 10,
+                                        color: const Color(0xff888a8d),
+                                      ),
+                                      textAlign: TextAlign.left,
+                                    )
+                                  ],
+                                ),
+                              ),
+                              subtitle: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
                                     children: [
                                       Text(
-                                        cart.items.values
-                                            .toList()[index]
-                                            .product
-                                            .name,
+                                        "${cart.items.values.toList()[index].product.price}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 10,
                                           color: const Color(0xff3c984f),
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
-                                      Text(
-                                        cart.items.values
-                                                .toList()[index]
-                                                .product
-                                                .description ??
-                                            '',
-                                        style: TextStyle(
-                                          fontFamily: 'SF Pro Rounded',
-                                          fontSize: 10,
-                                          color: const Color(0xff888a8d),
-                                        ),
-                                        textAlign: TextAlign.left,
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                subtitle: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "${cart.items.values.toList()[index].product.price}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: const Color(0xff3c984f),
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        SizedBox(width: 3),
-                                        CIconButton(
-                                          onTap: () {
-                                            if (cart.items.values
-                                                    .toList()[index]
-                                                    .quantity !=
-                                                1) {
-                                              setState(() {
-                                                cart.items.values
-                                                    .toList()[index]
-                                                    .quantity--;
-                                                if (cart.items.values
-                                                        .toList()[index]
-                                                        .product
-                                                        .available <
-                                                    cart.items.values
-                                                        .toList()[index]
-                                                        .quantity) {
-                                                  // cart.addError(index);
-                                                } else {
-                                                  cart.errors.remove(index);
-                                                }
-                                              });
-                                              changeQnt(
-                                                  2,
-                                                  cart.items.values
-                                                      .toList()[index]
-                                                      .productId);
-                                            }
-                                          },
-                                          color: CColors.darkOrange,
-                                          icon: Icon(Icons.remove,
-                                              color: CColors.white, size: 15),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 2),
-                                          child: Text(
-                                            "${cart.items.values.toList()[index].quantity}",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              color: CColors.headerText,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                        ),
-                                        CIconButton(
-                                          onTap: () {
+                                      SizedBox(width: 3),
+                                      CIconButton(
+                                        onTap: () {
+                                          if (cart.items.values
+                                                  .toList()[index]
+                                                  .quantity !=
+                                              1) {
                                             setState(() {
                                               cart.items.values
                                                   .toList()[index]
-                                                  .quantity++;
-                                              if (cart.items.values
+                                                  .quantity--;
+
+                                                  if (cart.items.values
                                                       .toList()[index]
                                                       .product
                                                       .available <
-                                                  cart.items.values
-                                                      .toList()[index]
-                                                      .quantity) {
-                                                cart.addError(ErrorModel(
-                                                    id: cart.items.values
-                                                        .toList()[index]
-                                                        .productId,
-                                                    remain: cart.items.values
-                                                        .toList()[index]
-                                                        .product
-                                                        .available));
-                                                // cart.addError(index);
-                                              } else {
-                                                cart.errors.removeWhere(
-                                                    (element) =>
-                                                        element.id.toString() ==
-                                                        cart.items.values
+                                                      cart.items.values.toList()[index].quantity) {
+                                                    cart.addError(ErrorModel(
+                                                        id: cart.items.values.toList()[index].productId,
+                                                        remain: cart.items.values
                                                             .toList()[index]
-                                                            .toString());
-                                              }
+                                                            .product
+                                                            .available));
+                                                    // cart.addError(index);
+                                                  } else {
+                                                    cart.errors.removeWhere((key, value) =>
+                                                    key.toString() ==
+                                                        cart.items.values.toList()[index].productId.toString());
+                                                  }
                                             });
                                             changeQnt(
-                                                1,
+                                                2,
                                                 cart.items.values
                                                     .toList()[index]
                                                     .productId);
-                                          },
-                                          color: CColors.darkOrange,
-                                          icon: Icon(Icons.add,
-                                              color: CColors.white, size: 15),
+                                          }
+                                        },
+                                        color: CColors.darkOrange,
+                                        icon: Icon(Icons.remove,
+                                            color: CColors.white, size: 15),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 2),
+                                        child: Text(
+                                          "${cart.items.values.toList()[index].quantity}",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: CColors.headerText,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                      CIconButton(
+                                        onTap: () {
+                                          setState(() {
+                                            cart.items.values
+                                                .toList()[index]
+                                                .quantity++;
+                                            if (cart.items.values
+                                                .toList()[index]
+                                                .product
+                                                .available <
+                                                cart.items.values.toList()[index].quantity) {
+                                              cart.addError(ErrorModel(
+                                                  id: cart.items.values.toList()[index].productId,
+                                                  remain: cart.items.values
+                                                      .toList()[index]
+                                                      .product
+                                                      .available));
+                                              // cart.addError(index);
+                                            } else {
+                                              cart.errors.removeWhere((key, value) =>
+                                              key.toString() ==
+                                                  cart.items.values.toList()[index].productId.toString());
+                                            }
+                                          });
+                                          changeQnt(
+                                              1,
+                                              cart.items.values
+                                                  .toList()[index]
+                                                  .productId);
+                                        },
+                                        color: CColors.darkOrange,
+                                        icon: Icon(Icons.add,
+                                            color: CColors.white, size: 15),
+                                      ),
+                                    ],
+                                  ),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: "Q.R".trs(context),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: const Color(0xfff88518),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      children: [
+                                        TextSpan(
+                                          text:
+                                              " ${cart.items.values.toList()[index].quantity * cart.items.values.toList()[index].product.price}",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: const Color(0xff3c4959),
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ],
                                     ),
-                                    Text.rich(
-                                      TextSpan(
-                                        text: "Q.R".trs(context),
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: const Color(0xfff88518),
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text:
-                                                " ${cart.items.values.toList()[index].quantity * cart.items.values.toList()[index].product.price}",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: const Color(0xff3c4959),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -880,7 +871,7 @@ class _BasketStepState extends State<BasketStep> {
           );
   }
 
-  Widget _buildRemainingItemsCard(BuildContext context, index, cart) {
+  Widget _buildRemainingItemsCard(BuildContext context, index,ErrorModel cart) {
     return Card(
       color: CColors.coldPaleBloodRed,
       elevation: 0.0,
@@ -890,7 +881,7 @@ class _BasketStepState extends State<BasketStep> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         child: Text(
-          "${cart.items.values.toList()[index].product.available}\t" +
+          "${cart.remain}\t" +
               "item_remains".trs(context),
           style: TextStyle(
             color: CColors.white,
