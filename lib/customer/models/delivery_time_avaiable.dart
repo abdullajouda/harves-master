@@ -5,6 +5,7 @@ class AvailableDates {
   String createdAt;
   String dayName;
   String month;
+  String dateWithoutFormat;
   String date;
   List<Times> times;
 
@@ -15,6 +16,7 @@ class AvailableDates {
         this.createdAt,
         this.dayName,
         this.month,
+        this.dateWithoutFormat,
         this.date,
         this.times});
 
@@ -25,6 +27,7 @@ class AvailableDates {
     createdAt = json['created_at'];
     dayName = json['day_name'];
     month = json['month'];
+    dateWithoutFormat = json['date_without_format'];
     date = json['date'];
     if (json['times'] != null) {
       times = new List<Times>();

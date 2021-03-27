@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:harvest/customer/models/orders.dart';
 import 'package:harvest/customer/widgets/custom_main_button.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
@@ -7,10 +8,13 @@ import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:provider/provider.dart';
 class OrderDone extends StatelessWidget {
-  const OrderDone({Key key}) : super(key: key);
-
+  final Order order;
+  const OrderDone({Key key, this.order}) : super(key: key);
   @override
   Widget build(BuildContext context) {
+    var parsedDate = DateTime.parse(order.deliveryDate);
+    var dateNow = DateTime.now();
+    var finalDate = parsedDate.difference(dateNow).inDays;
     final size = MediaQuery.of(context).size;
     return Scaffold(
       // backgroundColor: CColors.lightGreen,
@@ -73,7 +77,7 @@ class OrderDone extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "bill".trs(context) + "\t#4646546",
+                          "bill".trs(context) + "\t#${order.id}",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: CColors.headerText,
@@ -82,7 +86,7 @@ class OrderDone extends StatelessWidget {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          "2\t" + "days".trs(context),
+                          "$finalDate\t" + "days".trs(context),
                           style: TextStyle(
                             color: CColors.darkOrange,
                             fontSize: 35,

@@ -156,6 +156,7 @@ class Cart with ChangeNotifier {
     _cartItems = {};
     _errors = {};
     total =null;
+    paymentType =null;
     totalPrice =null;
     additionalNote =null;
     promo =null;

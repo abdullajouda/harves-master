@@ -6,6 +6,7 @@ import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/delivery-data.dart';
 import 'package:harvest/customer/models/error.dart';
+import 'package:harvest/customer/models/orders.dart';
 import 'package:harvest/customer/views/Basket/pages_controlles.dart';
 import 'package:harvest/customer/views/Basket/stepper.dart';
 import 'package:harvest/customer/views/Basket/steps/basket_step.dart';
@@ -56,7 +57,7 @@ class _BasketState extends State<Basket> {
       'delivery_address': cart.deliveryAddresses.id.toString(),
       'delivery_date_id': cart.availableDates.id.toString(),
       'delivery_time_id': cart.time.id.toString(),
-      'delivery_date': '${cart.availableDates.date}',
+      'delivery_date': '${cart.availableDates.dateWithoutFormat}',
       'payment_method': '${cart.paymentType}',
       'use_wallet': '${cart.useWallet}',
       'note': '${cart.additionalNote != null ? cart.additionalNote : ''}',
@@ -70,16 +71,17 @@ class _BasketState extends State<Basket> {
     var response = json.decode(request.body);
     print(response);
     if (response['code'] == 200) {
-      cart.clearAll();
+      Order order = Order.fromJson(response['order']);
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OrderDone(),
+            builder: (context) => OrderDone(order: order,),
           )).then((value) => Navigator.pop(context));
+      cart.clearAll();
     } else if (response['code'] == 204) {
       showCupertinoDialog(
         context: context,
-        builder: (context) => MinimumChargeDialog(),
+        builder: (context) => MinimumChargeDialog(subTitle: response['message'],),
       );
     } else if (response['code'] == 205) {
       var list = response['items'];
@@ -87,7 +89,6 @@ class _BasketState extends State<Basket> {
       list.forEach((element) {
         ErrorModel model = ErrorModel.fromJson(element);
         cart.addError(model);
-
         // cart.addError(int.parse(element.toString()));
       });
 
@@ -232,13 +233,16 @@ class _BasketState extends State<Basket> {
                             builder: (context) => SelectPaymentDialog(),
                           );
                         } else {
-                          if (double.parse(cart.walletBalance.toString()) >=
-                              cart.totalPrice) {
-                            showCupertinoDialog(
-                              context: context,
-                              builder: (context) => UseWallet(),
-                            ).then((value) => checkOut());
-                          }
+                          showCupertinoDialog(
+                            context: context,
+                            builder: (context) => UseWallet(),
+                          ).then((value) => checkOut());
+                          // if (double.parse(cart.walletBalance.toString()) >=
+                          //     cart.totalPrice) {
+                          //
+                          // }else{
+                          //   checkOut();
+                          // }
 
                         }
                       }

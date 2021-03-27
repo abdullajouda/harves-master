@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 class MinimumChargeDialog extends StatelessWidget {
+  final String subTitle;
+
+  const MinimumChargeDialog({Key key,this.subTitle}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -29,7 +32,7 @@ class MinimumChargeDialog extends StatelessWidget {
                   child: Image.asset('assets/minimum-charge.png'),
                 ),
                 Text(
-                  'Minimum Charge Price',
+                  'Minimum Charge Price'.trs(context),
                   style: TextStyle(
                     fontSize: 18,
                     color: const Color(0xff3c4959),
@@ -40,7 +43,7 @@ class MinimumChargeDialog extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(14.0),
                   child: Text(
-                    'You Have to Buy At least 100\$  \n,You Can Back to Home to select Extra Items',
+                    subTitle,
                     style: TextStyle(
                       fontSize: 14,
                       color: const Color(0xff888a8d),
@@ -61,7 +64,7 @@ class MinimumChargeDialog extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Home',
+                          'Home'.trs(context),
                           style: TextStyle(
                             fontSize: 12,
                             color: const Color(0xff3c984f),

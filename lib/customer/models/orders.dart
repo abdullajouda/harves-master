@@ -11,7 +11,7 @@ class Order {
   double productsTotal;
   double totalPrice;
   int status;
-  int payment;
+  double payment;
   String note;
   int isPaid;
   String transId;
@@ -63,7 +63,9 @@ class Order {
         ? double.parse(json["total_price"].toString())
         : null;
     status = json['status'];
-    payment = json['payment'];
+    payment = json['payment'] != null
+        ? double.parse(json['payment'].toString())
+        : null;
     note = json['note'];
     isPaid = json['is_paid'];
     transId = json['trans_id'];

@@ -164,6 +164,7 @@ class _HomeState extends State<Home> {
 
   getCart() async {
     var cart = Provider.of<Cart>(context, listen: false);
+    cart.clearFav();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getMyCart', headers: {
       'Accept': 'application/json',
