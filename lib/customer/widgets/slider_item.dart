@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:harvest/customer/models/offers_slider.dart';
 import 'package:harvest/customer/views/home/offers_page.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 class HomeSlider extends StatelessWidget {
   final Offers offers;
 
@@ -41,7 +41,8 @@ class HomeSlider extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Positioned(
-              left: 25,
+              left: LangProvider().getLocaleCode() == 'ar'?null: 21,
+              right: LangProvider().getLocaleCode() == 'ar'?21: null,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -49,7 +50,6 @@ class HomeSlider extends StatelessWidget {
                   Text(
                     offers.title ?? '',
                     style: TextStyle(
-                      fontFamily: 'SF Pro Rounded',
                       fontSize: 14,
                       color: const Color(0xffffffff),
                       letterSpacing: 0.266,
@@ -80,9 +80,8 @@ class HomeSlider extends StatelessWidget {
                             ),
                             child: Center(
                               child: Text(
-                                'See More',
+                                'See More'.trs(context),
                                 style: TextStyle(
-                                  fontFamily: 'SF Pro Rounded',
                                   fontSize: 10,
                                   color: const Color(0xfff88518),
                                   letterSpacing: 0.19,

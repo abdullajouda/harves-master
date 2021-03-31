@@ -6,11 +6,13 @@ import 'package:harvest/Widgets/remove_icon.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/city.dart';
 import 'package:harvest/customer/models/error.dart';
+import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/customer/views/Basket/free_shipping_slider.dart';
 import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/alerts/added_to_cart.dart';
 import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:harvest/widgets/no_data.dart';
@@ -65,8 +67,9 @@ class _BasketStepState extends State<BasketStep> {
     for (int i = 0; i < items.length; i++) {
       CartItem item = CartItem.fromJson(items[i]);
       cart.addItem(item);
-      if (item.quantity > item.product.available) {
-        // cart.addError(i);
+      if (item.quantity > item.product.qty) {
+        cart.addError(
+            ErrorModel(id: item.product.id, remain: item.product.qty));
       }
     }
     // items.forEach((element) {
@@ -102,31 +105,7 @@ class _BasketStepState extends State<BasketStep> {
       });
     }
     if (response['message'] == 'product deleted') {
-      showGeneralDialog(
-        barrierDismissible: true,
-        barrierLabel: '',
-        barrierColor: Colors.black.withOpacity(0.1),
-        transitionDuration: Duration(milliseconds: 400),
-        context: context,
-        pageBuilder: (context, anim1, anim2) {
-          return GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: AlertBuilder(
-              title: 'The Item Removed'.trs(context),
-              subTitle: 'The item was removed from your cart'.trs(context),
-              color: CColors.lightOrangeAccent,
-              icon: SvgPicture.asset('assets/trash.svg'),
-            ),
-          );
-        },
-        transitionBuilder: (context, anim1, anim2, child) {
-          return SlideTransition(
-            position:
-                Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
-            child: child,
-          );
-        },
-      );
+      MyAlert.addedToCart(1, context);
     }
     setState(() {
       load = false;
@@ -147,31 +126,8 @@ class _BasketStepState extends State<BasketStep> {
     var response = json.decode(request.body);
     print(response);
     if (response['status'] == true) {
-      showGeneralDialog(
-        barrierDismissible: true,
-        barrierLabel: '',
-        barrierColor: Colors.black.withOpacity(0.1),
-        transitionDuration: Duration(milliseconds: 400),
-        context: context,
-        pageBuilder: (context, anim1, anim2) {
-          return GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: AlertBuilder(
-              title: 'The Item Removed'.trs(context),
-              subTitle: 'The item was removed from your cart'.trs(context),
-              color: CColors.lightOrangeAccent,
-              icon: SvgPicture.asset('assets/trash.svg'),
-            ),
-          );
-        },
-        transitionBuilder: (context, anim1, anim2, child) {
-          return SlideTransition(
-            position:
-                Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
-            child: child,
-          );
-        },
-      ).then((value) => getCart());
+      MyAlert.addedToCart(1, context);
+      getCart();
     }
     setState(() {
       total = response['total_cart'];
@@ -179,8 +135,9 @@ class _BasketStepState extends State<BasketStep> {
   }
 
   showFreeDelivery() async {
-    // var op = Provider.of<UserFunctions>(context, listen: false);
-    // var ci = Provider.of<CityOperations>(context, listen: false);
+    var op = Provider.of<UserFunctions>(context, listen: false);
+    var ci = Provider.of<CityOperations>(context, listen: false);
+    ci.clearFav();
     var settings = await get(ApiHelper.api + 'getSetting', headers: {
       'Accept': 'application/json',
       'Accept-Language': LangProvider().getLocaleCode(),
@@ -194,8 +151,13 @@ class _BasketStepState extends State<BasketStep> {
     items.forEach((element) {
       City city = City.fromJson(element);
       _cities.add(city);
+      ci.addItem(city);
     });
     var set = json.decode(settings.body)['items'];
+    // City city = ci.items.values.toList().firstWhere((element) =>
+    // element.id.toString() == op.user.cityId.toString());
+    // remains = total
+    // - city.deliveryCost;
     // setState(() {
     //   for(var city in _cities){
     //     if(city.id == op.user.cityId){
@@ -291,22 +253,22 @@ class _BasketStepState extends State<BasketStep> {
                     onTap: () {
                       setState(
                         () {
-                          if (cart.items.values
-                                  .toList()[index]
-                                  .product
-                                  .available <
+                          if (cart.items.values.toList()[index].product.qty <
                               cart.items.values.toList()[index].quantity) {
                             cart.addError(ErrorModel(
                                 id: cart.items.values.toList()[index].productId,
                                 remain: cart.items.values
                                     .toList()[index]
                                     .product
-                                    .available));
+                                    .qty));
                             // cart.addError(index);
                           } else {
                             cart.errors.removeWhere((key, value) =>
                                 key.toString() ==
-                                cart.items.values.toList()[index].productId.toString());
+                                cart.items.values
+                                    .toList()[index]
+                                    .productId
+                                    .toString());
                           }
                         },
                       );
@@ -319,7 +281,15 @@ class _BasketStepState extends State<BasketStep> {
                             child: Align(
                               alignment: AlignmentDirectional(-0.8, 0.0),
                               child: _buildRemainingItemsCard(
-                                  context, index, cart.errors.values.toList()[index]),
+                                  context,
+                                  index,
+                                  cart.errors.values.toList().firstWhere(
+                                      (element) =>
+                                          element.id.toString() ==
+                                          cart.items.values
+                                              .toList()[index]
+                                              .productId
+                                              .toString())),
                             ),
                           ),
                         RemoveIcon(
@@ -400,7 +370,6 @@ class _BasketStepState extends State<BasketStep> {
                                               .description ??
                                           '',
                                       style: TextStyle(
-
                                         fontSize: 10,
                                         color: const Color(0xff888a8d),
                                       ),
@@ -415,14 +384,27 @@ class _BasketStepState extends State<BasketStep> {
                                 children: [
                                   Row(
                                     children: [
-                                      Text(
-                                        "${cart.items.values.toList()[index].product.price}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          color: const Color(0xff3c984f),
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
+                                      cart.items.values
+                                                  .toList()[index]
+                                                  .product
+                                                  .discount >
+                                              0
+                                          ? Text(
+                                              "${cart.items.values.toList()[index].quantity * (cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: const Color(0xff3c984f),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            )
+                                          : Text(
+                                              "${cart.items.values.toList()[index].product.price}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: const Color(0xff3c984f),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
                                       SizedBox(width: 3),
                                       CIconButton(
                                         onTap: () {
@@ -433,25 +415,39 @@ class _BasketStepState extends State<BasketStep> {
                                             setState(() {
                                               cart.items.values
                                                   .toList()[index]
-                                                  .quantity--;
-
-                                                  if (cart.items.values
+                                                  .quantity = cart.items.values
+                                                      .toList()[index]
+                                                      .quantity -
+                                                  cart.items.values
                                                       .toList()[index]
                                                       .product
-                                                      .available <
-                                                      cart.items.values.toList()[index].quantity) {
-                                                    cart.addError(ErrorModel(
-                                                        id: cart.items.values.toList()[index].productId,
-                                                        remain: cart.items.values
+                                                      .unitRate;
+
+                                              if (cart.items.values
+                                                      .toList()[index]
+                                                      .product
+                                                      .qty <
+                                                  cart.items.values
+                                                      .toList()[index]
+                                                      .quantity) {
+                                                cart.addError(ErrorModel(
+                                                    id: cart.items.values
+                                                        .toList()[index]
+                                                        .productId,
+                                                    remain: cart.items.values
+                                                        .toList()[index]
+                                                        .product
+                                                        .qty));
+                                                // cart.addError(index);
+                                              } else {
+                                                cart.errors.removeWhere(
+                                                    (key, value) =>
+                                                        key.toString() ==
+                                                        cart.items.values
                                                             .toList()[index]
-                                                            .product
-                                                            .available));
-                                                    // cart.addError(index);
-                                                  } else {
-                                                    cart.errors.removeWhere((key, value) =>
-                                                    key.toString() ==
-                                                        cart.items.values.toList()[index].productId.toString());
-                                                  }
+                                                            .productId
+                                                            .toString());
+                                              }
                                             });
                                             changeQnt(
                                                 2,
@@ -481,23 +477,37 @@ class _BasketStepState extends State<BasketStep> {
                                           setState(() {
                                             cart.items.values
                                                 .toList()[index]
-                                                .quantity++;
-                                            if (cart.items.values
+                                                .quantity = cart.items.values
                                                 .toList()[index]
-                                                .product
-                                                .available <
-                                                cart.items.values.toList()[index].quantity) {
+                                                .quantity +
+                                                cart.items.values
+                                                    .toList()[index]
+                                                    .product
+                                                    .unitRate;
+                                            if (cart.items.values
+                                                    .toList()[index]
+                                                    .product
+                                                    .qty <
+                                                cart.items.values
+                                                    .toList()[index]
+                                                    .quantity) {
                                               cart.addError(ErrorModel(
-                                                  id: cart.items.values.toList()[index].productId,
+                                                  id: cart.items.values
+                                                      .toList()[index]
+                                                      .productId,
                                                   remain: cart.items.values
                                                       .toList()[index]
                                                       .product
-                                                      .available));
+                                                      .qty));
                                               // cart.addError(index);
                                             } else {
-                                              cart.errors.removeWhere((key, value) =>
-                                              key.toString() ==
-                                                  cart.items.values.toList()[index].productId.toString());
+                                              cart.errors.removeWhere(
+                                                  (key, value) =>
+                                                      key.toString() ==
+                                                      cart.items.values
+                                                          .toList()[index]
+                                                          .productId
+                                                          .toString());
                                             }
                                           });
                                           changeQnt(
@@ -521,15 +531,31 @@ class _BasketStepState extends State<BasketStep> {
                                         fontWeight: FontWeight.w600,
                                       ),
                                       children: [
-                                        TextSpan(
-                                          text:
-                                              " ${cart.items.values.toList()[index].quantity * cart.items.values.toList()[index].product.price}",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: const Color(0xff3c4959),
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
+                                        cart.items.values
+                                                    .toList()[index]
+                                                    .product
+                                                    .discount >
+                                                0
+                                            ? TextSpan(
+                                                text:
+                                                    " ${cart.items.values.toList()[index].quantity * (cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color:
+                                                      const Color(0xff3c4959),
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              )
+                                            : TextSpan(
+                                                text:
+                                                    " ${cart.items.values.toList()[index].quantity * cart.items.values.toList()[index].product.price}",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color:
+                                                      const Color(0xff3c4959),
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
                                       ],
                                     ),
                                   ),
@@ -651,71 +677,70 @@ class _BasketStepState extends State<BasketStep> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 46),
+                              padding: const EdgeInsets.symmetric(vertical: 46,horizontal: 30),
                               child: Column(
                                 children: [
-                                  showFree
-                                      ? Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 30),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Card(
-                                                    color: CColors.darkOrange,
-                                                    elevation: 0.0,
-                                                    margin: EdgeInsets.zero,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadiusDirectional
-                                                              .only(
-                                                        bottomEnd:
-                                                            Radius.circular(13),
-                                                        topStart:
-                                                            Radius.circular(13),
-                                                        topEnd:
-                                                            Radius.circular(13),
-                                                      ),
-                                                    ),
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          horizontal: 10,
-                                                          vertical: 5),
-                                                      child: Text(
-                                                        "${remains.toString()} ${"Q.R".trs(context)} ",
-                                                        style: TextStyle(
-                                                            color:
-                                                                CColors.white),
-                                                      ),
+                                  Container(
+                                    child: showFree
+                                        ? Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Card(
+                                                  color: CColors.darkOrange,
+                                                  elevation: 0.0,
+                                                  margin: EdgeInsets.zero,
+                                                  shape:
+                                                      RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadiusDirectional
+                                                            .only(
+                                                      bottomEnd:
+                                                          Radius.circular(13),
+                                                      topStart:
+                                                          Radius.circular(13),
+                                                      topEnd:
+                                                          Radius.circular(13),
                                                     ),
                                                   ),
-                                                  SizedBox(width: 5),
-                                                  Text(
-                                                    "remains_for_free_shipping"
-                                                        .trs(context),
-                                                    style: TextStyle(
-                                                      color: CColors.grey,
-                                                      fontSize: 13,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 5),
+                                                    child: Text(
+                                                      "${remains.toString()} ${"Q.R".trs(context)} ",
+                                                      style: TextStyle(
+                                                          color:
+                                                              CColors.white),
                                                     ),
                                                   ),
-                                                ],
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 5),
-                                                child: FreeShippingSlider(
-                                                  persentage: 0.5,
                                                 ),
-                                              )
-                                            ],
-                                          ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "remains_for_free_shipping"
+                                                      .trs(context),
+                                                  style: TextStyle(
+                                                    color: CColors.grey,
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 5),
+                                              child: FreeShippingSlider(
+                                                persentage: 0.5,
+                                              ),
+                                            )
+                                          ],
                                         )
-                                      : Container(),
+                                        : Container(),
+                                  ),
                                   Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10.0),
@@ -729,7 +754,6 @@ class _BasketStepState extends State<BasketStep> {
                                       ],
                                     ),
                                     child: Row(
-                                      mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
@@ -871,7 +895,8 @@ class _BasketStepState extends State<BasketStep> {
           );
   }
 
-  Widget _buildRemainingItemsCard(BuildContext context, index,ErrorModel cart) {
+  Widget _buildRemainingItemsCard(
+      BuildContext context, index, ErrorModel cart) {
     return Card(
       color: CColors.coldPaleBloodRed,
       elevation: 0.0,
@@ -881,8 +906,7 @@ class _BasketStepState extends State<BasketStep> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
         child: Text(
-          "${cart.remain}\t" +
-              "item_remains".trs(context),
+          "${cart.remain}\t" + "item_remains".trs(context),
           style: TextStyle(
             color: CColors.white,
             fontSize: 12,

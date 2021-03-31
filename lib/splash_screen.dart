@@ -25,7 +25,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final CarouselController _carouselController = CarouselController();
+  // final CarouselController _carouselController = CarouselController();
   PageController _pageController;
 
   List<SliderModel> _list = [];
@@ -197,7 +197,7 @@ class _SplashScreenState extends State<SplashScreen> {
                                 ),
                               ),
                               TextButton(
-                                onPressed: () => Navigator.push(
+                                onPressed: () => Navigator.pushReplacement(
                                     context,
                                     CustomPageRoute(
                                       builder: (context) => RootScreen(),
@@ -237,7 +237,14 @@ class _SplashScreenState extends State<SplashScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                              Navigator.of(context)
+                                  .pushReplacement(CustomPageRoute(
+                                builder: (context) {
+                                  return Login();
+                                },
+                              ));
+                          },
                           child: Container(
                             height: 48,
                             width: 290,
@@ -257,27 +264,27 @@ class _SplashScreenState extends State<SplashScreen> {
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 30),
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.of(context)
-                                  .pushReplacement(CustomPageRoute(
-                                builder: (context) {
-                                  return Login();
-                                },
-                              ));
-                            },
-                            child: Text(
-                              'Log In'.trs(context),
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: const Color(0xffffffff),
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                        )
+                        // Padding(
+                        //   padding: const EdgeInsets.symmetric(vertical: 30),
+                        //   child: TextButton(
+                        //     onPressed: () {
+                        //       Navigator.of(context)
+                        //           .pushReplacement(CustomPageRoute(
+                        //         builder: (context) {
+                        //           return Login();
+                        //         },
+                        //       ));
+                        //     },
+                        //     child: Text(
+                        //       'Log In'.trs(context),
+                        //       style: TextStyle(
+                        //         fontSize: 18,
+                        //         color: const Color(0xffffffff),
+                        //       ),
+                        //       textAlign: TextAlign.left,
+                        //     ),
+                        //   ),
+                        // )
                       ],
                     )
                   ],

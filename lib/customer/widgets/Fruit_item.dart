@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -20,6 +22,7 @@ import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+import 'package:harvest/services/local_notifications_service.dart';
 
 class FruitItem extends StatefulWidget {
   final Products fruit;
@@ -48,23 +51,24 @@ class _FruitItemState extends State<FruitItem> {
     });
     var response = json.decode(request.body);
     if (response['status'] == true) {
-      showGeneralDialog(
-        barrierDismissible: true,
-        barrierLabel: '',
-        barrierColor: Colors.black.withOpacity(0.1),
-        transitionDuration: Duration(milliseconds: 500),
-        context: context,
-        pageBuilder: (context, anim1, anim2) {
-          return AddedToCartAlert();
-        },
-        transitionBuilder: (context, anim1, anim2, child) {
-          return SlideTransition(
-            position:
-                Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
-            child: child,
-          );
-        },
-      );
+      MyAlert.addedToCart(0, context);
+      // showGeneralDialog(
+      //   transitionDuration: Duration(milliseconds: 500),
+      //   barrierColor: Colors.transparent,
+      //   context: context,
+      //   pageBuilder: (context, anim1, anim2) {
+      //     return AddedToCartAlert();
+      //   },
+      //   transitionBuilder: (context, anim1, anim2, child) {
+      //     return SlideTransition(
+      //       position:
+      //           Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
+      //       child: child,
+      //     );
+      //   },
+      // );
+      //  await localNotificationsService.showNotification('title', 'message');
+
       var items = response['cart'];
       if (items != null) {
         cart.clearFav();
@@ -101,33 +105,44 @@ class _FruitItemState extends State<FruitItem> {
     var response = json.decode(request.body);
     if (response['message'] == 'product deleted') {
       cart.removeCartItem(widget.fruit.id);
-      showGeneralDialog(
-        barrierDismissible: true,
-        barrierLabel: '',
-        barrierColor: Colors.black.withOpacity(0.1),
-        transitionDuration: Duration(milliseconds: 500),
-        context: context,
-        pageBuilder: (context, anim1, anim2) {
-          return RemovedFromCart();
-        },
-        transitionBuilder: (context, anim1, anim2, child) {
-          return SlideTransition(
-            position:
-                Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
-            child: child,
-          );
-        },
-      );
+      MyAlert.addedToCart(1, context);
+      // showGeneralDialog(
+      //   barrierDismissible: true,
+      //   barrierLabel: '',
+      //   barrierColor: Colors.black.withOpacity(0.1),
+      //   transitionDuration: Duration(milliseconds: 500),
+      //   context: context,
+      //   pageBuilder: (context, anim1, anim2) {
+      //     return RemovedFromCart();
+      //   },
+      //   transitionBuilder: (context, anim1, anim2, child) {
+      //     return SlideTransition(
+      //       position:
+      //           Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
+      //       child: child,
+      //     );
+      //   },
+      // );
     }
     setState(() {
       load = false;
     });
   }
 
+  showReceived(ReceiveNotification notification) {
+    print('notification: ${notification.id}');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    localNotificationsService.setOnNotificationReceived(showReceived);
+  }
+
   @override
   Widget build(BuildContext context) {
     var lang = Provider.of<LangProvider>(context);
-    return widget.fruit.available == 0
+    return widget.fruit.qty == 0
         ? Container(
             height: 160,
             width: 160,
@@ -267,9 +282,13 @@ class _FruitItemState extends State<FruitItem> {
                       )
                     : Container(),
                 Positioned(
-                  left: lang.getLocaleCode() == 'ar'?null:20,
-                  right: lang.getLocaleCode() == 'ar'?20:null,
-                  bottom: widget.fruit.inCart != 0 ? 40 : lang.getLocaleCode() == 'ar'?23:13,
+                  left: lang.getLocaleCode() == 'ar' ? null : 20,
+                  right: lang.getLocaleCode() == 'ar' ? 20 : null,
+                  bottom: widget.fruit.inCart != 0
+                      ? 40
+                      : lang.getLocaleCode() == 'ar'
+                          ? 23
+                          : 13,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,28 +302,51 @@ class _FruitItemState extends State<FruitItem> {
                         ),
                         textAlign: TextAlign.left,
                       ),
-                      widget.fruit.description!=null ?Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          widget.fruit.description,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: const Color(0xffe3e7eb),
-                            fontWeight: FontWeight.w300,
+                      widget.fruit.description != null
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 3),
+                              child: Text(
+                                widget.fruit.description,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: const Color(0xffe3e7eb),
+                                  fontWeight: FontWeight.w300,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            )
+                          : Container(),
+                      Row(
+                        children: [
+                          Text(
+                            '${widget.fruit.discount > 0 ? widget.fruit.price - (widget.fruit.price*widget.fruit.discount/100) : widget.fruit.price}  ${'Q.R'.trs(context)}/${widget.fruit.typeName}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: widget.color != null
+                                  ? widget.color
+                                  : const Color(0xff3c984f),
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.left,
                           ),
-                          textAlign: TextAlign.left,
-                        ),
-                      ):Container(),
-                      Text(
-                        '${widget.fruit.price}  ${'Q.R'.trs(context)}/${widget.fruit.typeName}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: widget.color != null
-                              ? widget.color
-                              : const Color(0xff3c984f),
-                          fontWeight: FontWeight.w600,
-                        ),
-                        textAlign: TextAlign.left,
+                          widget.fruit.discount > 0
+                              ? Stack(
+                            alignment: Alignment.center,
+                                  children: [
+                                    Text(
+                                      '  ${widget.fruit.price}  ',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: const Color(0xff7cba89),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                    SvgPicture.asset('assets/line.svg')
+                                  ],
+                                )
+                              : Container(),
+                        ],
                       )
                     ],
                   ),

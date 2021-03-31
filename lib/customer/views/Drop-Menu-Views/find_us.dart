@@ -10,6 +10,7 @@ import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/widgets/Loader.dart';
+import 'package:harvest/widgets/backButton.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -120,7 +121,7 @@ class _FindUSState extends State<FindUS> {
     ];
     return Scaffold(
       appBar: WaveAppBar(
-        leading: SizedBox.fromSize(size: Size.zero),
+        leading: MyBackButton(),
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
         actions: [HomePopUpMenu()],

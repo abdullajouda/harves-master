@@ -10,6 +10,7 @@ import 'package:harvest/customer/widgets/custom_main_button.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
+import 'package:harvest/widgets/backButton.dart';
 import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:http/http.dart';
@@ -143,17 +144,7 @@ class _WalletState extends State<Wallet> {
         backgroundGradient: CColors.greenAppBarGradient(),
         bottomViewOffset: Offset(0, -10),
         actions: [HomePopUpMenu()],
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                CustomPageRoute(
-                  // context: context,
-                  builder: (context) => Basket(),
-                ),
-              );
-            },
-            child: BasketButton()),
+        leading: MyBackButton(),
       ),
       body: SafeArea(
         child: ListView(
@@ -264,50 +255,49 @@ class _WalletState extends State<Wallet> {
                               ),
                             ),
                             Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 15),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 15),
+                                    child: Text(
                                       "another_amount".trs(context),
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 10,
                                         color: CColors.lightGreen,
                                       ),
                                     ),
-                                    SizedBox(height: 5),
-                                    TextField(
-                                      keyboardType: TextInputType.number,
-                                      controller: _controller,
-                                      style: TextStyle(fontSize: 12),
-                                      onTap: () {
-                                        setState(() => _selectedIndex = -1);
-                                      },
-                                      decoration: InputDecoration(
-                                        prefix: Text(
-                                          '${'Q.R'.trs(context)}',
-                                          style: TextStyle(
-
-                                            fontSize: 8,
-                                            color: const Color(0x993c984f),
-                                          ),
-                                          textAlign: TextAlign.left,
+                                  ),
+                                  SizedBox(height: 5),
+                                  TextField(
+                                    keyboardType: TextInputType.number,
+                                    controller: _controller,
+                                    style: TextStyle(fontSize: 12),
+                                    onTap: () {
+                                      setState(() => _selectedIndex = -1);
+                                    },
+                                    decoration: InputDecoration(
+                                      prefix: Text(
+                                        '${'Q.R'.trs(context)}',
+                                        style: TextStyle(
+                                          fontSize: 8,
+                                          color: const Color(0x993c984f),
                                         ),
-                                        isDense: true,
-                                        contentPadding:
-                                            EdgeInsetsDirectional.only(
-                                                start: 10, top: 9, bottom: 9),
-                                        hintStyle: TextStyle(fontSize: 12),
-                                        border: _buildVoucherTextFieldBorder(),
-                                        focusedBorder:
-                                            _buildVoucherTextFieldBorder(),
-                                        enabledBorder:
-                                            _buildVoucherTextFieldBorder(),
+                                        textAlign: TextAlign.left,
                                       ),
+                                      isDense: true,
+                                      contentPadding:
+                                          EdgeInsetsDirectional.only(
+                                              start: 10, top: 9, bottom: 9),
+                                      hintStyle: TextStyle(fontSize: 12),
+                                      border: _buildVoucherTextFieldBorder(),
+                                      focusedBorder:
+                                          _buildVoucherTextFieldBorder(),
+                                      enabledBorder:
+                                          _buildVoucherTextFieldBorder(),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],

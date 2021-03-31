@@ -138,10 +138,9 @@ class _BasketState extends State<Basket> {
   @override
   Widget build(BuildContext context) {
     var cart = Provider.of<Cart>(context);
-
     return Scaffold(
       appBar: WaveAppBar(
-        hideActions: true,
+        // hideActions: true,
         backgroundGradient: CColors.greenAppBarGradient(),
         actions: [Container()],
         leading: CBackButton(

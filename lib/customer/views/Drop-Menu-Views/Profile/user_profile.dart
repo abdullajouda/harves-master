@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/views/Basket/basket.dart';
+import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/widgets/backButton.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:async/async.dart';
@@ -202,17 +204,7 @@ class _UserProfileState extends State<UserProfile> {
       resizeToAvoidBottomInset: false,
       body: WaveAppBarBody(
         bottomViewOffset: Offset(0, 10),
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                CustomPageRoute(
-                  // context: context,
-                  builder: (context) => Basket(),
-                ),
-              );
-            },
-            child: BasketButton()),
+        leading: MyBackButton(),
         // pinned: true,
         // hideActions: true,
         backgroundGradient: CColors.greenAppBarGradient(),
@@ -324,6 +316,7 @@ class _UserProfileState extends State<UserProfile> {
                               start: 20, top: 15, bottom: 15),
                         ),
                         NoBGTextField(
+                          isEnabled: false,
                           validator: (value) =>
                               FieldValidator.validate(value, context),
                           hint: 'Phone Number',

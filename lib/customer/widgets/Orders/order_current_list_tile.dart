@@ -137,15 +137,15 @@ class _OrderCurrentListTileSection extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            fontSize: 12,
-            color: CColors.headerText,
-            fontWeight: FontWeight.w600,
+            fontSize: 10,
+            color: Color(0xff3c4959),
+            fontWeight: FontWeight.w500,
           ).merge(titleTextStyle),
         ),
         Text(
           subTitle,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 8,
             color: CColors.headerText,
             fontWeight: FontWeight.normal,
           ).merge(subTitleTextStyle),

@@ -18,6 +18,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'helpers/app_shared.dart';
 import 'helpers/shared_perfs_provider.dart';
 import 'services/firebase_messaging_service.dart';
+import 'package:intl/intl.dart' as intel;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,7 +56,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     final pushNotificationService =
-    FirebaseMessagingService(_firebaseMessaging);
+        FirebaseMessagingService(_firebaseMessaging);
     pushNotificationService.initialise();
     bool isArabic = _newLocaleDelegate.newLocale.languageCode == 'ar';
     // final _statusBarBrightness = context.watch<StatusBarBrighness>().brightness;
@@ -74,7 +75,7 @@ class _MyAppState extends State<MyApp> {
         child: MaterialApp(
           // navigatorKey: AppShared.navKey = GlobalKey(),
           supportedLocales: application.supportedLocales(),
-          locale: _newLocaleDelegate.newLocale,
+          locale: _newLocaleDelegate.newLocale ?? intel.Intl.getCurrentLocale(),
           localizationsDelegates: [
             GlobalCupertinoLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
@@ -84,6 +85,7 @@ class _MyAppState extends State<MyApp> {
           debugShowCheckedModeBanner: false,
           title: appName,
           theme: ThemeData(
+            fontFamily: 'Famtree',
             primarySwatch: Colors.blue,
           ),
           home: Splash(),

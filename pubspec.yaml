@@ -72,8 +72,10 @@ dependencies:
   flare_flutter: ^2.0.6
   geocoder: ^0.2.1
   firebase_messaging:
-  flutter_local_notifications: ^1.4.4+4
+  flutter_local_notifications:
+  rxdart:
   pull_to_refresh: 1.6.3
+  flushbar: ^1.10.4
 
 dev_dependencies:
   flutter_test:
@@ -116,6 +118,13 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  fonts:
+    - family: Famtree
+      fonts:
+        - asset: assets/fonts/Famtree-Bold.ttf
+        - asset: assets/fonts/Famtree-Medium.ttf
+        - asset: assets/fonts/Famtree-Regular.ttf
+        - asset: assets/fonts/Famtree-Light.ttf
   # fonts:
   #   - family: Schyler
   #     fonts:

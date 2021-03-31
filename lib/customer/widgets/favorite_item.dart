@@ -93,15 +93,15 @@ class _FavoriteItemState extends State<FavoriteItem> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context, rootNavigator: true).push(
-          CupertinoPageRoute(
-            builder: (context) => ProductDetails(
-              fruit: widget.fruit,
-            ),
-          ),
-        );
-      },
+      // onTap: () {
+      //   Navigator.of(context, rootNavigator: true).push(
+      //     CupertinoPageRoute(
+      //       builder: (context) => ProductDetails(
+      //         fruit: widget.fruit,
+      //       ),
+      //     ),
+      //   );
+      // },
       child: Container(
         height: 160,
         width: 160,

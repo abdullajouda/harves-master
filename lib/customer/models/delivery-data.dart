@@ -43,8 +43,8 @@ class DeliveryAddresses {
     unitNumber = json['unit_number'];
     note = json['note'];
     isDefault = json['is_default'];
-    lat = json['lat'];
-    lan = json['lan'];
+    lat = double.parse(json['lat'].toString());
+    lan = double.parse(json['lan'].toString());
     address = json['address'];
     city = json['city'] != null ? new City.fromJson(json['city']) : null;
   }

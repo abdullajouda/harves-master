@@ -118,16 +118,19 @@ class _CurrentOrdersState extends State<CurrentOrders> {
         :ListView.separated(
             itemCount: _orders.length,
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.only(top: 20,bottom: 30),
             separatorBuilder: (context, index) => SizedBox(height: 20),
             itemBuilder: (context, index) {
-              return OrderCurrentListTile(
-                onTap: () => _showButtonPanel(_orders[index]),
-                billNumber: _orders[index].id,
-                billTotal: _orders[index].totalPrice,
-                billDate: _orders[index].createdAt,
-                backgroundColor: backGroundColor(_orders[index]),
-                leadingIconColor: textColor(_orders[index]),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: OrderCurrentListTile(
+                  onTap: () => _showButtonPanel(_orders[index]),
+                  billNumber: _orders[index].id,
+                  billTotal: _orders[index].totalPrice,
+                  billDate: _orders[index].createdAt,
+                  backgroundColor: backGroundColor(_orders[index]),
+                  leadingIconColor: textColor(_orders[index]),
+                ),
               );
             },
           );

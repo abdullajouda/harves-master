@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../root_screen.dart';
+import 'login.dart';
 
 class AccountActivation extends StatefulWidget {
   final String mobile;
@@ -82,7 +83,7 @@ class _AccountActivationState extends State<AccountActivation>
       });
       var response = json.decode(request.body);
       Fluttertoast.showToast(msg: response['message']);
-      if (response['status'] == true) {
+      if (response['code'] == 200) {
         if (response['user'] != null) {
           User user = User.fromJson(response['user']);
           op.setUser(user);
@@ -348,7 +349,12 @@ class _AccountActivationState extends State<AccountActivation>
                         Padding(
                           padding: const EdgeInsets.only(top: 10, bottom: 15),
                           child: TextButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Navigator.pushReplacement(
+                                context,
+                                CustomPageRoute(
+                                  builder: (context) => Login(
+                                  ),
+                                )),
                             child: Text(
                               'return'.trs(context),
                               style: TextStyle(

@@ -132,14 +132,14 @@ class _OffersPageState extends State<OffersPage> {
                 if (op.homeItems.values.toList()[index].categoryId ==
                     widget.offers.category.id) {
                   return GestureDetector(
-                    onTap: () =>
-                        Navigator.of(context, rootNavigator: true).push(
-                      CupertinoPageRoute(
-                        builder: (context) => ProductDetails(
-                          fruit: op.homeItems.values.toList()[index],
-                        ),
-                      ),
-                    ),
+                    // onTap: () =>
+                    //     Navigator.of(context, rootNavigator: true).push(
+                    //   CupertinoPageRoute(
+                    //     builder: (context) => ProductDetails(
+                    //       fruit: op.homeItems.values.toList()[index],
+                    //     ),
+                    //   ),
+                    // ),
                     child: FruitItem(
                       fruit: op.homeItems.values.toList()[index],
                       color: HexColor.fromHex(widget.color),

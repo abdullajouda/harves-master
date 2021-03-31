@@ -20,7 +20,8 @@ class UserAddressListTile extends StatelessWidget {
     this.onTap,
     this.index,
     this.address,
-    this.onRemove, this.onEdit,
+    this.onRemove,
+    this.onEdit,
   }) : super(key: key);
 
   @override
@@ -37,11 +38,17 @@ class UserAddressListTile extends StatelessWidget {
             child: Container(
               child: Row(
                 children: [
-                  Radio<int>(
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    value: index,
-                    groupValue: isSelected ? index : -1,
-                    onChanged: (_) {},
+                  Theme(
+                    data: ThemeData(
+                        unselectedWidgetColor: Color(0x993c984f),
+                        disabledColor: Color(0x993c984f)),
+                    child: Radio<int>(
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      activeColor: Color(0x993c984f),
+                      value: index,
+                      groupValue: isSelected ? index : -1,
+                      onChanged: (_) {},
+                    ),
                   ),
                   Expanded(
                     child: Container(
@@ -50,7 +57,7 @@ class UserAddressListTile extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                             color:
-                                !isSelected ? CColors.fadeBlue : CColors.white,
+                                !isSelected ? CColors.fadeBlue : CColors.transparent,
                             width: 2),
                       ),
                       child: ListTile(

@@ -145,14 +145,14 @@ class _SearchResultsState extends State<SearchResults> {
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) => GestureDetector(
-              onTap: () =>
-                  Navigator.of(context, rootNavigator: true).push(
-                    CupertinoPageRoute(
-                      builder: (context) => ProductDetails(
-                        fruit: op.homeItems.values.toList()[index],
-                      ),
-                    ),
-                  ),
+              // onTap: () =>
+                  // Navigator.of(context, rootNavigator: true).push(
+                  //   CupertinoPageRoute(
+                  //     builder: (context) => ProductDetails(
+                  //       fruit: op.homeItems.values.toList()[index],
+                  //     ),
+                  //   ),
+                  // ),
               child: FruitItem(
                 fruit: op.homeItems.values.toList()[index],
               ),

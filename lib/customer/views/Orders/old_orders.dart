@@ -78,14 +78,17 @@ class _OldOrdersState extends State<OldOrders> {
             : ListView.separated(
                 itemCount: _orders.length,
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.only(top: 20, bottom: 30),
                 separatorBuilder: (context, index) => SizedBox(height: 20),
                 itemBuilder: (context, index) {
-                  return OrderListTile(
-                    onTap: () => _showButtonPanel(_orders[index]),
-                    billNumber: _orders[index].id,
-                    billTotal: _orders[index].totalPrice,
-                    billDate: _orders[index].createdAt,
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: OrderListTile(
+                      onTap: () => _showButtonPanel(_orders[index]),
+                      billNumber: _orders[index].id,
+                      billTotal: _orders[index].totalPrice,
+                      billDate: _orders[index].createdAt,
+                    ),
                   );
                 },
               );

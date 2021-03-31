@@ -228,7 +228,7 @@ class _PersistentPinnedTopHeader extends SliverPersistentHeaderDelegate {
       elevation: dropShadow ? (progress * kShadowElevation) : 0,
       color: theme.scaffoldBackgroundColor,
       child: Container(
-        margin: pinnedTopHeader.margin,
+        // margin: pinnedTopHeader.margin,
         child: pinnedTopHeader.child,
       ),
     );

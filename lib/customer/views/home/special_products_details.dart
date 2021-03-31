@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/models/cart_items.dart';
+import 'package:harvest/customer/models/favorite.dart';
 import 'package:harvest/customer/models/featured_product.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/products.dart';
@@ -36,6 +37,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
 
   bool _isFavorite = false;
   bool load = false;
+  bool loadProducts = false;
 
   addToBasket(int id) async {
     setState(() {
@@ -107,8 +109,6 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
       load = false;
     });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -188,11 +188,11 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      widget.fruit.inCart != 0
-                          ? Row(
+                       Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
+                                widget.fruit.inCart != 0
+                                    ? Row(
                                   children: [
                                       CIconButton(
                                         onTap: () {
@@ -241,57 +241,60 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                     //       style: TextStyle(
                                     //           fontSize: 13, color: CColors.grey)),
                                   ],
-                                ),
-                                Text(
-                                  "${'Q.R'.trs(context)}${widget.fruit.price}",
-                                  style: TextStyle(
-                                    color: CColors.headerText,
-                                    fontSize: 22,
-                                  ),
+                                ):Container(),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "${widget.fruit.price}",
+                                      style: TextStyle(
+                                        color: CColors.darkOrange,
+                                        fontSize: 24,
+                                      ),
+                                    ),
+                                    Text(
+                                      "  ${'Q.R'.trs(context)}  ",
+                                      style: TextStyle(
+                                        color: CColors.darkOrange,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            )
-                          : Container(),
+                            ),
                       SizedBox(height: 10),
                       Expanded(
-                        child: Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  child: Text(
-                                    widget.fruit.description??'',
-                                    style: TextStyle(
-                                      color: CColors.normalText,
-                                      fontSize: 14,
-                                    ),
-                                  ),
+                        child: Column(
+                          children: [
+                            SingleChildScrollView(
+                              child: Text(
+                                widget.fruit.description??'',
+                                style: TextStyle(
+                                  color: CColors.normalText,
+                                  fontSize: 14,
                                 ),
                               ),
-                              widget.fruit.basketItem.length != 0
-                                  ? Expanded(
-                                      flex: 4,
-                                      child: ListView.builder(
-                                        itemCount:
-                                            widget.fruit.basketItem.length,
-                                        padding: EdgeInsets.zero,
-                                        itemBuilder: (context, index) {
-                                          return _BundleProduct(
-                                            title: widget.fruit
-                                                .basketItem[index].item.name,
-                                            imagePath: widget.fruit
-                                                .basketItem[index].item.image,
-                                            numOfItems: widget
-                                                .fruit.basketItem[index].qty
-                                                .toString(),
-                                          );
-                                        },
-                                      ),
-                                    )
-                                  : Container(),
-                            ],
-                          ),
+                            ),
+                            widget.fruit.basketItem.length != 0
+                                ? ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount:
+                                      widget.fruit.basketItem.length,
+                                  padding: EdgeInsets.zero,
+                                  itemBuilder: (context, index) {
+                                    return _BundleProduct(
+                                      title: widget.fruit
+                                          .basketItem[index].item.name,
+                                      imagePath: widget.fruit
+                                          .basketItem[index].item.image,
+                                      numOfItems: widget
+                                          .fruit.basketItem[index].qty
+                                          .toString(),
+                                    );
+                                  },
+                                )
+                                : Container(),
+                          ],
                         ),
                       ),
                       SizedBox(height: 10),
@@ -358,7 +361,7 @@ class _BundleProduct extends StatelessWidget {
           Align(
             alignment: Alignment.center,
             child: Container(
-              height: 40,
+              height: 50,
               decoration: BoxDecoration(
                 color: CColors.fadeGreen,
                 borderRadius: BorderRadius.circular(15),
@@ -366,7 +369,7 @@ class _BundleProduct extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 70),
+                  padding: const EdgeInsets.only(left: 80),
                   child: Row(
                     children: [
                       Text(
@@ -392,12 +395,12 @@ class _BundleProduct extends StatelessWidget {
             ),
           ),
           Positioned(
-            left: 12,
+            left: 10,
             child: Image.network(
               imagePath,
-              width: 60,
-              height: 60,
-              fit: BoxFit.fitHeight,
+              width: 70,
+              height: 70,
+              fit: BoxFit.fill,
             ),
           ),
         ],

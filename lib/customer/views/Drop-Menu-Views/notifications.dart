@@ -16,6 +16,7 @@ import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/widgets/backButton.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:harvest/widgets/no_data.dart';
@@ -69,17 +70,7 @@ class _NotificationsState extends State<Notifications> {
         backgroundGradient: CColors.greenAppBarGradient(),
         bottomViewOffset: Offset(0, -10),
         actions: [HomePopUpMenu()],
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                platformPageRoute(
-                  context: context,
-                  builder: (context) => Basket(),
-                ),
-              );
-            },
-            child: SvgPicture.asset(Constants.basketIcon)),
+        leading: MyBackButton(),
         children: [
           Padding(
             padding: const EdgeInsets.all(20.0),

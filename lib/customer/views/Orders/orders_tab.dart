@@ -3,6 +3,7 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/customer/components/WaveAppBar/appBar_body.dart';
 import 'package:harvest/customer/components/WaveAppBar/pinned_header.dart';
+import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/views/Basket/basket.dart';
 import 'package:harvest/customer/views/Orders/current_orders.dart';
 import 'package:harvest/customer/views/Orders/old_orders.dart';
@@ -48,8 +49,7 @@ class _OrdersTabState extends State<OrdersTab> {
       "old_order",
     ];
     return Scaffold(
-      body: WaveAppBarBody(
-        bottomViewOffset: Offset(0, -10),
+      appBar: WaveAppBar(
         backgroundGradient: CColors.greenAppBarGradient(),
         actions: [HomePopUpMenu()],
         leading: GestureDetector(
@@ -63,63 +63,63 @@ class _OrdersTabState extends State<OrdersTab> {
               );
             },
             child: BasketButton()),
-        topHeader: !isAuthenticated
-            ? null
-            : PinnedTopHeader(
-                maxHeight: 43,
-                margin: EdgeInsetsDirectional.only(start: 10)
-                    .add(EdgeInsets.symmetric(vertical: 10)),
-                child: _buildTopSelector(_orderTabsTitles, context),
-              ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-        child: !isAuthenticated
-            ? NotAuthPage()
-            : Padding(
-                padding: const EdgeInsets.only(bottom: 30),
+      ),
+      body: Column(
+        children: [
+          _buildTopSelector(_orderTabsTitles, context),
+          !isAuthenticated
+              ? NotAuthPage()
+              : Expanded(
                 child: _ordersTab == _OrdersTabs.Current
                     ? CurrentOrders()
                     : OldOrders(),
               ),
+        ],
       ),
     );
   }
 
   Widget _buildTopSelector(
       List<String> _orderTabsTitles, BuildContext context) {
-    return Row(
-      children: List.generate(
-        _OrdersTabs.values.length,
-        (index) {
-          final bool _isSelected =
-              index == _OrdersTabs.values.indexWhere((e) => e == _ordersTab);
-          return GestureDetector(
-            onTap: () {
-              setState(() => _ordersTab = _OrdersTabs.values[index]);
-            },
-            child: Card(
-              elevation: 0.0,
-              color: _isSelected ? CColors.darkOrange : CColors.transparent,
-              margin: const EdgeInsetsDirectional.only(end: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusDirectional.only(
-                  topStart: Radius.circular(13),
-                  topEnd: Radius.circular(13),
-                  bottomStart: Radius.circular(13),
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, right: 20, bottom: 15),
+      child: Row(
+        children: List.generate(
+          _OrdersTabs.values.length,
+          (index) {
+            final bool _isSelected =
+                index == _OrdersTabs.values.indexWhere((e) => e == _ordersTab);
+            return GestureDetector(
+              onTap: () {
+                setState(() => _ordersTab = _OrdersTabs.values[index]);
+              },
+              child: Card(
+                elevation: 0.0,
+                color: _isSelected ? CColors.darkOrange : CColors.transparent,
+                margin: const EdgeInsetsDirectional.only(end: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadiusDirectional.only(
+                    topStart: Radius.circular(13),
+                    topEnd: Radius.circular(13),
+                    bottomStart: Radius.circular(13),
+                  ),
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Text(
+                    _orderTabsTitles[index].trs(context),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: _isSelected ? CColors.white : Color(0xff888a8d),
+                    ),
+                  ),
                 ),
               ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
-                child: Text(
-                  _orderTabsTitles[index].trs(context),
-                  style: TextStyle(
-                      color: _isSelected ? CColors.white : CColors.boldBlack,
-                      height: 1.2),
-                ),
-              ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

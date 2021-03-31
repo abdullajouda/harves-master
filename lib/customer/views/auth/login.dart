@@ -8,10 +8,14 @@ import 'package:harvest/customer/views/auth/activate_account.dart';
 import 'package:harvest/customer/views/auth/login2.dart';
 import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/api.dart';
+import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/main.dart';
 import 'package:harvest/widgets/button_loader.dart';
+import 'package:harvest/widgets/language_picker.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 
@@ -24,6 +28,7 @@ class _LoginState extends State<Login> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool load = false;
   String mobile;
+  int group = 0 ;
 
   signIn() async {
     setState(() {
@@ -40,7 +45,7 @@ class _LoginState extends State<Login> {
       var response = json.decode(request.body);
       Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
-        Navigator.push(
+        Navigator.pushReplacement(
             context,
             CustomPageRoute(
               builder: (context) => AccountActivation(
@@ -61,6 +66,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = Provider.of<LangProvider>(context);
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Color(0x0ffE6F2EA),
@@ -120,143 +126,185 @@ class _LoginState extends State<Login> {
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(33.0),
-                    topRight: Radius.circular(33.0),
-                  ),
-                  color: const Color(0xffffffff),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0x1a000000),
-                      offset: Offset(0, -5),
-                      blurRadius: 51,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15, top: 41),
-                          child: Form(
-                            key: _formKey,
-                            child: Container(
-                              width: 260,
-                              child: Center(
-                                child: TextFormField(
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        mobile = newValue;
-                                      });
-                                    },
-                                    validator: (value) {
-                                      if (value.isEmpty) {
-                                        return "* Required".trs(context);
-                                      } else
-                                        return null;
-                                    },
-                                    keyboardType: TextInputType.number,
-                                    decoration: inputDecorationWithIcon(
-                                      'phoneNumber'.trs(context),
-                                      SvgPicture.asset(
-                                          'assets/icons/mobile.svg'),
-                                    )),
-                              ),
-                            ),
-                          ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: LanguagePicker(
+                          onChanged: (value) {
+                            if (value.languageCode != lang.getLocaleCode()) {
+                              if (value.languageCode == 'en') {
+                                lang.setLocale(locale: Locales.en);
+                              } else if (value.languageCode == 'ar') {
+                                lang.setLocale(locale: Locales.ar);
+                              }
+                              Navigator.popUntil(
+                                  context, (route) => route.isFirst);
+                              Navigator.pushReplacement(
+                                  context,
+                                  CustomPageRoute(
+                                    builder: (context) => MyApp(),
+                                  ));
+                            }
+                          },
+                          value: Locale(lang.getLocaleCode()),
                         ),
-                        GestureDetector(
-                          onTap: () => signIn(),
-                          child: Container(
-                            height: 60,
-                            width: 260,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
-                              color: const Color(0x0ff3C984F),
-                            ),
-                            child: Center(
-                              child: load
-                                  ? LoadingBtn()
-                                  : Text(
-                                      'continue'.trs(context),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: const Color(0xffffffff),
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                            ),
-                          ),
+                      )),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(33.0),
+                        topRight: Radius.circular(33.0),
+                      ),
+                      color: const Color(0xffffffff),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0x1a000000),
+                          offset: Offset(0, -5),
+                          blurRadius: 51,
                         ),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 28, bottom: 50),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Column(
                           children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'By Continuing you agree to our'.trs(context),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: const Color(0xff888a8d),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(bottom: 15, top: 41),
+                              child: Form(
+                                key: _formKey,
+                                child: Container(
+                                  width: 260,
+                                  child: Center(
+                                    child: TextFormField(
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            mobile = newValue;
+                                          });
+                                        },
+                                        validator: (value) {
+                                          if (value.isEmpty) {
+                                            return "* Required".trs(context);
+                                          } else
+                                            return null;
+                                        },
+                                        keyboardType: TextInputType.number,
+                                        decoration: inputDecorationWithIcon(
+                                          'phoneNumber'.trs(context),
+                                          SvgPicture.asset(
+                                              'assets/icons/mobile.svg'),
+                                        )),
                                   ),
-                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () => signIn(),
+                              child: Container(
+                                height: 60,
+                                width: 260,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12.0),
+                                  color: const Color(0x0ff3C984F),
+                                ),
+                                child: Center(
+                                  child: load
+                                      ? LoadingBtn()
+                                      : Text(
+                                          'continue'.trs(context),
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: const Color(0xffffffff),
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 28, bottom: 50),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  children: [
+                                    Theme(
+                                      data: ThemeData(
+                                          unselectedWidgetColor:
+                                              Colors.grey[300]),
+                                      child: Radio<int>(
+                                        value: 0,
+                                        groupValue: group,
+                                        activeColor: CColors.darkGreen,
+                                        onChanged: (value) {},
+                                      ),
+                                    ),
+                                    Text(
+                                      'By Continuing you agree to our'
+                                          .trs(context),
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: const Color(0xff888a8d),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            CustomPageRoute(
+                                              builder: (context) => Terms(
+                                                path: 'this',
+                                              ),
+                                            ));
+                                      },
+                                      child: Text(
+                                        'terms'.trs(context),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: const Color(0xff3c984f),
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 TextButton(
                                   onPressed: () {
                                     Navigator.push(
                                         context,
                                         CustomPageRoute(
-                                          builder: (context) => Terms(
-                                            path: 'this',
-                                          ),
+                                          builder: (context) => RootScreen(),
                                         ));
                                   },
                                   child: Text(
-                                    'terms'.trs(context),
+                                    'skip'.trs(context),
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: const Color(0xff3c984f),
+                                      color: const Color(0xfffdaa5c),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                ),
+                                )
                               ],
                             ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    CustomPageRoute(
-                                      builder: (context) => RootScreen(),
-                                    ));
-                              },
-                              child: Text(
-                                'skip'.trs(context),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: const Color(0xfffdaa5c),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
               ),
             )
           ],

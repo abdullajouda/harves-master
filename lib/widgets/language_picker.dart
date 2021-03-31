@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:provider/provider.dart';
 
 class LanguagePicker extends StatefulWidget {
   final ValueChanged<Locale> onChanged;
@@ -71,7 +73,7 @@ class _LanguagePickerState extends State<LanguagePicker> {
                 borderRadius:
                     BorderRadius.all(Radius.elliptical(9999.0, 9999.0)),
                 image: DecorationImage(
-                  image: AssetImage('assets/icons/ar.png'),
+                  image: AssetImage('assets/icons/qatar.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -92,7 +94,7 @@ class _LanguagePickerState extends State<LanguagePicker> {
 
     return Container(
       width: width,
-      margin: EdgeInsetsDirectional.only(end: 30),
+      margin: EdgeInsetsDirectional.only(end: 30,start: 30),
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -126,7 +128,7 @@ class _LanguagePickerState extends State<LanguagePicker> {
                         image: AssetImage(
                             _currentChoosedLocale.languageCode.toLowerCase() ==
                                     'ar'
-                                ? 'assets/icons/ar.png'
+                                ? 'assets/icons/qatar.jpg'
                                 : 'assets/icons/en.png'),
                         fit: BoxFit.cover,
                       ),

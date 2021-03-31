@@ -8,6 +8,7 @@ import 'package:harvest/customer/models/pages.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/widgets/Loader.dart';
+import 'package:harvest/widgets/backButton.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:http/http.dart';
 
@@ -45,7 +46,7 @@ class _PrivacyState extends State<Privacy> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: WaveAppBar(
-        leading: SizedBox.fromSize(size: Size.zero),
+        leading: MyBackButton(),
         bottomViewOffset: Offset(0, -10),
         backgroundGradient: CColors.greenAppBarGradient(),
         actions: [HomePopUpMenu()],

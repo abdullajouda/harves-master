@@ -215,12 +215,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                         ),
                       ),
                       SizedBox(height: 10),
-                      widget.fruit.inCart == 0
-                          ? Container()
-                          : Row(
+                       Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Row(
+                                widget.fruit.inCart == 0
+                                    ? Container()
+                                    :Row(
                                   children: [
                                     CIconButton(
                                       onTap: () {

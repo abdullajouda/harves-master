@@ -97,26 +97,23 @@ class _PlaceStepState extends State<PlaceStep> {
 
   @override
   void initState() {
-    getAddresses().then(
-        (value) => WidgetsBinding.instance.addPostFrameCallback((_) async {
-              // await Future.delayed(Duration(milliseconds: 100));
-              if (mounted)
-                showDialog(
+    getAddresses().then((value) => {
+          if (mounted)
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => _AddressConfirmationDialog(
+                address: _selected,
+                onTapNewOne: () => showModalBottomSheet(
                   context: context,
-                  barrierDismissible: false,
-                  builder: (context) => _AddressConfirmationDialog(
-                    address: _selected,
-                    onTapNewOne: () => showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      enableDrag: false,
-                      backgroundColor: Colors.transparent,
-                      builder: (_) => AddNewAddressDialog(
-                      ),
-                    ).then((value) => getAddresses()),
-                  ),
-                );
-            }));
+                  isScrollControlled: true,
+                  enableDrag: false,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => AddNewAddressDialog(),
+                ).then((value) => getAddresses()),
+              ),
+            )
+        });
     // addMarker(_kGooglePlex.target.latitude, _kGooglePlex.target.longitude);
     super.initState();
   }
@@ -261,53 +258,53 @@ class _PlaceStepState extends State<PlaceStep> {
                                             );
                                           }),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 5),
-                                      child: Text(
-                                        "or_add_new_adress".trs(context),
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: CColors.grey,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                    FlatButton(
-                                      onPressed: () {
-                                        showModalBottomSheet(
-                                          context: context,
-                                          isScrollControlled: true,
-                                          enableDrag: false,
-                                          backgroundColor: Colors.transparent,
-                                          builder: (_) => AddNewAddressDialog(
-                                          ),
-                                        ).then((value) => getAddresses());
-                                        // showModalBottomSheet(
-                                        //   context: context,
-                                        //   isScrollControlled: true,
-                                        //   // enableDrag: true,
-                                        //   shape: RoundedRectangleBorder(
-                                        //     borderRadius: BorderRadius.vertical(
-                                        //         top: Radius.circular(25)),
-                                        //   ),
-                                        //   builder: (_) =>
-                                        //       _OrderDetailsConfirmationPanel(),
-                                        // );
-                                      },
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      color: CColors.fadeBlue,
-                                      child: Text(
-                                        "add_new_adress".trs(context),
-                                        style: TextStyle(
-                                          color: CColors.darkGreen,
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 10,
-                                        ),
-                                      ),
-                                    ),
+                                    // Padding(
+                                    //   padding: const EdgeInsets.symmetric(
+                                    //       vertical: 5),
+                                    //   child: Text(
+                                    //     "or_add_new_adress".trs(context),
+                                    //     textAlign: TextAlign.center,
+                                    //     style: TextStyle(
+                                    //       color: CColors.grey,
+                                    //       fontSize: 11,
+                                    //     ),
+                                    //   ),
+                                    // ),
+                                    // FlatButton(
+                                    //   onPressed: () {
+                                    //     showModalBottomSheet(
+                                    //       context: context,
+                                    //       isScrollControlled: true,
+                                    //       enableDrag: false,
+                                    //       backgroundColor: Colors.transparent,
+                                    //       builder: (_) => AddNewAddressDialog(
+                                    //       ),
+                                    //     ).then((value) => getAddresses());
+                                    //     // showModalBottomSheet(
+                                    //     //   context: context,
+                                    //     //   isScrollControlled: true,
+                                    //     //   // enableDrag: true,
+                                    //     //   shape: RoundedRectangleBorder(
+                                    //     //     borderRadius: BorderRadius.vertical(
+                                    //     //         top: Radius.circular(25)),
+                                    //     //   ),
+                                    //     //   builder: (_) =>
+                                    //     //       _OrderDetailsConfirmationPanel(),
+                                    //     // );
+                                    //   },
+                                    //   shape: RoundedRectangleBorder(
+                                    //       borderRadius:
+                                    //           BorderRadius.circular(5)),
+                                    //   color: CColors.fadeBlue,
+                                    //   child: Text(
+                                    //     "add_new_adress".trs(context),
+                                    //     style: TextStyle(
+                                    //       color: CColors.darkGreen,
+                                    //       fontWeight: FontWeight.w400,
+                                    //       fontSize: 10,
+                                    //     ),
+                                    //   ),
+                                    // ),
                                   ],
                                 ),
                               ),

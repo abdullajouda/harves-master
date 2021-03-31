@@ -19,150 +19,116 @@ class UseWallet extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: Container(
-            height: 160,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: 148,
-                    width: 300,
+            width: 300,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15.0),
+              color: const Color(0xffffffff),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0x29000000),
+                  offset: Offset(0, 3),
+                  blurRadius: 15,
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 35,
+                    width: 35,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15.0),
-                      color: const Color(0xffffffff),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0x29000000),
-                          offset: Offset(0, 3),
-                          blurRadius: 15,
-                        ),
-                      ],
+                      borderRadius: BorderRadius.all(
+                          Radius.elliptical(9999.0, 9999.0)),
+                      color: const Color(0xa3f88518),
                     ),
+                    child: Center(
+                        child: SvgPicture.asset(
+                            'assets/calender.svg')),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          height: 35,
-                          width: 35,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(
-                                Radius.elliptical(9999.0, 9999.0)),
-                            color: const Color(0xa3f88518),
+                        Text(
+                          '${'You Have a Wallet Balance Of'.trs(context)} ${cart.walletBalance} \n${'Use Wallet For This Purchase?'.trs(context)}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: const Color(0xff3c4959),
+                            letterSpacing: 0.14,
+                            fontWeight: FontWeight.w700,
                           ),
-                          child: Center(
-                              child: SvgPicture.asset(
-                                  'assets/calender.svg')),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Column(
-                            children: [
-                              Text(
-                                '${'You Have a Wallet Balance Of'.trs(context)} ${cart.walletBalance} \n${'Use Wallet For This Purchase?'.trs(context)}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: const Color(0xff3c4959),
-                                  letterSpacing: 0.14,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                cart.setUseWallet(0);
-                                Navigator.pop(context);
-                              },
-                              child: Center(
-                                child: Container(
-                                  height: 35,
-                                  width: 82,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(7.0),
-                                    border: Border.all(color: CColors.darkOrange),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'No'.trs(context),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: CColors.darkOrange,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 10,),
-                            GestureDetector(
-                              onTap: () {
-                                cart.setUseWallet(1);
-                                Navigator.pop(context);
-                              },
-                              child: Center(
-                                child: Container(
-                                  height: 35,
-                                  width: 82,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(7.0),
-                                    color: CColors.darkOrange,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      'Yes'.trs(context),
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: const Color(0xffffffff),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                          ],
+                          textAlign: TextAlign.center,
                         ),
                       ],
                     ),
                   ),
-                ),
-                // Positioned(
-                //   top: 0,
-                //   right: 0,
-                //   child: GestureDetector(
-                //     onTap: () => Navigator.pop(context),
-                //     child: Container(
-                //       height: 24,
-                //       width: 24,
-                //       decoration: BoxDecoration(
-                //         borderRadius:
-                //         BorderRadius.all(Radius.elliptical(9999.0, 9999.0)),
-                //         color: Colors.white60,
-                //         boxShadow: [
-                //           BoxShadow(
-                //             color: const Color(0x12000000),
-                //             offset: Offset(0, 2),
-                //             blurRadius: 8,
-                //           ),
-                //         ],
-                //       ),
-                //       child: Center(
-                //         child: SvgPicture.asset('assets/icons/cancel.svg'),
-                //       ),
-                //     ),
-                //   ),
-                // ),
-              ],
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          cart.setUseWallet(0);
+                          Navigator.pop(context);
+                        },
+                        child: Center(
+                          child: Container(
+                            height: 35,
+                            width: 82,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(7.0),
+                              border: Border.all(color: CColors.darkOrange),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'No'.trs(context),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: CColors.darkOrange,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                        onTap: () {
+                          cart.setUseWallet(1);
+                          Navigator.pop(context);
+                        },
+                        child: Center(
+                          child: Container(
+                            height: 35,
+                            width: 82,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(7.0),
+                              color: CColors.darkOrange,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Yes'.trs(context),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: const Color(0xffffffff),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

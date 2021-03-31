@@ -66,7 +66,7 @@ class _HomeState extends State<Home> {
   getOffers() async {
     setState(() {
       loadOffers = true;
-      _offers =[];
+      _offers = [];
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getSliders', headers: {
@@ -109,7 +109,7 @@ class _HomeState extends State<Home> {
 
   getFeaturedProducts() async {
     setState(() {
-      _featuredProducts =[];
+      _featuredProducts = [];
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var settings = await get(ApiHelper.api + 'getSetting', headers: {
@@ -201,7 +201,8 @@ class _HomeState extends State<Home> {
     await getCart();
     await getOffers();
     await getFeaturedProducts();
-    await getCategories().then((value) => getProductsByCategories(_selectedIndex));
+    await getCategories()
+        .then((value) => getProductsByCategories(_selectedIndex));
     // if failed,use refreshFailed()
     _refreshController.refreshCompleted();
   }
@@ -270,17 +271,16 @@ class _HomeState extends State<Home> {
       ),
       body: SmartRefresher(
         enablePullDown: true,
-        header: WaterDropMaterialHeader(
-          color: CColors.lightOrange,
-          backgroundColor: CColors.darkGreen,
+        header: WaterDropHeader(
+          waterDropColor: CColors.darkGreen,
         ),
         controller: _refreshController,
         onRefresh: _onRefresh,
         child: ListView(
-          shrinkWrap: true,
+          // shrinkWrap: true,
           children: [
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.only(left: 20.0, right: 20, top: 20),
               child: Row(
                 children: [
                   Text(
@@ -295,7 +295,7 @@ class _HomeState extends State<Home> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Stack(
                 children: [
                   Stack(
@@ -317,7 +317,7 @@ class _HomeState extends State<Home> {
                                     enlargeCenterPage: false,
                                     autoPlayAnimationDuration:
                                         Duration(milliseconds: 800),
-                                    height: 132,
+                                    height: 135,
                                     enlargeStrategy:
                                         CenterPageEnlargeStrategy.height,
                                     enableInfiniteScroll:
@@ -334,7 +334,8 @@ class _HomeState extends State<Home> {
                   ),
                   Positioned(
                     bottom: 15,
-                    right: 15,
+                    right: LangProvider().getLocaleCode() == 'ar' ? null : 15,
+                    left: LangProvider().getLocaleCode() == 'ar' ? 15 : null,
                     child: Container(
                       height: 20,
                       child: ListView.builder(
@@ -383,7 +384,8 @@ class _HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(20.0),
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 20, top: 20, bottom: 10),
                         child: Text(
                           'Special For You'.trs(context),
                           style: TextStyle(
@@ -395,10 +397,12 @@ class _HomeState extends State<Home> {
                       ),
                       Container(
                         height: 170,
+                        width: MediaQuery.of(context).size.width,
                         child: ListView.builder(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(horizontal: 10),
                           itemCount: _featuredProducts.length,
                           shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) => GestureDetector(
                               onTap: () =>
@@ -486,27 +490,27 @@ class _HomeState extends State<Home> {
                         mainAxisSpacing: 18),
                     itemCount: op.homeItems.length,
                     shrinkWrap: true,
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    padding: EdgeInsets.only(left: 15, right: 15, bottom: 40),
                     physics: NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) => GestureDetector(
-                      onTap: () => Navigator.of(context, rootNavigator: true)
-                          .push(
-                            CupertinoPageRoute(
-                              builder: (context) => ProductDetails(
-                                fruit: op.homeItems.values.toList()[index],
-                              ),
-                            ),
-                          )
-                          .then((value) =>
-                              getProductsByCategories(_selectedIndex)),
+                      // onTap: () => Navigator.of(context, rootNavigator: true)
+                      //     .push(
+                      //       CupertinoPageRoute(
+                      //         builder: (context) => ProductDetails(
+                      //           fruit: op.homeItems.values.toList()[index],
+                      //         ),
+                      //       ),
+                      //     )
+                      //     .then((value) =>
+                      //         getProductsByCategories(_selectedIndex)),
                       child: FruitItem(
                         fruit: op.homeItems.values.toList()[index],
                       ),
                     ),
                   ),
-            SizedBox(
-              height: 50,
-            )
+            // SizedBox(
+            //   height: 50,
+            // )
           ],
         ),
       ),

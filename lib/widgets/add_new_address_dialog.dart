@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:harvest/customer/models/city.dart';
 
@@ -64,32 +65,38 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
     });
   }
 
-  // Future<Position> _determinePosition() async {
-  //   final Uint8List markerIcon = await getBytesFromAsset('assets/Pin.png', 100);
-  //   bool serviceEnabled;
-  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
-  //   if (serviceEnabled) {
-  //     Position position = await Geolocator.getCurrentPosition(
-  //         desiredAccuracy: LocationAccuracy.high);
-  //     _controller.animateCamera(CameraUpdate.newLatLngZoom(
-  //         LatLng(position.latitude, position.longitude), 15));
-  //     setState(() {
-  //       coordinates = new Coordinates(position.latitude, position.longitude);
-  //       markers = [];
-  //       markers.add(Marker(
-  //           icon: BitmapDescriptor.fromBytes(markerIcon),
-  //           position: LatLng(position.latitude, position.longitude),
-  //           markerId: MarkerId('0')));
-  //       _load = false;
-  //       _visible = true;
-  //     });
-  //   }
-  //   setState(() {
-  //     _load = false;
-  //     _visible = true;
-  //   });
-  //   return await Geolocator.getCurrentPosition();
-  // }
+  Future<Position> _determinePosition() async {
+    setState(() {
+      _visible = false;
+      _load = true;
+    });
+    final Uint8List markerIcon = await getBytesFromAsset('assets/Pin.png', 100);
+    bool serviceEnabled;
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (serviceEnabled) {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      _controller.animateCamera(CameraUpdate.newLatLngZoom(
+          LatLng(position.latitude, position.longitude), 15));
+      setState(() {
+        coordinates = new Coordinates(position.latitude, position.longitude);
+        markers = [];
+        markers.add(Marker(
+            icon: BitmapDescriptor.fromBytes(markerIcon),
+            position: LatLng(position.latitude, position.longitude),
+            markerId: MarkerId('0')));
+        _load = false;
+        _visible = true;
+      });
+    }else{
+      Navigator.pop(context);
+    }
+    setState(() {
+      _load = false;
+      _visible = true;
+    });
+    return await Geolocator.getCurrentPosition();
+  }
 
   save() async {
     if (city != null) {
@@ -131,11 +138,12 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
     buildingNo = TextEditingController();
     unitNo = TextEditingController();
     additionalNotes = TextEditingController();
+    _determinePosition();
     _initialCameraPosition = CameraPosition(
       target: LatLng(30, 40),
       zoom: 14.4746,
     );
-    addMarker(30, 40);
+    // addMarker(30, 40);
     super.initState();
   }
 
@@ -514,7 +522,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            'Add Extra Details ',
+                                            'Add Extra Details'.trs(context),
                                             style: TextStyle(
                                               fontSize: 11,
                                               color: const Color(0xff3c984f),

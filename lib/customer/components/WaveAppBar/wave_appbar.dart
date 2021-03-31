@@ -89,18 +89,18 @@ class WaveAppBar extends StatelessWidget implements PreferredSizeWidget {
                       child: SvgPicture.asset(Constants.appBarGradient),
                     ),
                   ),
-                  SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // leading ?? CBackButton(),
-                          // if (!hideActions) Row(mainAxisSize: MainAxisSize.min, children: actions ?? [HomePopUpMenu()]),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // SafeArea(
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 18),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //       children: [
+                  //         // leading ?? CBackButton(),
+                  //         // if (!hideActions) Row(mainAxisSize: MainAxisSize.min, children: actions ?? [HomePopUpMenu()]),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

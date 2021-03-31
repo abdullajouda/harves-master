@@ -38,7 +38,6 @@ InputDecoration searchDecoration(hint, icon) {
   return InputDecoration(
     hintText: hint,
     hintStyle: TextStyle(
-      fontFamily: 'SF Pro Rounded',
       fontSize: 16,
       color: const Color(0xffe3e3e3),
       letterSpacing: -0.256,
@@ -56,7 +55,7 @@ InputDecoration searchDecoration(hint, icon) {
 
 InputDecoration locationFieldDecoration(hint) {
   return InputDecoration(
-    contentPadding: EdgeInsets.symmetric(vertical: 2,horizontal: 15),
+    contentPadding: EdgeInsets.only(left: 15,right: 15,top: 15),
     hintText: hint,
     hintStyle: TextStyle(
       fontSize: 8,
