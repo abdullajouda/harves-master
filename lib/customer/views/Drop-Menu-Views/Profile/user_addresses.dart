@@ -8,8 +8,10 @@ import 'package:harvest/customer/views/Drop-Menu-Views/Profile/user_address_list
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/helpers/services.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/add_new_address_dialog.dart';
+import 'package:harvest/widgets/alerts/myAlerts.dart';
 import 'package:harvest/widgets/auth_widgets/set_location_sheet.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -41,38 +43,61 @@ class _UserAddressesState extends State<UserAddresses> {
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
+    DeliveryAddresses _address = DeliveryAddresses.fromJson(
+        response['items'][0]);
     List locations = response['items'];
-    print(locations);
+    // print(locations);
     locations.forEach((element) {
       DeliveryAddresses deliveryAddress = DeliveryAddresses.fromJson(element);
       addresses.add(deliveryAddress);
     });
+    Services().setDefaultAddress(
+        address: _address.address,
+        buildingNumber: _address.buildingNumber,
+        city: _address.city.name,
+        deliveryCost: _address.city.deliveryCost,
+        lat: _address.lat,
+        lng: _address.lan,
+        minOrder: _address.city.minOrder,
+        unitNumber: _address.unitNumber);
 
     setState(() {
       load = false;
     });
   }
 
-  // setDefaultAddress(int id) async {
-  //   setState(() {
-  //     loadFunc = true;
-  //   });
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   var request =
-  //       await get(ApiHelper.api + 'changeDefultAddress/$id', headers: {
-  //     'Accept': 'application/json',
-  //     'Accept-Language': '${prefs.getString('language')}',
-  //     'Authorization': 'Bearer ${prefs.getString('userToken')}'
-  //   });
-  //   var response = json.decode(request.body);
-  //   var op = Provider.of<UserFunctions>(context, listen: false);
-  //   User user = User.fromJson(response['items']);
-  //   op.setUser(user);
-  //   // Fluttertoast.showToast(msg: response['message']);
-  //   setState(() {
-  //     loadFunc = false;
-  //   });
-  // }
+  setDefaultAddress(int id) async {
+    setState(() {
+      loadFunc = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request =
+        await get(ApiHelper.api + 'changeDefultAddress/$id', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': '${prefs.getString('language')}',
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    var op = Provider.of<UserFunctions>(context, listen: false);
+    User user = User.fromJson(response['items']);
+    DeliveryAddresses _address = DeliveryAddresses.fromJson(
+        response['items']['delivery_addresses'][0]);
+    Services().setDefaultAddress(
+        address: _address.address,
+        buildingNumber: _address.buildingNumber,
+        city: _address.city.name,
+        deliveryCost: _address.city.deliveryCost,
+        lat: _address.lat,
+        lng: _address.lan,
+        minOrder: _address.city.minOrder,
+        unitNumber: _address.unitNumber);
+    op.setUser(user);
+    MyAlert.addedToCart(2, context);
+    // Fluttertoast.showToast(msg: response['message']);
+    setState(() {
+      loadFunc = false;
+    });
+  }
 
   Future deleteAddress(DeliveryAddresses address) async {
     setState(() {
@@ -93,6 +118,18 @@ class _UserAddressesState extends State<UserAddresses> {
       });
       var op = Provider.of<UserFunctions>(context, listen: false);
       User user = User.fromJson(response['items']);
+      DeliveryAddresses _address = DeliveryAddresses.fromJson(
+          response['items']['delivery_addresses'][0]);
+      Services().setDefaultAddress(
+          address: _address.address,
+          buildingNumber: _address.buildingNumber,
+          city: _address.city.name,
+          deliveryCost: _address.city.deliveryCost,
+          lat: _address.lat,
+          lng: _address.lan,
+          minOrder: _address.city.minOrder,
+          unitNumber: _address.unitNumber);
+
       op.setUser(user);
     }
 
@@ -149,8 +186,8 @@ class _UserAddressesState extends State<UserAddresses> {
                           address: addresses[index],
                           isSelected: _isSelected,
                           onTap: () {
-                            // setState(() => _selectedIndex = index);
-                            // setDefaultAddress(addresses[index].id);
+                            setState(() => _selectedIndex = index);
+                            setDefaultAddress(addresses[index].id);
                           },
                         ),
                       ],

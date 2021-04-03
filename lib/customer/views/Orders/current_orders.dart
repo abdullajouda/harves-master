@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:harvest/widgets/not_authenticated.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,12 +30,12 @@ class _CurrentOrdersState extends State<CurrentOrders> {
       setState(() {
         loadOrders = true;
       });
-      var request = await get(ApiHelper.api + 'getMyOrdersByStatus/1',
-          headers:{
-            'Accept': 'application/json',
-            'Accept-Language': 'en',
-            'Authorization': 'Bearer ${prefs.getString('userToken')}'
-          });
+      var request =
+          await get(ApiHelper.api + 'getMyOrdersByStatus/1', headers: {
+        'Accept': 'application/json',
+        'Accept-Language': 'en',
+        'Authorization': 'Bearer ${prefs.getString('userToken')}'
+      });
       var response = json.decode(request.body);
       List values = response['items'];
       values.forEach((element) {
@@ -44,13 +45,12 @@ class _CurrentOrdersState extends State<CurrentOrders> {
       setState(() {
         loadOrders = false;
       });
-    }else{
+    } else {
       showCupertinoDialog(
         context: context,
         builder: (context) => SignUpFirst(),
       );
     }
-
   }
 
   _showButtonPanel(Order order) {
@@ -67,6 +67,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
 
   @override
   void initState() {
+    isAuth();
     getOrders();
     super.initState();
   }
@@ -77,7 +78,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
         return CColors.lightOrange;
         break;
       case 2:
-        return CColors.lightGreen;
+        return CColors.fadeBlueAccent;
         break;
       case 3:
         return CColors.lightBlue;
@@ -108,31 +109,43 @@ class _CurrentOrdersState extends State<CurrentOrders> {
         return CColors.darkOrange;
     }
   }
+  bool isAuthenticated = false;
+
+  isAuth() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('userToken') != null) {
+      setState(() {
+        isAuthenticated = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return loadOrders
         ? Container(height: 200, child: Center(child: Loader()))
-        :  _orders.length == 0
-        ? NoData()
-        :ListView.separated(
-            itemCount: _orders.length,
-            shrinkWrap: true,
-            padding: EdgeInsets.only(top: 20,bottom: 30),
-            separatorBuilder: (context, index) => SizedBox(height: 20),
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: OrderCurrentListTile(
-                  onTap: () => _showButtonPanel(_orders[index]),
-                  billNumber: _orders[index].id,
-                  billTotal: _orders[index].totalPrice,
-                  billDate: _orders[index].createdAt,
-                  backgroundColor: backGroundColor(_orders[index]),
-                  leadingIconColor: textColor(_orders[index]),
-                ),
+        : !isAuthenticated
+        ? NotAuthPage()
+        : _orders.length == 0
+            ? NoData()
+            : ListView.separated(
+                itemCount: _orders.length,
+                shrinkWrap: true,
+                padding: EdgeInsets.only(top: 20, bottom: 30),
+                separatorBuilder: (context, index) => SizedBox(height: 20),
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: OrderCurrentListTile(
+                      onTap: () => _showButtonPanel(_orders[index]),
+                      billNumber: _orders[index].id,
+                      billTotal: _orders[index].totalPrice,
+                      billDate: _orders[index].createdAt,
+                      backgroundColor: backGroundColor(_orders[index]),
+                      leadingIconColor: textColor(_orders[index]),
+                    ),
+                  );
+                },
               );
-            },
-          );
   }
 }

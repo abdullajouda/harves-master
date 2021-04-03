@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:harvest/customer/models/delivery-data.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -70,7 +71,6 @@ class _AccountActivationState extends State<AccountActivation>
       load = true;
     });
     if (_formKey.currentState.validate()) {
-
       String fToken = prefs.getString('fcm_token');
       var request = await post(ApiHelper.api + 'verifyCode', body: {
         'code': code,
@@ -86,6 +86,8 @@ class _AccountActivationState extends State<AccountActivation>
       if (response['code'] == 200) {
         if (response['user'] != null) {
           User user = User.fromJson(response['user']);
+          DeliveryAddresses addresses = DeliveryAddresses.fromJson(
+              response['user']['delivery_addresses'][0]);
           op.setUser(user);
           Services().setToken(response['user']['access_token']);
           Services().setUser(
@@ -95,6 +97,15 @@ class _AccountActivationState extends State<AccountActivation>
               response['user']['email'],
               response['user']['mobile'],
               response['user']['image_profile']);
+          Services().setDefaultAddress(
+              address: addresses.address,
+              buildingNumber: addresses.buildingNumber,
+              city: addresses.city.name,
+              deliveryCost: addresses.city.deliveryCost,
+              lat: addresses.lat,
+              lng: addresses.lan,
+              minOrder: addresses.city.minOrder,
+              unitNumber: addresses.unitNumber);
           prefs.setInt('loginCount', 1);
           Navigator.pushReplacement(
               context,
@@ -305,7 +316,7 @@ class _AccountActivationState extends State<AccountActivation>
                               width: 260,
                               child: Center(
                                 child: TextFormField(
-                                  keyboardType: TextInputType.number,
+                                    keyboardType: TextInputType.number,
                                     onChanged: (newValue) {
                                       setState(() {
                                         code = newValue;
@@ -317,8 +328,8 @@ class _AccountActivationState extends State<AccountActivation>
                                       } else
                                         return null;
                                     },
-                                    decoration:
-                                        inputDecoration('activation_code'.trs(context))),
+                                    decoration: inputDecoration(
+                                        'activation_code'.trs(context))),
                               ),
                             ),
                           ),
@@ -352,8 +363,7 @@ class _AccountActivationState extends State<AccountActivation>
                             onPressed: () => Navigator.pushReplacement(
                                 context,
                                 CustomPageRoute(
-                                  builder: (context) => Login(
-                                  ),
+                                  builder: (context) => Login(),
                                 )),
                             child: Text(
                               'return'.trs(context),

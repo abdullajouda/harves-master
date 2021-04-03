@@ -5,13 +5,15 @@ import 'package:harvest/helpers/constants.dart';
 class FreeShippingSlider extends StatefulWidget {
   final double persentage;
   final Size size;
+
   const FreeShippingSlider({
     Key key,
     @required this.persentage,
     this.size,
-  })  : assert(persentage >= 0.0 && persentage <= 1.0, "Persentage should be from 0.0 to 1.0"),
-        assert(size != Size.zero, "Size can't set to Size.zero"),
+  })  : assert(persentage >= 0.0 && persentage <= 1.0),
+        assert(size != Size.zero),
         super(key: key);
+
   @override
   _FreeShippingSliderState createState() => _FreeShippingSliderState();
 }
@@ -47,7 +49,9 @@ class _FreeShippingSliderState extends State<FreeShippingSlider> {
           child: Transform.translate(
             offset: Offset(_offset.dx, 0),
             child: SvgPicture.asset(
-              widget.persentage >= 1 ? Constants.fullFreeDileiveryIcon : Constants.freeDileiveryIcon,
+              widget.persentage <= 0
+                  ? Constants.fullFreeDileiveryIcon
+                  : Constants.freeDileiveryIcon,
               width: height * 2,
             ),
           ),
@@ -88,7 +92,8 @@ class _FreeShippingSliderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = Colors.black.withOpacity(0.1);
     Offset center = Offset(size.width / 2, size.height / 2);
-    final rect = Rect.fromCenter(center: center, height: size.height, width: size.width);
+    final rect =
+        Rect.fromCenter(center: center, height: size.height, width: size.width);
     final rrect = RRect.fromRectAndRadius(rect, Radius.circular(50));
     canvas.drawRRect(rrect, paint);
     // =======================================
@@ -96,7 +101,7 @@ class _FreeShippingSliderPainter extends CustomPainter {
     final double rectTop = rect.top;
     final double rectheight = rect.height;
     final double rectWidth = rect.width;
-    final double widthPersentage = rectWidth * persentage;
+    final double widthPersentage = rectWidth * (1 - persentage);
 
     final startOffset = Offset(rectStart, rectTop);
     final endOffset = Offset(widthPersentage, rectheight);
@@ -115,8 +120,9 @@ class _FreeShippingSliderPainter extends CustomPainter {
     );
     canvas.drawRRect(rrect2, paint2);
     // =======================================
-    final double imageWidthPersentage = rectWidth * persentage - (size.width / 2.0);
-    final Offset _safeOffset = Offset(rectWidth * (1 - _onChangeThrethold), 0);
+    final double imageWidthPersentage =
+        (size.width / 2.0) - rectWidth * persentage;
+    final Offset _safeOffset = Offset(rectWidth * (_onChangeThrethold - 1), 0);
     Offset _imageOffset = Offset(imageWidthPersentage, 0);
     if (_imageOffset.dx >= (imageWidthPersentage * _onChangeThrethold)) {
       _imageOffset -= _safeOffset;
@@ -128,7 +134,9 @@ class _FreeShippingSliderPainter extends CustomPainter {
   }
 
   Radius _endRadius() {
-    return persentage > _radiusThrethold ? Radius.circular(50 * persentage) : Radius.zero;
+    return persentage > _radiusThrethold
+        ? Radius.circular(50 * persentage)
+        : Radius.zero;
   }
 
   Shader _createGradientShaderLeftToRight(Offset b, [Offset a]) {

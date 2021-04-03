@@ -110,6 +110,7 @@ class _BasketState extends State<Basket> {
 
   @override
   void initState() {
+    var cart = Provider.of<Cart>(context, listen: false);
     checkToken();
     _stepsAdv = {
       BasketStep(
@@ -128,7 +129,13 @@ class _BasketState extends State<Basket> {
           }
         },
       ): true,
-      PlaceStep(): false,
+      PlaceStep(onContinue: () {
+        if (cart.totalPrice != null) {
+          Navigator.pop(context);
+          _step++;
+          return _jumpTo();
+        }
+      },): false,
       DeliveryTimeStep(): false,
       BillingStep(): false,
     };
@@ -145,8 +152,8 @@ class _BasketState extends State<Basket> {
         actions: [Container()],
         leading: CBackButton(
           onTap: () async {
-            await _clearStepsVisiablity();
-            Navigator.maybePop(context);
+            // await _clearStepsVisiablity();
+            Navigator.pop(context);
           },
         ),
       ),
@@ -193,25 +200,13 @@ class _BasketState extends State<Basket> {
                             _step++;
                             return _jumpTo();
                           } else {
-                            if (cart.deliveryAddresses == null) {
-                              showCupertinoDialog(
-                                context: context,
-                                builder: (context) => NoLocationFound(),
-                              );
-                            }
-                            showModalBottomSheet(
-                                context: context,
-                                backgroundColor: CColors.transparent,
-                                builder: (context) => OrderDescription(
-                                      onTap: () {
-                                        if (cart.totalPrice != null) {
-                                          Navigator.pop(context);
-                                          _step++;
-                                          return _jumpTo();
-                                        }
-                                      },
-                                    ),
-                                isScrollControlled: true);
+                            // if (cart.deliveryAddresses == null) {
+                            //   showCupertinoDialog(
+                            //     context: context,
+                            //     builder: (context) => NoLocationFound(),
+                            //   );
+                            // }
+
                           }
                         } else {
                           if (cart.availableDates == null ||
@@ -278,15 +273,15 @@ class _BasketState extends State<Basket> {
     return setState(() => _pagesNotifiew.value = toIndex);
   }
 
-  Future<void> _clearStepsVisiablity() {
-    bool _skippedFirst = false;
-    _stepsAdv.forEach((key, _) {
-      if (_skippedFirst) {
-        _stepsAdv[key] = false;
-      } else {
-        _skippedFirst = true;
-      }
-    });
-    return Future<void>.value();
-  }
+  // Future<void> _clearStepsVisiablity() {
+  //   bool _skippedFirst = false;
+  //   _stepsAdv.forEach((key, _) {
+  //     if (_skippedFirst) {
+  //       _stepsAdv[key] = false;
+  //     } else {
+  //       _skippedFirst = true;
+  //     }
+  //   });
+  //   return Future<void>.value();
+  // }
 }

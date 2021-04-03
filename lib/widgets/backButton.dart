@@ -17,7 +17,7 @@ class MyBackButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(5),
         ),
         child: Icon(
-          LangProvider().getLocaleCode() == 'en'?Icons.chevron_right: Icons.chevron_left,
+          LangProvider().getLocaleCode() == 'ar'?Icons.chevron_left: Icons.chevron_right,
           color: CColors.headerText,
         ),
 

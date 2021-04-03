@@ -11,6 +11,7 @@ import 'package:harvest/helpers/api.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/dialogs/signup_first.dart';
 import 'package:harvest/widgets/no_data.dart';
+import 'package:harvest/widgets/not_authenticated.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,8 +64,20 @@ class _OldOrdersState extends State<OldOrders> {
     );
   }
 
+  bool isAuthenticated = false;
+
+  isAuth() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('userToken') != null) {
+      setState(() {
+        isAuthenticated = true;
+      });
+    }
+  }
+
   @override
   void initState() {
+    isAuth();
     getOrders();
     super.initState();
   }
@@ -73,6 +86,8 @@ class _OldOrdersState extends State<OldOrders> {
   Widget build(BuildContext context) {
     return loadOrders
         ? Container(height: 200, child: Center(child: Loader()))
+        :  !isAuthenticated
+        ? NotAuthPage()
         : _orders.length == 0
             ? NoData()
             : ListView.separated(

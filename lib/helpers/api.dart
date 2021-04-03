@@ -25,11 +25,11 @@ class ApiHelper with ChangeNotifier {
   //   'Authorization':'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImJiYzg0ODI5MjkxZmEzN2IwNDg1NGYxMjE3NzdiNDBhYzE3YzE3ZTI1NmQ4YmI2OTM4YTNkYTU2MmM3Nzg2ZTVhMzA2ZTY1YTQ3ZWNhZjY3In0.eyJhdWQiOiIxIiwianRpIjoiYmJjODQ4MjkyOTFmYTM3YjA0ODU0ZjEyMTc3N2I0MGFjMTdjMTdlMjU2ZDhiYjY5MzhhM2RhNTYyYzc3ODZlNWEzMDZlNjVhNDdlY2FmNjciLCJpYXQiOjE2MDAyOTE5NjAsIm5iZiI6MTYwMDI5MTk2MCwiZXhwIjoxNjMxODI3OTYwLCJzdWIiOiI0Iiwic2NvcGVzIjpbXX0.oEGRlf1Hrz9IjKzSYxwMah4ZZx3-kTn9aHxotOKW89VNsRj-hswB6U7eX0nPuw7cHwXL8BLx7nGEzR71aqPIJ6u263QHoYHXXrSoaGTT-q-LTRkDeiCHf1vbhigLwlN0QI8bqIiQKa-8kMEr1-4RohJv-8GcyCxMW3wtaA3pcrOkVjNGkKASlJtGrVfhiaN-E2Zk8FBzsvrTciEQrGTp30m_Awsuv9py9yQiznInNKZrVWI5z477ZI4DDZxGR4jh5Wk2RExE7KDc1bsS-yEOB-08yiJ8gcWnh7v7DR8cc1Ee45k4DFD8pvQwfovVp6bALnt1yeCpRAkBPx5uFXcIuoYr7qMPgfFUWik9lYOBfNWi_PkmbdjuA7OVbvtEozUFbgRSW2CCx2jA0756jOYhgNjQMCG3B_LxtkmYtyLXtJhTBP923H0dvHYfK1GDNw2Z0tMCnyO4xsC6gaIvCgtGpk73DK5a5iHk-rUmfpa925yLH4f6zSFSRqBPkwFbFR6jwOfx1usJG0oTmQKlokFUw8OlGriZzUWAU9OgkYDPcAAFYiyV7FEj-oS_djLUlngtVJwlvjurWxPIRdcMp3OExS1K5GEGSiK5PcTPuJ_MQ-rUPeRWv8rTOpgcYzIZKTG_TxC0z3VfZ1f35EcneyL-SxV01q-0ZRrl6L7iG1EKbZI'
   // };
 
-  Category selectedCategory;
-
-  setCat(Category cat){
-    selectedCategory = cat;
-  }
+  // Category selectedCategory;
+  //
+  // setCat(Category cat){
+  //   selectedCategory = cat;
+  // }
 
 
   // Future<List<Category>> getCategories() async {

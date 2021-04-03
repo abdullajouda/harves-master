@@ -14,7 +14,7 @@ import 'package:harvest/helpers/AlertManager.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
-import 'package:harvest/widgets/alerts/added_to_cart.dart';
+import 'package:harvest/widgets/alerts/myAlerts.dart';
 import 'package:harvest/widgets/alerts/removed_from_cart.dart';
 import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:harvest/widgets/favorite_button.dart';
@@ -39,7 +39,7 @@ class _FruitItemState extends State<FruitItem> {
 
   addToBasket(int id) async {
     setState(() {
-      load = true;
+      widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
     });
     var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -52,23 +52,6 @@ class _FruitItemState extends State<FruitItem> {
     var response = json.decode(request.body);
     if (response['status'] == true) {
       MyAlert.addedToCart(0, context);
-      // showGeneralDialog(
-      //   transitionDuration: Duration(milliseconds: 500),
-      //   barrierColor: Colors.transparent,
-      //   context: context,
-      //   pageBuilder: (context, anim1, anim2) {
-      //     return AddedToCartAlert();
-      //   },
-      //   transitionBuilder: (context, anim1, anim2, child) {
-      //     return SlideTransition(
-      //       position:
-      //           Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
-      //       child: child,
-      //     );
-      //   },
-      // );
-      //  await localNotificationsService.showNotification('title', 'message');
-
       var items = response['cart'];
       if (items != null) {
         cart.clearFav();
@@ -76,21 +59,15 @@ class _FruitItemState extends State<FruitItem> {
           CartItem item = CartItem.fromJson(element);
           cart.addItem(item);
         });
-        setState(() {
-          widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
-        });
+
       }
     }
     // Fluttertoast.showToast(msg: response['message']);
-    setState(() {
-      load = false;
-    });
+
   }
 
   changeQnt(int type, int id) async {
-    setState(() {
-      load = true;
-    });
+
     var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await post(ApiHelper.api + 'changeQuantity', body: {
@@ -106,27 +83,8 @@ class _FruitItemState extends State<FruitItem> {
     if (response['message'] == 'product deleted') {
       cart.removeCartItem(widget.fruit.id);
       MyAlert.addedToCart(1, context);
-      // showGeneralDialog(
-      //   barrierDismissible: true,
-      //   barrierLabel: '',
-      //   barrierColor: Colors.black.withOpacity(0.1),
-      //   transitionDuration: Duration(milliseconds: 500),
-      //   context: context,
-      //   pageBuilder: (context, anim1, anim2) {
-      //     return RemovedFromCart();
-      //   },
-      //   transitionBuilder: (context, anim1, anim2, child) {
-      //     return SlideTransition(
-      //       position:
-      //           Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
-      //       child: child,
-      //     );
-      //   },
-      // );
     }
-    setState(() {
-      load = false;
-    });
+
   }
 
   showReceived(ReceiveNotification notification) {
@@ -229,9 +187,10 @@ class _FruitItemState extends State<FruitItem> {
               children: [
                 Positioned(
                   top: 3,
-                  child: Container(
-                    height: 84,
-                    width: 87,
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    height: widget.fruit.inCart != 0 ?64:84,
+                    width: widget.fruit.inCart != 0 ?68:87,
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: NetworkImage(widget.fruit.image),
@@ -283,7 +242,7 @@ class _FruitItemState extends State<FruitItem> {
                     : Container(),
                 Positioned(
                   left: lang.getLocaleCode() == 'ar' ? null : 20,
-                  right: lang.getLocaleCode() == 'ar' ? 20 : null,
+                  right: lang.getLocaleCode() == 'ar' ? 30 : null,
                   bottom: widget.fruit.inCart != 0
                       ? 40
                       : lang.getLocaleCode() == 'ar'
@@ -356,15 +315,16 @@ class _FruitItemState extends State<FruitItem> {
                   right: 0,
                   child: GestureDetector(
                     onTap: () {
+                      setState(widget.fruit.inCart != 0
+                          ? () {
+                        widget.fruit.inCart =
+                            widget.fruit.inCart + widget.fruit.unitRate;
+                      }
+                          : () {});
                       widget.fruit.inCart == 0
                           ? addToBasket(widget.fruit.id)
                           : changeQnt(1, widget.fruit.id);
-                      setState(widget.fruit.inCart != 0
-                          ? () {
-                              widget.fruit.inCart =
-                                  widget.fruit.inCart + widget.fruit.unitRate;
-                            }
-                          : () {});
+
                     },
                     child: Container(
                       height: 31,
@@ -414,11 +374,12 @@ class _FruitItemState extends State<FruitItem> {
                         left: 0,
                         child: GestureDetector(
                           onTap: () {
-                            changeQnt(2, widget.fruit.id);
                             setState(() {
                               widget.fruit.inCart =
                                   widget.fruit.inCart - widget.fruit.unitRate;
                             });
+                            changeQnt(2, widget.fruit.id);
+
                           },
                           child: Container(
                             height: 31,

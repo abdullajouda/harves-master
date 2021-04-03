@@ -213,8 +213,9 @@ class _HomeState extends State<Home> {
     const Radius _chipBorderRadius = const Radius.circular(12.5);
     return Scaffold(
       appBar: WaveAppBar(
+        height: 110,
         backgroundGradient: CColors.greenAppBarGradient(),
-        bottomViewOffset: Offset(0, -10),
+        bottomViewOffset: Offset(0, -15),
         bottomView: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: Container(
@@ -259,13 +260,15 @@ class _HomeState extends State<Home> {
         actions: [HomePopUpMenu()],
         leading: GestureDetector(
             onTap: () {
-              Navigator.push(
-                context,
+              Navigator.of(context,rootNavigator: true).push(
                 CustomPageRoute(
                   // context: context,
                   builder: (context) => Basket(),
                 ),
-              ).then((value) => getProductsByCategories(_selectedIndex));
+              ).then((value) {
+                getProductsByCategories(_selectedIndex);
+                getFeaturedProducts();
+              });
             },
             child: BasketButton()),
       ),

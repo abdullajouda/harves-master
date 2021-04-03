@@ -12,6 +12,7 @@ import 'package:harvest/helpers/AlertManager.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/alerts/myAlerts.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,7 +32,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
 
   addToBasket(int id) async {
     setState(() {
-      load = true;
+      widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
     });
     var cart = Provider.of<Cart>(context, listen: false);
     var op = Provider.of<FavoriteOperations>(context, listen: false);
@@ -44,12 +45,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
     });
     var response = json.decode(request.body);
     if (response['status'] == true) {
-      AlertManager.showDropDown(
-          alertBody: AlertBody(
-              context: context,
-              title: 'added successfully to Cart',
-              message: 'You can find it in your cart  screen',
-              icon: Icon(CupertinoIcons.check_mark)));
+      MyAlert.addedToCart(0, context);
       var items = response['cart'];
       if (items != null) {
         cart.clearFav();
@@ -58,21 +54,15 @@ class _FavoriteItemState extends State<FavoriteItem> {
           cart.addItem(item);
           op.addHomeItem(item.product);
         });
-        setState(() {
-          widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
-        });
+
       }
     }
     // Fluttertoast.showToast(msg: response['message']);
-    setState(() {
-      load = false;
-    });
+
   }
 
   changeQnt(int type, int id) async {
-    setState(() {
-      load = true;
-    });
+    var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await post(ApiHelper.api + 'changeQuantity', body: {
       'type': type.toString(),
@@ -84,10 +74,10 @@ class _FavoriteItemState extends State<FavoriteItem> {
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
-    Fluttertoast.showToast(msg: response['message']);
-    setState(() {
-      load = false;
-    });
+    if (response['message'] == 'product deleted') {
+      cart.removeCartItem(widget.fruit.id);
+      MyAlert.addedToCart(1, context);
+    }
   }
 
   @override
@@ -122,9 +112,10 @@ class _FavoriteItemState extends State<FavoriteItem> {
           children: [
             Positioned(
               top: 3,
-              child: Container(
-                height: 84,
-                width: 87,
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                height: widget.fruit.inCart != 0 ?64:84,
+                width: widget.fruit.inCart != 0 ?68:87,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(widget.fruit.image),
@@ -247,14 +238,15 @@ class _FavoriteItemState extends State<FavoriteItem> {
               right: 0,
               child: GestureDetector(
                 onTap: () {
-                  widget.fruit.inCart == 0
-                      ? addToBasket(widget.fruit.id)
-                      : changeQnt(1, widget.fruit.id);
                   setState(widget.fruit.inCart != 0
                       ? () {
                     widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
-                        }
+                  }
                       : () {});
+                  widget.fruit.inCart == 0
+                      ? addToBasket(widget.fruit.id)
+                      : changeQnt(1, widget.fruit.id);
+
                 },
                 child: Container(
                   height: 31,
@@ -297,10 +289,10 @@ class _FavoriteItemState extends State<FavoriteItem> {
                     left: 0,
                     child: GestureDetector(
                       onTap: () {
-                        changeQnt(2, widget.fruit.id);
                         setState(() {
                           widget.fruit.inCart = widget.fruit.inCart - widget.fruit.unitRate;
                         });
+                        changeQnt(2, widget.fruit.id);
                       },
                       child: Container(
                         height: 31,

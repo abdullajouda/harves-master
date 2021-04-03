@@ -25,22 +25,7 @@ class OrdersTab extends StatefulWidget {
 
 class _OrdersTabState extends State<OrdersTab> {
   _OrdersTabs _ordersTab = _OrdersTabs.Current;
-  bool isAuthenticated = false;
 
-  isAuth() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString('userToken') != null) {
-      setState(() {
-        isAuthenticated = true;
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    isAuth();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +52,7 @@ class _OrdersTabState extends State<OrdersTab> {
       body: Column(
         children: [
           _buildTopSelector(_orderTabsTitles, context),
-          !isAuthenticated
-              ? NotAuthPage()
-              : Expanded(
+          Expanded(
                 child: _ordersTab == _OrdersTabs.Current
                     ? CurrentOrders()
                     : OldOrders(),

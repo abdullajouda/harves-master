@@ -21,6 +21,7 @@ import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/dialogs/signup_first.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
+import 'package:harvest/widgets/no_data.dart';
 import 'package:harvest/widgets/not_authenticated.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +45,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
   getFavorite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     FavoriteOperations op =
-    Provider.of<FavoriteOperations>(context, listen: false);
+        Provider.of<FavoriteOperations>(context, listen: false);
     if (prefs.getString('userToken') != null) {
       setState(() {
         op.clearFav();
@@ -77,6 +78,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
     });
     FavoriteOperations op =
         Provider.of<FavoriteOperations>(context, listen: false);
+    op.removeFav(fruit);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request =
         await get(ApiHelper.api + 'deleteFromFavorit/${fruit.id}', headers: {
@@ -85,12 +87,11 @@ class _FavoritesTabState extends State<FavoritesTab> {
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
-    Fluttertoast.showToast(msg: response['message']);
+    // Fluttertoast.showToast(msg: response['message']);
     if (response['status'] == true) {
       setState(() {
         fruit.isFavorite = '0';
         // _fruits.remove(fruit);
-        op.removeFav(fruit);
         loadButton = false;
       });
     }
@@ -119,7 +120,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
 
   void _onRefresh() async {
     // monitor network fetch
-    await  getFavorite();
+    await getFavorite();
     // if failed,use refreshFailed()
     _refreshController.refreshCompleted();
   }
@@ -184,76 +185,68 @@ class _FavoritesTabState extends State<FavoritesTab> {
                   ),
                 ),
         ),
-        body:SmartRefresher(
+        body: SmartRefresher(
             enablePullDown: true,
-            header: WaterDropMaterialHeader(
-              color: CColors.lightOrange,
-              backgroundColor: CColors.darkGreen,
+            header:WaterDropHeader(
+              waterDropColor: CColors.darkGreen,
             ),
             controller: _refreshController,
             onRefresh: _onRefresh,
-            child:ListView(
-          children: [
-            !isAuthenticated
-                ? NotAuthPage()
-                : Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 20),
-                        child: Row(
-                          children: [
-                            Text(
-                              "favorite_item".trs(context),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: CColors.headerText,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      load
-                          ? Center(child: Loader())
-                          : GridView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              // padding: EdgeInsets.only(top: 10, bottom: 40)
-                              //     .add(EdgeInsets.symmetric(horizontal: 20)),
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                      childAspectRatio: 1,
-                                      crossAxisCount: 2,
-                                      crossAxisSpacing: 18,
-                                      mainAxisSpacing: 18),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 15),
-                              itemCount: op.items.length,
-                              itemBuilder: (context, index) {
-                                final bool _isSelected = _isIndexSelected(
-                                    op.items.values.toList()[index]);
-                                return Stack(
-                                  alignment: Alignment.center,
-                                  fit: StackFit.expand,
+            child: ListView(
+              children: [
+                load
+                    ? Expanded(child: Container(
+                    height: 150,child: Center(child: Loader())))
+                    : !isAuthenticated
+                        ? NotAuthPage()
+                        : Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 20),
+                                child: Row(
                                   children: [
-                                    FavoriteItem(
-                                      remove: () {
-                                        removeFav(
-                                            op.items.values.toList()[index]);
-                                      },
-                                      fruit: op.items.values.toList()[index],
+                                    Text(
+                                      "favorite_item".trs(context),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        color: CColors.headerText,
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                    _isSelected
-                                        ? Center(child: Loader())
-                                        : Container()
                                   ],
-                                );
-                              }),
-                    ],
-                  ),
-          ],
-        )));
+                                ),
+                              ),
+                              op.items.length==0?NoData():GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  // padding: EdgeInsets.only(top: 10, bottom: 40)
+                                  //     .add(EdgeInsets.symmetric(horizontal: 20)),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                          childAspectRatio: 1,
+                                          crossAxisCount: 2,
+                                          crossAxisSpacing: 18,
+                                          mainAxisSpacing: 18),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 15, vertical: 15),
+                                  itemCount: op.items.length,
+                                  itemBuilder: (context, index) {
+                                    final bool _isSelected = _isIndexSelected(
+                                        op.items.values.toList()[index]);
+                                    return FavoriteItem(
+                                      remove: () {
+                                        removeFav(op.items.values
+                                            .toList()[index]);
+                                      },
+                                      fruit:
+                                          op.items.values.toList()[index],
+                                    );
+                                  }),
+                            ],
+                          ),
+              ],
+            )));
   }
 
   Widget _buildSearchTextField(Size size) {

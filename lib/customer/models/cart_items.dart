@@ -110,6 +110,7 @@ class Cart with ChangeNotifier {
     notifyListeners();
   }
 
+
   Map<String, CartItem> _cartItems = {};
 
   Map<String, CartItem> get items {

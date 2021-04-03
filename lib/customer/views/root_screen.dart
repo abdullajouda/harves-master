@@ -101,14 +101,14 @@ class _RootScreenState extends State<RootScreen> {
         controller: _controller,
         screens: _buildScreens(),
         items: _navBarsItems(),
-        confineInSafeArea: false,
+        // confineInSafeArea: false,
         bottomScreenMargin: 40,
         backgroundColor: Colors.white,
-        handleAndroidBackButtonPress: true,
-        resizeToAvoidBottomInset: true,
+        // handleAndroidBackButtonPress: true,
+        resizeToAvoidBottomInset: false,
         // This needs to be true if you want to move up the screen when keyboard appears.
-        stateManagement: true,
-        hideNavigationBarWhenKeyboardShows: false,
+        stateManagement: false,
+        hideNavigationBarWhenKeyboardShows: true,
         // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument.
         decoration: NavBarDecoration(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15)),

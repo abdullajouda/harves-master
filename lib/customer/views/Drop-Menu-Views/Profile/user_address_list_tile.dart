@@ -56,17 +56,40 @@ class UserAddressListTile extends StatelessWidget {
                         color: isSelected ? CColors.fadeBlue : CColors.white,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                            color:
-                                !isSelected ? CColors.fadeBlue : CColors.transparent,
+                            color: !isSelected
+                                ? CColors.fadeBlue
+                                : CColors.transparent,
                             width: 2),
                       ),
                       child: ListTile(
                         contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+
                         leading: SvgPicture.asset(Constants.mapPinIcon),
-                        title: Text("delivery_address".trs(context)),
-                        subtitle: Text(
-                          "${address.city.name}, ${address.street != null ? address.street + ',' : ''} ${address.buildingNumber != null ? address.buildingNumber.toString() + ', ' : ''} ${address.unitNumber != null ? address.unitNumber.toString() + ',' : ''}",
+                        title: Text(
+                          "delivery_address".trs(context),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: const Color(0xff525768),
+                          ),
+                        ),
+                        subtitle: Row(
+                          children: [
+                            Text(
+                              "${address.city.name}, ${address.address != null ? address.address + ',' : ''}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: const Color(0xffaaafb6),
+                              ),
+                            ),
+                            Text(
+                              "${address.buildingNumber != null ? address.buildingNumber.toString() + ', ' : ''} ${address.unitNumber != null ? address.unitNumber.toString() + '' : ''}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: const Color(0xffaaafb6),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

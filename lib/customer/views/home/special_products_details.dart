@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/models/cart_items.dart';
@@ -15,8 +16,11 @@ import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/color_converter.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/alerts/myAlerts.dart';
 import 'package:harvest/widgets/alerts/removed_from_cart.dart';
+import 'package:harvest/widgets/backButton.dart';
 import 'package:harvest/widgets/button_loader.dart';
+import 'package:harvest/widgets/dialogs/signup_first.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,17 +38,21 @@ class ProductBundleDetails extends StatefulWidget {
 }
 
 class _ProductBundleDetailsState extends State<ProductBundleDetails> {
-
   bool _isFavorite = false;
   bool load = false;
   bool loadProducts = false;
 
   addToBasket(int id) async {
-    setState(() {
-      load = true;
-    });
-    var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    var cart = Provider.of<Cart>(context, listen: false);
+    setState(() {
+      widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
+    });
+    cart.addItem(CartItem(
+      productId: widget.fruit.id,
+      product: Products(),
+      fcmToken: prefs.getString('fcm_token'),
+    ));
     var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
       'Accept': 'application/json',
       'fcmToken': prefs.getString('fcm_token'),
@@ -52,7 +60,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
-    print(response);
+    MyAlert.addedToCart(0, context);
     if (response['status'] == true) {
       var items = response['cart'];
       if (items != null) {
@@ -60,21 +68,13 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
           CartItem item = CartItem.fromJson(element);
           cart.addItem(item);
         });
-        setState(() {
-          widget.fruit.inCart = widget.fruit.inCart+widget.fruit.unitRate;
-        });
       }
     }
-    Fluttertoast.showToast(msg: response['message']);
-    setState(() {
-      load = false;
-    });
+    // Fluttertoast.showToast(msg: response['message']);
   }
 
   changeQnt(int type, int id) async {
-    setState(() {
-      load = true;
-    });
+    var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await post(ApiHelper.api + 'changeQuantity', body: {
       'type': type.toString(),
@@ -87,31 +87,104 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
     });
     var response = json.decode(request.body);
     if (response['message'] == 'product deleted') {
-      showGeneralDialog(
-        barrierDismissible: true,
-        barrierLabel: '',
-        barrierColor: Colors.black.withOpacity(0.1),
-        transitionDuration: Duration(milliseconds: 500),
+      cart.removeCartItem(id);
+      MyAlert.addedToCart(1, context);
+    }
+  }
+
+  Future setFav() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('userToken') != null) {
+      setState(() {
+        widget.fruit.inFavorite = '1';
+      });
+      FavoriteOperations op =
+          Provider.of<FavoriteOperations>(context, listen: false);
+      var request =
+          await get(ApiHelper.api + 'addFavorite/${widget.fruit.id}', headers: {
+        'Accept': 'application/json',
+        'Accept-Language': LangProvider().getLocaleCode(),
+        'Authorization': 'Bearer ${prefs.getString('userToken')}'
+      });
+      var response = json.decode(request.body);
+      // Fluttertoast.showToast(msg: response['message']);
+      if (response['status'] == true) {
+        setState(() {
+          op.addItem(Products(
+              id: widget.fruit.id,
+              name: widget.fruit.name,
+              image: widget.fruit.image,
+              inCart: widget.fruit.inCart,
+              typeName: widget.fruit.typeName,
+              type: widget.fruit.type,
+              isFavorite: widget.fruit.inFavorite,
+              discount: widget.fruit.discount,
+              price: widget.fruit.price.toDouble()));
+          op.updateFavHome(Products(
+              id: widget.fruit.id,
+              name: widget.fruit.name,
+              image: widget.fruit.image,
+              inCart: widget.fruit.inCart,
+              typeName: widget.fruit.typeName,
+              type: widget.fruit.type,
+              isFavorite: widget.fruit.inFavorite,
+              discount: widget.fruit.discount,
+              price: widget.fruit.price.toDouble()));
+        });
+      }
+    } else {
+      showCupertinoDialog(
         context: context,
-        pageBuilder: (context, anim1, anim2) {
-          return RemovedFromCart();
-        },
-        transitionBuilder: (context, anim1, anim2, child) {
-          return SlideTransition(
-            position:
-            Tween(begin: Offset(0, -1), end: Offset(0, 0)).animate(anim1),
-            child: child,
-          );
-        },
+        builder: (context) => SignUpFirst(),
       );
     }
+  }
+
+  Future removeFav() async {
+    FavoriteOperations op =
+        Provider.of<FavoriteOperations>(context, listen: false);
     setState(() {
-      load = false;
+      widget.fruit.inFavorite = '0';
     });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await get(
+        ApiHelper.api + 'deleteFromFavorit/${widget.fruit.id}',
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Language': LangProvider().getLocaleCode(),
+          'Authorization': 'Bearer ${prefs.getString('userToken')}'
+        });
+    var response = json.decode(request.body);
+    // Fluttertoast.showToast(msg: response['message']);
+    if (response['status'] == true) {
+      setState(() {
+        op.removeFav(Products(
+            id: widget.fruit.id,
+            name: widget.fruit.name,
+            image: widget.fruit.image,
+            inCart: widget.fruit.inCart,
+            typeName: widget.fruit.typeName,
+            type: widget.fruit.type,
+            isFavorite: widget.fruit.inFavorite,
+            discount: widget.fruit.discount,
+            price: widget.fruit.price.toDouble()));
+        op.updateFavHome(Products(
+            id: widget.fruit.id,
+            name: widget.fruit.name,
+            image: widget.fruit.image,
+            inCart: widget.fruit.inCart,
+            typeName: widget.fruit.typeName,
+            discount: widget.fruit.discount,
+            type: widget.fruit.type,
+            isFavorite: widget.fruit.inFavorite,
+            price: widget.fruit.price.toDouble()));
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    var fav = Provider.of<FavoriteOperations>(context);
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
@@ -188,50 +261,51 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                         ),
                       ),
                       SizedBox(height: 10),
-                       Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                widget.fruit.inCart != 0
-                                    ? Row(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          widget.fruit.inCart != 0
+                              ? Row(
                                   children: [
-                                      CIconButton(
-                                        onTap: () {
-                                          changeQnt(2, widget.fruit.id);
-                                          setState(() {
-                                            widget.fruit.inCart =
-                                                widget.fruit.inCart - widget.fruit.unitRate;
-                                          });
-                                        },
-                                        icon: Icon(Icons.remove,
-                                            color: CColors.headerText,
-                                            size: 25),
+                                    CIconButton(
+                                      onTap: () {
+                                        setState(() {
+                                          widget.fruit.inCart =
+                                              widget.fruit.inCart -
+                                                  widget.fruit.unitRate;
+                                        });
+                                        changeQnt(2, widget.fruit.id);
+                                      },
+                                      icon: Icon(Icons.remove,
+                                          color: CColors.headerText, size: 25),
+                                    ),
+                                    ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minWidth: size.width * 0.12,
                                       ),
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          minWidth: size.width * 0.12,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            widget.fruit.inCart.toString(),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              color: CColors.headerText,
-                                              fontSize: 18,
-                                            ),
+                                      child: Center(
+                                        child: Text(
+                                          widget.fruit.inCart.toString(),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: CColors.headerText,
+                                            fontSize: 18,
                                           ),
                                         ),
                                       ),
+                                    ),
                                     CIconButton(
                                       onTap: () {
+                                        setState(widget.fruit.inCart != 0
+                                            ? () {
+                                                widget.fruit.inCart =
+                                                    widget.fruit.inCart +
+                                                        widget.fruit.unitRate;
+                                              }
+                                            : () {});
                                         widget.fruit.inCart == 0
                                             ? addToBasket(widget.fruit.id)
                                             : changeQnt(1, widget.fruit.id);
-                                        setState(widget.fruit.inCart != 0
-                                            ? () {
-                                          widget.fruit.inCart =
-                                              widget.fruit.inCart + widget.fruit.unitRate;
-                                        }
-                                            : () {});
                                       },
                                       icon: Icon(Icons.add,
                                           color: CColors.headerText, size: 25),
@@ -241,58 +315,64 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                     //       style: TextStyle(
                                     //           fontSize: 13, color: CColors.grey)),
                                   ],
-                                ):Container(),
-                                Row(
-                                  children: [
-                                    Text(
-                                      "${widget.fruit.price}",
-                                      style: TextStyle(
-                                        color: CColors.darkOrange,
-                                        fontSize: 24,
-                                      ),
-                                    ),
-                                    Text(
-                                      "  ${'Q.R'.trs(context)}  ",
-                                      style: TextStyle(
-                                        color: CColors.darkOrange,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ],
+                                )
+                              : Container(),
+                          Row(
+                            children: [
+                              Text(
+                                "${widget.fruit.price}",
+                                style: TextStyle(
+                                  color: CColors.darkOrange,
+                                  fontSize: 24,
                                 ),
-                              ],
-                            ),
+                              ),
+                              Text(
+                                "  ${'Q.R'.trs(context)}  ",
+                                style: TextStyle(
+                                  color: CColors.darkOrange,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                       SizedBox(height: 10),
                       Expanded(
                         child: Column(
                           children: [
-                            SingleChildScrollView(
-                              child: Text(
-                                widget.fruit.description??'',
-                                style: TextStyle(
-                                  color: CColors.normalText,
-                                  fontSize: 14,
+                            Row(
+                              children: [
+                                Container(
+                                  width: size.width * .8,
+                                  child: Text(
+                                    widget.fruit.description ?? '',
+                                    softWrap: true,
+                                    style: TextStyle(
+                                      color: CColors.normalText,
+                                      fontSize: 14,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                             widget.fruit.basketItem.length != 0
                                 ? ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount:
-                                      widget.fruit.basketItem.length,
-                                  padding: EdgeInsets.zero,
-                                  itemBuilder: (context, index) {
-                                    return _BundleProduct(
-                                      title: widget.fruit
-                                          .basketItem[index].item.name,
-                                      imagePath: widget.fruit
-                                          .basketItem[index].item.image,
-                                      numOfItems: widget
-                                          .fruit.basketItem[index].qty
-                                          .toString(),
-                                    );
-                                  },
-                                )
+                                    shrinkWrap: true,
+                                    itemCount: widget.fruit.basketItem.length,
+                                    padding: EdgeInsets.zero,
+                                    itemBuilder: (context, index) {
+                                      return _BundleProduct(
+                                        title: widget
+                                            .fruit.basketItem[index].item.name,
+                                        imagePath: widget
+                                            .fruit.basketItem[index].item.image,
+                                        numOfItems: widget
+                                            .fruit.basketItem[index].qty
+                                            .toString(),
+                                      );
+                                    },
+                                  )
                                 : Container(),
                           ],
                         ),
@@ -307,22 +387,31 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                             padding: EdgeInsets.all(10.0),
                             onValueChanged: () {
                               setState(() => _isFavorite = !_isFavorite);
+                              if (widget.fruit.inFavorite == '1') {
+                                removeFav();
+                              } else {
+                                setFav();
+                              }
                             },
-                            value: _isFavorite,
+                            value:
+                                widget.fruit.inFavorite == '1' ? true : false,
                           ),
                           SizedBox(width: 10),
                           widget.fruit.inCart != 0
                               ? Container()
                               : Expanded(
-                                  child: load?Center(child: LoadingBtn()):MainButton(
-                                    onTap: () {
-                                      addToBasket(widget.fruit.id);
-
-                                    },
-                                    constraints: BoxConstraints(maxHeight: 45),
-                                    titleTextStyle: TextStyle(fontSize: 15),
-                                    title: 'add_to_basket'.trs(context),
-                                  ),
+                                  child: load
+                                      ? Center(child: LoadingBtn())
+                                      : MainButton(
+                                          onTap: () {
+                                            addToBasket(widget.fruit.id);
+                                          },
+                                          constraints:
+                                              BoxConstraints(maxHeight: 45),
+                                          titleTextStyle:
+                                              TextStyle(fontSize: 15),
+                                          title: 'add_to_basket'.trs(context),
+                                        ),
                                 ),
                         ],
                       ),

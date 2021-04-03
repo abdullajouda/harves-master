@@ -5,14 +5,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/Widgets/remove_icon.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/city.dart';
+import 'package:harvest/customer/models/delivery-data.dart';
 import 'package:harvest/customer/models/error.dart';
 import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/customer/views/Basket/free_shipping_slider.dart';
+import 'package:harvest/customer/views/Drop-Menu-Views/Profile/user_profile.dart';
 import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
-import 'package:harvest/widgets/alerts/added_to_cart.dart';
+import 'package:harvest/helpers/constants.dart';
+import 'package:harvest/widgets/add_new_address_dialog.dart';
+import 'package:harvest/widgets/alerts/myAlerts.dart';
 import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:harvest/widgets/no_data.dart';
@@ -36,14 +40,40 @@ class _BasketStepState extends State<BasketStep> {
   bool load = true;
   bool showFree = false;
   double total;
+  double deliveryCost;
+  double minOrder;
+  double remains = 0.0;
 
-  // List<int> _errorIndexes = [];
-  City _city;
-  double remains;
-  List<City> _cities = [];
+  List<DeliveryAddresses> addresses = [];
+  DeliveryAddresses _selected;
   TextEditingController _textEditingController;
   double _textFieldHeight = 0;
   final double _finalValue = 100.0;
+
+  // Future getAddresses() async {
+  //   setState(() {
+  //     addresses = [];
+  //     // load = true;
+  //   });
+  //   var cart = Provider.of<Cart>(context, listen: false);
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   var request = await get(ApiHelper.api + 'allAddressForUser', headers: {
+  //     'Accept': 'application/json',
+  //     'Accept-Language': '${prefs.getString('language')}',
+  //     'Authorization': 'Bearer ${prefs.getString('userToken')}'
+  //   });
+  //   var response = json.decode(request.body);
+  //   List locations = response['items'];
+  //   locations.forEach((element) {
+  //     DeliveryAddresses deliveryAddress = DeliveryAddresses.fromJson(element);
+  //     addresses.add(deliveryAddress);
+  //   });
+  //   setState(() {
+  //     _selected = addresses[0];
+  //     cart.setAddress(_selected);
+  //     load = false;
+  //   });
+  // }
 
   getCart() async {
     setState(() {
@@ -142,31 +172,19 @@ class _BasketStepState extends State<BasketStep> {
       'Accept': 'application/json',
       'Accept-Language': LangProvider().getLocaleCode(),
     });
-    var request = await get(ApiHelper.api + 'getCities', headers: {
-      'Accept': 'application/json',
-      'Accept-Language': LangProvider().getLocaleCode(),
-    });
-    var response = json.decode(request.body);
-    var items = response['cities'];
-    items.forEach((element) {
-      City city = City.fromJson(element);
-      _cities.add(city);
-      ci.addItem(city);
-    });
-    var set = json.decode(settings.body)['items'];
-    // City city = ci.items.values.toList().firstWhere((element) =>
-    // element.id.toString() == op.user.cityId.toString());
-    // remains = total
-    // - city.deliveryCost;
-    // setState(() {
-    //   for(var city in _cities){
-    //     if(city.id == op.user.cityId){
-    //       _city = city;
-    //     }
-    //   }
-    //   print(_city);
-    //   print(op.user.cityId);
+    // var request = await get(ApiHelper.api + 'getCities', headers: {
+    //   'Accept': 'application/json',
+    //   'Accept-Language': LangProvider().getLocaleCode(),
     // });
+    // var response = json.decode(request.body);
+    // var items = response['cities'];
+    // items.forEach((element) {
+    //   City city = City.fromJson(element);
+    //   _cities.add(city);
+    //   ci.addItem(city);
+    // });
+    var set = json.decode(settings.body)['items'];
+
     if (set['show_delivery_free_msg'] == 1) {
       setState(() {
         showFree = true;
@@ -174,10 +192,40 @@ class _BasketStepState extends State<BasketStep> {
     }
   }
 
+  Future getDefault() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      minOrder = prefs.getDouble('minOrder');
+      deliveryCost = prefs.getDouble('deliveryCost');
+      _selected = DeliveryAddresses(
+        address: prefs.getString('address'),
+        buildingNumber: prefs.getInt('buildingNumber'),
+        city: City(
+          name: prefs.getString('city'),
+          deliveryCost: prefs.getDouble('deliveryCost'),
+          minOrder: prefs.getDouble('minOrder'),
+        ),
+        lat: prefs.getDouble('lat'),
+        lan: prefs.getDouble('lng'),
+        unitNumber: prefs.getInt('unitNumber'),
+      );
+    });
+    getRemains();
+  }
+
+  Future getRemains() async {
+    setState(() {
+      remains = (double.parse(minOrder.toString()) - double.parse(total.toString()));
+      print(remains);
+    });
+  }
+
   @override
   void initState() {
     _textEditingController = TextEditingController();
     showFreeDelivery();
+    // getAddresses();
+    getDefault();
     getCart();
     super.initState();
   }
@@ -299,7 +347,7 @@ class _BasketStepState extends State<BasketStep> {
                           iconAlignment: Alignment.topRight,
                           deocation: RemoveIconDecoration.copyWith(
                             iconColor: CColors.headerText,
-                            iconSize: 16,
+                            iconSize: 18,
                             backgroundColor: CColors.white,
                             borderColor: _hasError
                                 ? CColors.coldPaleBloodRed
@@ -390,7 +438,7 @@ class _BasketStepState extends State<BasketStep> {
                                                   .discount >
                                               0
                                           ? Text(
-                                              "${cart.items.values.toList()[index].quantity * (cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
+                                              "${(cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
                                               style: TextStyle(
                                                 fontSize: 10,
                                                 color: const Color(0xff3c984f),
@@ -478,8 +526,8 @@ class _BasketStepState extends State<BasketStep> {
                                             cart.items.values
                                                 .toList()[index]
                                                 .quantity = cart.items.values
-                                                .toList()[index]
-                                                .quantity +
+                                                    .toList()[index]
+                                                    .quantity +
                                                 cart.items.values
                                                     .toList()[index]
                                                     .product
@@ -538,7 +586,7 @@ class _BasketStepState extends State<BasketStep> {
                                                 0
                                             ? TextSpan(
                                                 text:
-                                                    " ${cart.items.values.toList()[index].quantity * (cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}",
+                                                    " ${(cart.items.values.toList()[index].quantity * (cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))).toStringAsFixed(2)}",
                                                 style: TextStyle(
                                                   fontSize: 14,
                                                   color:
@@ -677,68 +725,85 @@ class _BasketStepState extends State<BasketStep> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 46,horizontal: 30),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 46, horizontal: 30),
                               child: Column(
                                 children: [
                                   Container(
                                     child: showFree
                                         ? Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Card(
-                                                  color: CColors.darkOrange,
-                                                  elevation: 0.0,
-                                                  margin: EdgeInsets.zero,
-                                                  shape:
-                                                      RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadiusDirectional
-                                                            .only(
-                                                      bottomEnd:
-                                                          Radius.circular(13),
-                                                      topStart:
-                                                          Radius.circular(13),
-                                                      topEnd:
-                                                          Radius.circular(13),
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  remains>0?Card(
+                                                    color: CColors.darkOrange,
+                                                    elevation: 0.0,
+                                                    margin: EdgeInsets.zero,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadiusDirectional
+                                                              .only(
+                                                        bottomEnd:
+                                                            Radius.circular(13),
+                                                        topStart:
+                                                            Radius.circular(13),
+                                                        topEnd:
+                                                            Radius.circular(13),
+                                                      ),
+                                                    ),
+                                                    child: Padding(
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          horizontal: 10,
+                                                          vertical: 5),
+                                                      child: FutureBuilder(
+                                                        future: getDefault(),
+                                                        builder: (context,
+                                                            snapshot) {
+                                                          return  Text(
+                                                                  "${remains.toString()} ${"Q.R".trs(context)} ",
+                                                                  style: TextStyle(
+                                                                      color: CColors
+                                                                          .white),
+                                                                );
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ):Container(),
+                                                  SizedBox(width: 5),
+                                                  remains > 0
+                                                      ?Text(
+                                                    "remains_for_free_shipping"
+                                                        .trs(context),
+                                                    style: TextStyle(
+                                                      color: CColors.grey,
+                                                      fontSize: 13,
+                                                    ),
+                                                  ):Text(
+                                                    'you_have_free_shipping'
+                                                        .trs(context),
+                                                    style: TextStyle(
+                                                      color: CColors.grey,
+                                                      fontSize: 13,
                                                     ),
                                                   ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 5),
-                                                    child: Text(
-                                                      "${remains.toString()} ${"Q.R".trs(context)} ",
-                                                      style: TextStyle(
-                                                          color:
-                                                              CColors.white),
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 5),
-                                                Text(
-                                                  "remains_for_free_shipping"
-                                                      .trs(context),
-                                                  style: TextStyle(
-                                                    color: CColors.grey,
-                                                    fontSize: 13,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 5),
-                                              child: FreeShippingSlider(
-                                                persentage: 0.5,
+                                                ],
                                               ),
-                                            )
-                                          ],
-                                        )
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 5),
+                                                child: FreeShippingSlider(
+                                                  persentage: remains > 0
+                                                      ? remains / minOrder
+                                                      : 0.0,
+                                                ),
+                                              )
+                                            ],
+                                          )
                                         : Container(),
                                   ),
                                   Container(
@@ -804,7 +869,30 @@ class _BasketStepState extends State<BasketStep> {
                                                         .text);
                                               }
                                               cart.setTotal(total);
-                                              widget.onContinuePressed.call();
+                                              showDialog(
+                                                context: context,
+                                                // barrierDismissible: false,
+                                                builder: (context) =>
+                                                    _AddressConfirmationDialog(
+                                                  address: _selected,
+                                                  onTapContinue: () {
+                                                    Navigator.pop(context);
+                                                    widget.onContinuePressed
+                                                        .call();
+                                                  },
+                                                  onTapNewOne: () =>
+                                                      Navigator.of(
+                                                              context,
+                                                              rootNavigator:
+                                                                  true)
+                                                          .pushReplacement(
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          UserProfile(),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
                                             } else {
                                               showGeneralDialog(
                                                 barrierDismissible: true,
@@ -895,6 +983,8 @@ class _BasketStepState extends State<BasketStep> {
           );
   }
 
+  bool _isAddressSelected(DeliveryAddresses index) => _selected == index;
+
   Widget _buildRemainingItemsCard(
       BuildContext context, index, ErrorModel cart) {
     return Card(
@@ -919,43 +1009,132 @@ class _BasketStepState extends State<BasketStep> {
   bool get _isNormalNotesHeight => _textFieldHeight == _finalValue;
 }
 
-// class _AdditionalNotes extends StatefulWidget {
-//   final ValueChanged<String> onAddNote;
-//
-//   const _AdditionalNotes({
-//     Key key,
-//     this.onAddNote,
-//   }) : super(key: key);
-//
-//   @override
-//   __AdditionalNotesState createState() => __AdditionalNotesState();
-// }
+class _AddressConfirmationDialog extends StatelessWidget {
+  final VoidCallback onTapContinue;
+  final VoidCallback onTapNewOne;
+  final DeliveryAddresses address;
 
-// class __AdditionalNotesState extends State<_AdditionalNotes> {
-//   TextEditingController _textEditingController;
-//   double _textFieldHeight = 0;
-//   final double _finalValue = 100.0;
-//
-//   @override
-//   void initState() {
-//     _textEditingController = TextEditingController();
-//     super.initState();
-//   }
-//
-//   @override
-//   void dispose() {
-//     _textEditingController?.dispose();
-//     super.dispose();
-//   }
-//
-//   void _toggleTextFieldHeight() {
-//     if (_textFieldHeight == _finalValue)
-//       _textFieldHeight = 0;
-//     else
-//       _textFieldHeight = _finalValue;
-//   }
-//
-//   bool get _isNormalNotesHeight => _textFieldHeight == _finalValue;
-//
-//
-// }
+  const _AddressConfirmationDialog({
+    Key key,
+    this.onTapContinue,
+    this.onTapNewOne,
+    this.address,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    return Dialog(
+      backgroundColor: CColors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: CColors.white,
+          borderRadius: BorderRadius.circular(13),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(10),
+              offset: Offset(0, 5.0),
+              spreadRadius: 1,
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        padding: EdgeInsets.all(15),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "order_will_be_delivered_to".trs(context),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: CColors.headerText,
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              constraints: BoxConstraints(
+                maxHeight: 150,
+                maxWidth: size.width * 0.6,
+              ),
+              decoration: BoxDecoration(
+                color: CColors.lightOrange,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: ListTile(
+                contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                leading:
+                    SvgPicture.asset(Constants.mapPin, width: 40, height: 40),
+                title: Text(
+                  "${address.city.name}, ${address.address}",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: CColors.headerText,
+                  ),
+                ),
+                subtitle: Text(
+                  "${address.buildingNumber}, ${address.unitNumber}",
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Text(
+                "or_add_new_adress".trs(context),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: CColors.grey,
+                  fontSize: 11,
+                ),
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    if (onTapNewOne != null) onTapNewOne();
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                    side: BorderSide(color: CColors.lightGreen, width: 2),
+                  ),
+                  color: CColors.transparent,
+                  child: Text(
+                    "new_one_address".trs(context),
+                    style: TextStyle(
+                      color: CColors.lightGreen,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                FlatButton(
+                  onPressed: onTapContinue,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  color: Colors.grey[200],
+                  child: Text(
+                    "continue".trs(context),
+                    style: TextStyle(
+                      color: CColors.lightGreen,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

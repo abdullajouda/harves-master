@@ -333,7 +333,7 @@ class _WalletState extends State<Wallet> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(left: 14),
+                      padding: const EdgeInsets.only(left: 14,right: 14),
                       child: Text(
                         "add_from_your_card".trs(context),
                         style: TextStyle(

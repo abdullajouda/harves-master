@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harvest/customer/models/delivery-data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Services with ChangeNotifier {
@@ -15,7 +16,12 @@ class Services with ChangeNotifier {
   }
 
   setUser(
-      int id,int cityId, String first, String email, String mobile, String avatar) async {
+      int id,
+      int cityId,
+      String first,
+      String email,
+      String mobile,
+      String avatar) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('id', id);
     prefs.setInt('cityId', cityId);
@@ -23,6 +29,28 @@ class Services with ChangeNotifier {
     prefs.setString('email', email);
     prefs.setString('mobile', mobile);
     prefs.setString('avatar', avatar);
+    notifyListeners();
+  }
+
+  setDefaultAddress(
+      {String city,
+      String address,
+      int unitNumber,
+      int buildingNumber,
+      double lat,
+      double lng,
+      double deliveryCost,
+      double minOrder,
+      }) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('city', city);
+    prefs.setDouble('lat', lat);
+    prefs.setDouble('lng', lng);
+    prefs.setDouble('deliveryCost', deliveryCost);
+    prefs.setDouble('minOrder', minOrder);
+    prefs.setString('address', address);
+    prefs.setInt('unitNumber', unitNumber);
+    prefs.setInt('buildingNumber', buildingNumber);
     notifyListeners();
   }
 
@@ -38,10 +66,10 @@ class Services with ChangeNotifier {
     notifyListeners();
   }
 
-  // setImage(String image) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   prefs.setString('avatar', image);
-  //   notifyListeners();
-  // }
+// setImage(String image) async {
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
+//   prefs.setString('avatar', image);
+//   notifyListeners();
+// }
 
 }

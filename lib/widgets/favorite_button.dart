@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/customer/models/favorite.dart';
 import 'package:harvest/customer/models/fruit.dart';
 import 'package:harvest/customer/models/products.dart';
+import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/variables.dart';
@@ -33,29 +34,24 @@ class _FavoriteButtonState extends State<FavoriteButton> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getString('userToken') != null) {
       setState(() {
-        load = true;
+        widget.fruit.isFavorite = '1';
       });
       FavoriteOperations op =
           Provider.of<FavoriteOperations>(context, listen: false);
       var request =
           await get(ApiHelper.api + 'addFavorite/${widget.fruit.id}', headers: {
         'Accept': 'application/json',
-        'Accept-Language': 'en',
+        'Accept-Language': LangProvider().getLocaleCode(),
         'Authorization': 'Bearer ${prefs.getString('userToken')}'
       });
       var response = json.decode(request.body);
-      Fluttertoast.showToast(msg: response['message']);
+      // Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
         setState(() {
           op.addItem(widget.fruit);
-          widget.fruit.isFavorite = '1';
           op.updateFavHome(widget.fruit);
-          load = false;
         });
       }
-      setState(() {
-        load = false;
-      });
     } else {
       showCupertinoDialog(
         context: context,
@@ -67,31 +63,25 @@ class _FavoriteButtonState extends State<FavoriteButton> {
   Future removeFav() async {
     FavoriteOperations op =
         Provider.of<FavoriteOperations>(context, listen: false);
-
     setState(() {
-      load = true;
+      widget.fruit.isFavorite = '0';
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(
         ApiHelper.api + 'deleteFromFavorit/${widget.fruit.id}',
         headers: {
           'Accept': 'application/json',
-          'Accept-Language': 'en',
+          'Accept-Language': LangProvider().getLocaleCode(),
           'Authorization': 'Bearer ${prefs.getString('userToken')}'
         });
     var response = json.decode(request.body);
-    Fluttertoast.showToast(msg: response['message']);
+    // Fluttertoast.showToast(msg: response['message']);
     if (response['status'] == true) {
       setState(() {
-        widget.fruit.isFavorite = '0';
         op.removeFav(widget.fruit);
         op.updateFavHome(widget.fruit);
-        load = false;
       });
     }
-    setState(() {
-      load = false;
-    });
   }
 
   @override

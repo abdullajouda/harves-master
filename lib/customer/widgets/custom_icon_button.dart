@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/colors.dart';
 
 class CIconButton extends StatelessWidget {
@@ -58,7 +59,7 @@ class CBackButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(5),
         ),
         child: Icon(
-          Icons.chevron_left,
+          LangProvider().getLocaleCode() == 'ar'?Icons.chevron_left: Icons.chevron_right,
           color: CColors.headerText,
         ),
       ),

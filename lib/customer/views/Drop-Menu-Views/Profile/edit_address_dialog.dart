@@ -33,6 +33,7 @@ class EditAddressDialog extends StatefulWidget {
 }
 
 class _EditAddressDialogState extends State<EditAddressDialog> {
+  final GlobalKey<FormState> _locationFormKey = GlobalKey<FormState>();
   City city;
   TextEditingController fullAddress, buildingNo, unitNo, additionalNotes;
   double lat, lng;
@@ -71,39 +72,48 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
   }
 
   editAddress() async {
-    if (city != null) {
-      setState(() {
-        _load = true;
-      });
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      var request = await post(
-          ApiHelper.api + 'editAddress/${widget.deliveryAddresses.id}',
-          body: {
-            'lat': '${lat != null ? lat : widget.deliveryAddresses.lat}',
-            'lan': '${lng != null ? lng : widget.deliveryAddresses.lan}',
-            'address_name': '${fullAddress.text}',
-            'address': '${fullAddress.text}',
-            'city_id': '${city.id}',
-            'building_number': '${buildingNo.text}',
-            'unit_number': '${unitNo.text}',
-            'note': '${additionalNotes.text}',
-            'is_default': '${widget.deliveryAddresses.isDefault}',
-          },
-          headers: {
-            'Accept': 'application/json',
-            'Accept-Language': 'en',
-            'Authorization': 'Bearer ${prefs.getString('userToken')}'
-          });
-      var response = json.decode(request.body);
-      print(response);
-      if (response['status'] == true) {
-        Navigator.pop(context);
+    if (fullAddress.text != '' && additionalNotes.text != '') {
+      if (city != null) {
+        setState(() {
+          _load = true;
+        });
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var request = await post(
+            ApiHelper.api + 'editAddress/${widget.deliveryAddresses.id}',
+            body: {
+              'lat': '${lat != null ? lat : widget.deliveryAddresses.lat}',
+              'lan': '${lng != null ? lng : widget.deliveryAddresses.lan}',
+              'address_name': '${fullAddress.text}',
+              'address': '${fullAddress.text}',
+              'city_id': '${city.id}',
+              'building_number': '${buildingNo.text}',
+              'unit_number': '${unitNo.text}',
+              'note': '${additionalNotes.text}',
+              // 'is_default': '${widget.deliveryAddresses.isDefault}',
+            },
+            headers: {
+              'Accept': 'application/json',
+              'Accept-Language': LangProvider().getLocaleCode(),
+              'Authorization': 'Bearer ${prefs.getString('userToken')}'
+            });
+        var response = json.decode(request.body);
+        print(response);
+        if (response['status'] == true) {
+          Navigator.pop(context);
+        }
+        setState(() {
+          _load = false;
+        });
+      } else {
+        Fluttertoast.showToast(msg: 'Select your city from extra details');
+        setState(() {
+          _expand = true;
+        });
       }
+    }else{
       setState(() {
-        _load = false;
+        _expand = true;
       });
-    } else {
-      Fluttertoast.showToast(msg: 'Select your city from extra details');
     }
   }
 
@@ -146,448 +156,473 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     var op = Provider.of<CityOperations>(context);
-    return Container(
-      // width: size.width,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(33.0),
-          topRight: Radius.circular(33.0),
-        ),
-        color: const Color(0xffffffff),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x1a000000),
-            offset: Offset(0, -5),
-            blurRadius: 51,
+    return Padding(
+      padding:
+      EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: Container(
+        // width: size.width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(33.0),
+            topRight: Radius.circular(33.0),
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        // alignment: Alignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30),
-            child: Container(
-              height: size.height * .6,
-              width: size.width * .8,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                    top: 0,
-                    child: Container(
-                      height: size.height * .57,
-                      width: size.width * .8,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(13.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0x24000000),
-                            offset: Offset(0, 2),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          GoogleMap(
-                            mapType: MapType.normal,
-                            zoomControlsEnabled: false,
-                            mapToolbarEnabled: false,
-                            trafficEnabled: false,
-                            compassEnabled: false,
-                            scrollGesturesEnabled: true,
-                            initialCameraPosition: _initialCameraPosition,
-                            markers: markers.toSet(),
-                            onMapCreated: (controller) {
-                              setState(() {
-                                _controller = controller;
-                              });
-                            },
-                            onTap: (latLng) {
-                              _controller.animateCamera(
-                                  CameraUpdate.newLatLng(latLng));
-                              setState(() {
-                                lat = latLng.latitude;
-                                lng = latLng.longitude;
-                              });
-                              addMarker(latLng.latitude, latLng.longitude);
-                            },
-                          ),
-                          _load
-                              ? Container(
-                                  color: Colors.black26,
-                                  child: SpinKitFadingCircle(
-                                    color: kPrimaryColor,
-                                    size: 25,
-                                  ),
-                                )
-                              : Container()
-                        ],
+          color: const Color(0xffffffff),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0x1a000000),
+              offset: Offset(0, -5),
+              blurRadius: 51,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          // alignment: Alignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30),
+              child: Container(
+                height: size.height * .6,
+                width: size.width * .8,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned(
+                      top: 0,
+                      child: Container(
+                        height: size.height * .57,
+                        width: size.width * .8,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(13.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0x24000000),
+                              offset: Offset(0, 2),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            GoogleMap(
+                              mapType: MapType.normal,
+                              zoomControlsEnabled: false,
+                              mapToolbarEnabled: false,
+                              trafficEnabled: false,
+                              compassEnabled: false,
+                              scrollGesturesEnabled: true,
+                              initialCameraPosition: _initialCameraPosition,
+                              markers: markers.toSet(),
+                              onMapCreated: (controller) {
+                                setState(() {
+                                  _controller = controller;
+                                });
+                              },
+                              onTap: (latLng) {
+                                _controller.animateCamera(
+                                    CameraUpdate.newLatLng(latLng));
+                                setState(() {
+                                  lat = latLng.latitude;
+                                  lng = latLng.longitude;
+                                });
+                                addMarker(latLng.latitude, latLng.longitude);
+                              },
+                            ),
+                            _load
+                                ? Container(
+                                    color: Colors.black26,
+                                    child: SpinKitFadingCircle(
+                                      color: kPrimaryColor,
+                                      size: 25,
+                                    ),
+                                  )
+                                : Container()
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    child: AnimatedOpacity(
-                        opacity: _visible ? 1.0 : 0.0,
-                        duration: Duration(milliseconds: 600),
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          height: _expand ? 400 : 64,
-                          width: 260,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(9.0),
-                            color: const Color(0xffffffff),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0x14000000),
-                                offset: Offset(0, 4),
-                                blurRadius: 12,
-                              ),
-                            ],
-                          ),
-                          child: _expand
-                              ? Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 15, horizontal: 20),
-                                      child: Stack(
-                                        children: [
-                                          Container(
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(12.0),
-                                              border: Border.all(
-                                                  width: 1.0,
-                                                  color:
-                                                      const Color(0xffe3e7eb)),
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 15),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    city != null
-                                                        ? city.name
-                                                        : 'City',
-                                                    style: TextStyle(
-                                                      fontSize: 8,
-                                                      color: const Color(
-                                                          0xff525768),
-                                                    ),
+                    Positioned(
+                      bottom: 0,
+                      child: AnimatedOpacity(
+                          opacity: _visible ? 1.0 : 0.0,
+                          duration: Duration(milliseconds: 600),
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
+                            height: _expand ? 400 : 64,
+                            width: 260,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(9.0),
+                              color: const Color(0xffffffff),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0x14000000),
+                                  offset: Offset(0, 4),
+                                  blurRadius: 12,
+                                ),
+                              ],
+                            ),
+                            child: _expand
+                                ? Form(
+                              key: _locationFormKey,
+                                  child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 15, horizontal: 20),
+                                          child: Stack(
+                                            children: [
+                                              Container(
+                                                height: 50,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12.0),
+                                                  border: Border.all(
+                                                      width: 1.0,
+                                                      color:
+                                                          const Color(0xffe3e7eb)),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                          horizontal: 15),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        city != null
+                                                            ? city.name
+                                                            : 'City',
+                                                        style: TextStyle(
+                                                          fontSize: 8,
+                                                          color: const Color(
+                                                              0xff525768),
+                                                        ),
+                                                      ),
+                                                      SvgPicture.asset(
+                                                          'assets/icons/arrow-down.svg')
+                                                    ],
                                                   ),
-                                                  SvgPicture.asset(
-                                                      'assets/icons/arrow-down.svg')
-                                                ],
+                                                ),
                                               ),
-                                            ),
-                                          ),
-                                          Container(
-                                            height: 50,
-                                            width: size.width * .75,
-                                            child: DropdownButton<City>(
-                                              icon: Container(),
-                                              underline: Container(),
-                                              items: op.items.values
-                                                  .toList()
-                                                  .map((City value) {
-                                                return DropdownMenuItem<City>(
-                                                  value: value,
-                                                  child: Text(
-                                                    value.name,
-                                                    style: TextStyle(
-                                                      fontSize: 10,
-                                                      color: const Color(
-                                                          0xff525768),
-                                                    ),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  city = value;
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20),
-                                      child: Container(
-                                        child: TextFormField(
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              color: const Color(0xff525768),
-                                            ),
-                                            controller: fullAddress,
-                                            cursorColor: CColors.darkOrange,
-                                            cursorWidth: 1,
-                                            decoration: locationFieldDecoration(
-                                                'Full address')),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 15),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Container(
-                                            width: size.width * .25,
-                                            child: Center(
-                                              child: TextFormField(
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    color:
-                                                        const Color(0xff525768),
-                                                  ),
-                                                  controller: unitNo,
-                                                  cursorColor:
-                                                      CColors.darkOrange,
-                                                  cursorWidth: 1,
-                                                  decoration:
-                                                      locationFieldDecoration(
-                                                          'Unit No.')),
-                                            ),
-                                          ),
-                                          Container(
-                                            width: size.width * .25,
-                                            child: Center(
-                                              child: TextFormField(
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    color:
-                                                        const Color(0xff525768),
-                                                  ),
-                                                  controller: buildingNo,
-                                                  cursorColor:
-                                                      CColors.darkOrange,
-                                                  cursorWidth: 1,
-                                                  decoration:
-                                                      locationFieldDecoration(
-                                                          'Building No.')),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 20),
-                                      child: Container(
-                                        child: Stack(
-                                          children: [
-                                            TextFormField(
-                                                style: TextStyle(
-                                                  fontSize: 10,
-                                                  color:
-                                                      const Color(0xff525768),
-                                                ),
-                                                controller: additionalNotes,
-                                                maxLines: 5,
-                                                cursorColor: CColors.darkOrange,
-                                                cursorWidth: 1,
-                                                decoration:
-                                                    locationFieldDecoration(
-                                                        'Additional Notes')),
-                                            Positioned(
-                                                bottom: 5,
-                                                right: 5,
-                                                child: SvgPicture.asset(
-                                                    'assets/icons/additional_icon.svg'))
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 25, right: 20,left: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                  'Is Default Address'.trs(context),
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    color:
-                                                        const Color(0xff525768),
-                                                  ),
-                                                ),
-                                                Switch(
-                                                  activeColor: CColors.darkOrange,
-                                                  value: widget.deliveryAddresses
-                                                              .isDefault ==
-                                                          1
-                                                      ? true
-                                                      : false,
+                                              Container(
+                                                height: 50,
+                                                width: size.width * .75,
+                                                child: DropdownButton<City>(
+                                                  icon: Container(),
+                                                  underline: Container(),
+                                                  items: op.items.values
+                                                      .toList()
+                                                      .map((City value) {
+                                                    return DropdownMenuItem<City>(
+                                                      value: value,
+                                                      child: Text(
+                                                        value.name,
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          color: const Color(
+                                                              0xff525768),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
                                                   onChanged: (value) {
-                                                    value
-                                                        ? setState(() {
-                                                            widget
-                                                                .deliveryAddresses
-                                                                .isDefault = 1;
-                                                          })
-                                                        : setState(() {
-                                                            widget
-                                                                .deliveryAddresses
-                                                                .isDefault = 0;
-                                                          });
+                                                    setState(() {
+                                                      city = value;
+                                                    });
                                                   },
                                                 ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          child: Container(
+                                            child: TextFormField(
+                                                validator: (value) =>
+                                                    FieldValidator.validate(
+                                                        value, context),
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: const Color(0xff525768),
+                                                ),
+                                                controller: fullAddress,
+                                                cursorColor: CColors.darkOrange,
+                                                cursorWidth: 1,
+                                                decoration: locationFieldDecoration(
+                                                    'Full address')),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 15),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Container(
+                                                width: size.width * .25,
+                                                child: Center(
+                                                  child: TextFormField(
+                                                      keyboardType: TextInputType.number,
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color:
+                                                            const Color(0xff525768),
+                                                      ),
+                                                      controller: unitNo,
+                                                      cursorColor:
+                                                          CColors.darkOrange,
+                                                      cursorWidth: 1,
+                                                      decoration:
+                                                          locationFieldDecoration(
+                                                              'Unit No.')),
+                                                ),
+                                              ),
+                                              Container(
+                                                width: size.width * .25,
+                                                child: Center(
+                                                  child: TextFormField(
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color:
+                                                            const Color(0xff525768),
+                                                      ),
+                                                      controller: buildingNo,
+                                                      keyboardType: TextInputType.number,
+                                                      cursorColor:
+                                                          CColors.darkOrange,
+                                                      cursorWidth: 1,
+                                                      decoration:
+                                                          locationFieldDecoration(
+                                                              'Building No.')),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          child: Container(
+                                            child: Stack(
+                                              children: [
+                                                TextFormField(
+                                                    style: TextStyle(
+                                                      fontSize: 10,
+                                                      color:
+                                                          const Color(0xff525768),
+                                                    ),
+                                                    validator: (value) =>
+                                                        FieldValidator.validate(
+                                                            value, context),
+                                                    controller: additionalNotes,
+                                                    maxLines: 5,
+                                                    cursorColor: CColors.darkOrange,
+                                                    cursorWidth: 1,
+                                                    decoration:
+                                                        locationFieldDecoration(
+                                                            'Additional Notes')),
+                                                Positioned(
+                                                    bottom: 5,
+                                                    right: 5,
+                                                    child: SvgPicture.asset(
+                                                        'assets/icons/additional_icon.svg'))
                                               ],
                                             ),
                                           ),
-                                          Align(
-                                            alignment: Alignment.centerRight,
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  _expand = false;
-                                                });
-                                              },
-                                              child: Container(
-                                                height: 31,
-                                                width: 58,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          5.0),
-                                                  color:
-                                                      const Color(0xfff88518),
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    'Save',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: const Color(
-                                                          0xffffffff),
-                                                      fontWeight:
-                                                          FontWeight.w500,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 25, right: 20,left: 10),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              // Container(
+                                              //   child: Row(
+                                              //     mainAxisSize: MainAxisSize.min,
+                                              //     children: [
+                                              //       Text(
+                                              //         'Is Default Address'.trs(context),
+                                              //         style: TextStyle(
+                                              //           fontSize: 10,
+                                              //           color:
+                                              //               const Color(0xff525768),
+                                              //         ),
+                                              //       ),
+                                              //       Switch(
+                                              //         activeColor: CColors.darkOrange,
+                                              //         value: widget.deliveryAddresses
+                                              //                     .isDefault ==
+                                              //                 1
+                                              //             ? true
+                                              //             : false,
+                                              //         onChanged: (value) {
+                                              //           value
+                                              //               ? setState(() {
+                                              //                   widget
+                                              //                       .deliveryAddresses
+                                              //                       .isDefault = 1;
+                                              //                 })
+                                              //               : setState(() {
+                                              //                   widget
+                                              //                       .deliveryAddresses
+                                              //                       .isDefault = 0;
+                                              //                 });
+                                              //         },
+                                              //       ),
+                                              //     ],
+                                              //   ),
+                                              // ),
+                                              Align(
+                                                alignment: Alignment.centerRight,
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    if (_locationFormKey
+                                                        .currentState
+                                                        .validate()) {
+                                                      if (city != null) {
+                                                        setState(() {
+                                                          _expand = false;
+                                                        });
+                                                      } else {
+                                                        Fluttertoast.showToast(
+                                                            msg:
+                                                            'Select your city first'.trs(context));
+                                                      }
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    height: 31,
+                                                    width: 58,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5.0),
+                                                      color:
+                                                          const Color(0xfff88518),
                                                     ),
-                                                    textAlign: TextAlign.left,
+                                                    child: Center(
+                                                      child: Text(
+                                                        'Save',
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: const Color(
+                                                              0xffffffff),
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                        textAlign: TextAlign.left,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                )
-                              : Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _expand = true;
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 31,
-                                        width: 167,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                          color: const Color(0xffe4f0e6),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            'Add Extra Details ',
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: const Color(0xff3c984f),
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                            textAlign: TextAlign.left,
-                                          ),
-                                        ),
-                                      ),
+                                        )
+                                      ],
                                     ),
-                                    // GestureDetector(
-                                    //   onTap: () {
-                                    //     save();
-                                    //   },
-                                    //   child: Container(
-                                    //     width: 58,
-                                    //     height: 31,
-                                    //     decoration: BoxDecoration(
-                                    //       borderRadius:
-                                    //           BorderRadius.circular(5.0),
-                                    //       color: const Color(0xfff88518),
-                                    //     ),
-                                    //     child: Center(
-                                    //         child: Text(
-                                    //       'Done',
-                                    //       style: TextStyle(
-                                    //
-                                    //         fontSize: 12,
-                                    //         color: const Color(0xffffffff),
-                                    //         fontWeight: FontWeight.w500,
-                                    //       ),
-                                    //       textAlign: TextAlign.left,
-                                    //     )),
-                                    //   ),
-                                    // )
-                                  ],
-                                ),
-                        )),
-                  )
-                ],
+                                )
+                                : Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _expand = true;
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 31,
+                                          width: 167,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                            color: const Color(0xffe4f0e6),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              'Add Extra Details ',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: const Color(0xff3c984f),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      // GestureDetector(
+                                      //   onTap: () {
+                                      //     save();
+                                      //   },
+                                      //   child: Container(
+                                      //     width: 58,
+                                      //     height: 31,
+                                      //     decoration: BoxDecoration(
+                                      //       borderRadius:
+                                      //           BorderRadius.circular(5.0),
+                                      //       color: const Color(0xfff88518),
+                                      //     ),
+                                      //     child: Center(
+                                      //         child: Text(
+                                      //       'Done',
+                                      //       style: TextStyle(
+                                      //
+                                      //         fontSize: 12,
+                                      //         color: const Color(0xffffffff),
+                                      //         fontWeight: FontWeight.w500,
+                                      //       ),
+                                      //       textAlign: TextAlign.left,
+                                      //     )),
+                                      //   ),
+                                      // )
+                                    ],
+                                  ),
+                          )),
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20),
-            child: GestureDetector(
-              onTap: () => editAddress(),
-              child: Container(
-                height: 60,
-                width: 260,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.0),
-                  color: const Color(0x0ff3C984F),
-                ),
-                child: Center(
-                  child: Text(
-                    'done_edit'.trs(context),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: const Color(0xffffffff),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: GestureDetector(
+                onTap: () => editAddress(),
+                child: Container(
+                  height: 60,
+                  width: 260,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.0),
+                    color: const Color(0x0ff3C984F),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'done_edit'.trs(context),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: const Color(0xffffffff),
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

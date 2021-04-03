@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/models/city.dart';
+import 'package:harvest/customer/models/delivery-data.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
+import 'package:harvest/helpers/services.dart';
 import 'package:harvest/widgets/auth_widgets/set_location_sheet.dart';
 import 'package:harvest/widgets/button_loader.dart';
 import 'package:http/http.dart';
@@ -66,10 +68,28 @@ class _LocationSheetState extends State<LocationSheet> {
         'Accept-Language': prefs.getString('language'),
       });
       var response = json.decode(request.body);
+      DeliveryAddresses addresses = DeliveryAddresses.fromJson(
+          response['user']['delivery_addresses'][0]);
       // Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
         prefs.setString('userToken', response['user']['access_token']);
         prefs.setInt('loginCount', 1);
+        Services().setUser(
+            response['user']['id'],
+            response['user']['city_id'],
+            response['user']['name'],
+            response['user']['email'],
+            response['user']['mobile'],
+            response['user']['image_profile']);
+        Services().setDefaultAddress(
+            address: addresses.address,
+            buildingNumber: addresses.buildingNumber,
+            city: addresses.city.name,
+            deliveryCost: addresses.city.deliveryCost,
+            lat: addresses.lat,
+            lng: addresses.lan,
+            minOrder: addresses.city.minOrder,
+            unitNumber: addresses.unitNumber);
         Navigator.push(
             context,
             CustomPageRoute(

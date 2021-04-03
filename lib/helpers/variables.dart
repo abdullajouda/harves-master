@@ -28,7 +28,7 @@ const kFontNeoSans = 'NeoSans';
 class FieldValidator {
   static String validate(String value, context) {
     if (value.isEmpty) {
-      return  'Required'.trs(context);
+      return  '* Required'.trs(context);
     }
     return null;
   }
@@ -57,6 +57,10 @@ InputDecoration locationFieldDecoration(hint) {
   return InputDecoration(
     contentPadding: EdgeInsets.only(left: 15,right: 15,top: 15),
     hintText: hint,
+    errorStyle: TextStyle(
+      fontSize: 8,
+      color: CColors.coldPaleBloodRed,
+    ),
     hintStyle: TextStyle(
       fontSize: 8,
       color: const Color(0xff525768),

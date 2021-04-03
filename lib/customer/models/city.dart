@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class City {
   int id;
   double deliveryCost;
-  int minOrder;
+  double minOrder;
   int welcomeCharge;
   int regularCharge;
   String createdAt;
@@ -21,7 +21,7 @@ class City {
   City.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     deliveryCost = double.parse(json['deliveryCost'].toString());
-    minOrder = json['min_order'];
+    minOrder = double.parse(json['min_order'].toString());
     welcomeCharge = json['welcome_charge'];
     regularCharge = json['regular_charge'];
     createdAt = json['created_at'];

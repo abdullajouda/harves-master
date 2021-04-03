@@ -86,7 +86,7 @@ class OrderCurrentListTile extends StatelessWidget {
                     ),
                   ),
                   Icon(FontAwesomeIcons.ellipsisV,
-                      color: Colors.grey[300], size: 15),
+                      color: leadingIconColor.withOpacity(0.4), size: 15),
                 ],
               ),
             ),
