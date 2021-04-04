@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
+import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/widgets/not_authenticated.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -33,7 +34,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
       var request =
           await get(ApiHelper.api + 'getMyOrdersByStatus/1', headers: {
         'Accept': 'application/json',
-        'Accept-Language': 'en',
+        'Accept-Language': LangProvider().getLocaleCode(),
         'Authorization': 'Bearer ${prefs.getString('userToken')}'
       });
       var response = json.decode(request.body);
@@ -78,10 +79,10 @@ class _CurrentOrdersState extends State<CurrentOrders> {
         return CColors.lightOrange;
         break;
       case 2:
-        return CColors.fadeBlueAccent;
+        return CColors.lightBlue;
         break;
       case 3:
-        return CColors.lightBlue;
+        return CColors.fadeBlueAccent;
         break;
       case 4:
         return CColors.lightGrey;
@@ -97,10 +98,10 @@ class _CurrentOrdersState extends State<CurrentOrders> {
         return CColors.darkOrange;
         break;
       case 2:
-        return CColors.darkGreen;
+        return CColors.skyBlue;
         break;
       case 3:
-        return CColors.skyBlue;
+        return CColors.darkGreen;
         break;
       case 4:
         return CColors.grey;

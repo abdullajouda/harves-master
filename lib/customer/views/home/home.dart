@@ -260,12 +260,14 @@ class _HomeState extends State<Home> {
         actions: [HomePopUpMenu()],
         leading: GestureDetector(
             onTap: () {
-              Navigator.of(context,rootNavigator: true).push(
+              Navigator.of(context)
+                  .push(
                 CustomPageRoute(
                   // context: context,
                   builder: (context) => Basket(),
                 ),
-              ).then((value) {
+              )
+                  .then((value) {
                 getProductsByCategories(_selectedIndex);
                 getFeaturedProducts();
               });

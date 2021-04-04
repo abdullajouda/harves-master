@@ -429,11 +429,11 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                     decoration:
                                                         locationFieldDecoration(
                                                             'Additional Notes')),
-                                                Positioned(
-                                                    bottom: 5,
-                                                    right: 5,
-                                                    child: SvgPicture.asset(
-                                                        'assets/icons/additional_icon.svg'))
+                                                // Positioned(
+                                                //     bottom: 5,
+                                                //     right: 5,
+                                                //     child: SvgPicture.asset(
+                                                //         'assets/icons/additional_icon.svg'))
                                               ],
                                             ),
                                           ),

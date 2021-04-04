@@ -25,7 +25,6 @@ class _FreeShippingSliderState extends State<FreeShippingSlider> {
 
   @override
   void initState() {
-    _offset = Offset.zero;
     width = widget.size?.width;
     height = widget.size?.height ?? 17.0;
     super.initState();
@@ -34,6 +33,12 @@ class _FreeShippingSliderState extends State<FreeShippingSlider> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    Offset center = Offset(size.width / 2, size.height / 2);
+    final rect =
+    Rect.fromCenter(center: center, height: size.height, width: size.width);
+    final double imageWidthPersentage =
+        (size.width / 2) - rect.width * widget.persentage;
+    _offset = Offset(imageWidthPersentage, 0);
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -49,9 +54,10 @@ class _FreeShippingSliderState extends State<FreeShippingSlider> {
           child: Transform.translate(
             offset: Offset(_offset.dx, 0),
             child: SvgPicture.asset(
-              widget.persentage <= 0
-                  ? Constants.fullFreeDileiveryIcon
-                  : Constants.freeDileiveryIcon,
+              Constants.freeDileiveryIcon,
+              // widget.persentage >= 1
+              //     ? Constants.fullFreeDileiveryIcon
+              //     : Constants.freeDileiveryIcon,
               width: height * 2,
             ),
           ),
@@ -121,13 +127,16 @@ class _FreeShippingSliderPainter extends CustomPainter {
     canvas.drawRRect(rrect2, paint2);
     // =======================================
     final double imageWidthPersentage =
-        (size.width / 2.0) - rectWidth * persentage;
+        (size.width / 1.8) - rectWidth * persentage;
+
     final Offset _safeOffset = Offset(rectWidth * (_onChangeThrethold - 1), 0);
+
     Offset _imageOffset = Offset(imageWidthPersentage, 0);
+
     if (_imageOffset.dx >= (imageWidthPersentage * _onChangeThrethold)) {
       _imageOffset -= _safeOffset;
     }
-    if (persentage <= 0.0) {
+    if (persentage <= 1.0) {
       _imageOffset += _safeOffset;
     }
     if (onChange != null) onChange(_imageOffset);

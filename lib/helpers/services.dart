@@ -33,6 +33,7 @@ class Services with ChangeNotifier {
   }
 
   setDefaultAddress(
+      int deliveryAddressId,
       {String city,
       String address,
       int unitNumber,
@@ -51,6 +52,7 @@ class Services with ChangeNotifier {
     prefs.setString('address', address);
     prefs.setInt('unitNumber', unitNumber);
     prefs.setInt('buildingNumber', buildingNumber);
+    prefs.setInt('deliveryAddressId', deliveryAddressId);
     notifyListeners();
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+
 //TODO: Change the image to be `image.Netwrok()`
 class OrderItemListTile extends StatelessWidget {
   final String name;
@@ -21,7 +22,8 @@ class OrderItemListTile extends StatelessWidget {
     @required this.image,
     @required this.price,
     @required this.pricePerKilo,
-    this.onTap, this.type,
+    this.onTap,
+    this.type,
   }) : super(key: key);
 
   @override
@@ -66,11 +68,14 @@ class OrderItemListTile extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        "$pricePerKilo ${'Q.R'.trs(context)}/$type",
-                        style: TextStyle(
-                          color: CColors.lightGreen,
-                          fontSize: 13,
+                      Container(
+                        width: 80,
+                        child: Text(
+                          "$pricePerKilo ${'Q.R'.trs(context)}/$type",
+                          style: TextStyle(
+                            color: CColors.lightGreen,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                       SizedBox(width: 10),
@@ -83,24 +88,23 @@ class OrderItemListTile extends StatelessWidget {
                       )
                     ],
                   ),
-                  Text.rich(
-                    TextSpan(
-                      text: " ${'Q.R'.trs(context)}  ",
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: CColors.darkOrange,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: price.toStringAsFixed(2),
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: CColors.headerText,
-                          ),
+                  Row(
+                    children: [
+                      Text(
+                        price.toStringAsFixed(2),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: CColors.headerText,
                         ),
-                      ],
-                    ),
+                      ),
+                      Text("  ${'Q.R'.trs(context)} ",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: CColors.darkOrange,
+                        ),)
+                    ],
                   ),
+
                 ],
               ),
             ),

@@ -52,6 +52,7 @@ class _UserAddressesState extends State<UserAddresses> {
       addresses.add(deliveryAddress);
     });
     Services().setDefaultAddress(
+      _address.id,
         address: _address.address,
         buildingNumber: _address.buildingNumber,
         city: _address.city.name,
@@ -83,6 +84,7 @@ class _UserAddressesState extends State<UserAddresses> {
     DeliveryAddresses _address = DeliveryAddresses.fromJson(
         response['items']['delivery_addresses'][0]);
     Services().setDefaultAddress(
+        _address.id,
         address: _address.address,
         buildingNumber: _address.buildingNumber,
         city: _address.city.name,
@@ -121,6 +123,7 @@ class _UserAddressesState extends State<UserAddresses> {
       DeliveryAddresses _address = DeliveryAddresses.fromJson(
           response['items']['delivery_addresses'][0]);
       Services().setDefaultAddress(
+          _address.id,
           address: _address.address,
           buildingNumber: _address.buildingNumber,
           city: _address.city.name,

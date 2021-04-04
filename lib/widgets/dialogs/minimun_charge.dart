@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+
 class MinimumChargeDialog extends StatelessWidget {
   final String subTitle;
 
-  const MinimumChargeDialog({Key key,this.subTitle}) : super(key: key);
+  const MinimumChargeDialog({Key key, this.subTitle}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -26,7 +29,11 @@ class MinimumChargeDialog extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Align(alignment: Alignment.topRight,child: IconButton(onPressed: () => Navigator.pop(context),icon: Icon(Icons.clear))),
+                Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(Icons.clear))),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Image.asset('assets/minimum-charge.png'),
@@ -54,7 +61,13 @@ class MinimumChargeDialog extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 30),
                   child: GestureDetector(
-                    onTap:() => Navigator.pop(context),
+                    onTap: () {
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                      Navigator.of(context, rootNavigator: true)
+                          .pushReplacement(MaterialPageRoute(
+                        builder: (context) => RootScreen(),
+                      ));
+                    },
                     child: Container(
                       height: 28,
                       width: 117,

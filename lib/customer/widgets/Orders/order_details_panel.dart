@@ -174,7 +174,8 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                                     SizedBox(height: 10),
                                 itemBuilder: (context, index) {
                                   return OrderItemListTile(
-                                    type: _order.orderProduct[index].product.typeName,
+                                    type: _order
+                                        .orderProduct[index].product.typeName,
                                     name:
                                         _order.orderProduct[index].product.name,
                                     itemsNum:
@@ -232,7 +233,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
           ],
         ),
         Text(
-          '${_order.myOrder.deliveryDate!=null?_order.myOrder.deliveryDate:''}',
+          '${_order.myOrder.deliveryDate != null ? _order.myOrder.deliveryDate : ''}',
           style: TextStyle(
             fontSize: 13,
             color: CColors.headerText,
@@ -263,7 +264,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  "${'Q.R'.trs(context)}  ${_order.myOrder.deliveryCost}",
+                  "${_order.myOrder.deliveryCost}  ${'Q.R'.trs(context)}",
                   style: TextStyle(
                     color: CColors.headerText,
                     fontWeight: FontWeight.normal,
@@ -272,30 +273,32 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                 ),
               ],
             ),
-            _order.myOrder.codeName!=null?Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "promotion_code".trs(context),
-                    style: TextStyle(
-                      color: CColors.headerText,
-                      fontSize: 12,
+            _order.myOrder.codeName != null
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "promotion_code".trs(context),
+                          style: TextStyle(
+                            color: CColors.headerText,
+                            fontSize: 12,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          "#${_order.myOrder.codeName}",
+                          style: TextStyle(
+                            color: CColors.headerText,
+                            fontWeight: FontWeight.normal,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    "#${_order.myOrder.codeName}",
-                    style: TextStyle(
-                      color: CColors.headerText,
-                      fontWeight: FontWeight.normal,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
-            ):Container(),
+                  )
+                : Container(),
             Row(
               children: [
                 Text(
@@ -306,24 +309,24 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Text.rich(
-                  TextSpan(
-                    text: "${'Q.R'.trs(context)}  ",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: CColors.darkOrange,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: "${_order.myOrder.totalPrice}",
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: CColors.headerText,
-                          fontWeight: FontWeight.w600,
-                        ),
+                Row(
+                  children: [
+                    Text(
+                      "${_order.myOrder.totalPrice}",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: CColors.headerText,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
+                    ),
+                    Text(
+                      "  ${'Q.R'.trs(context)} ",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: CColors.darkOrange,
+                      ),
+                    )
+                  ],
                 ),
               ],
             )

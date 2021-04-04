@@ -458,11 +458,12 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                                         locationFieldDecoration(
                                                             'additional_note'
                                                                 .trs(context))),
-                                                Positioned(
-                                                    bottom: 5,
-                                                    right: 5,
-                                                    child: SvgPicture.asset(
-                                                        'assets/icons/additional_icon.svg'))
+                                                // Positioned(
+                                                //     bottom: 5,
+                                                //     right: 5,
+                                                //     child: SvgPicture.asset(
+                                                //         'assets/icons/additional_icon.svg')
+                                                // )
                                               ],
                                             ),
                                           ),

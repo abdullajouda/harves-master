@@ -7,6 +7,7 @@ class CIconButton extends StatelessWidget {
   final EdgeInsetsGeometry contentPadding;
   final Color color;
   final VoidCallback onTap;
+
   const CIconButton({
     Key key,
     this.icon,
@@ -34,10 +35,12 @@ class CIconButton extends StatelessWidget {
 
 class CBackButton extends StatelessWidget {
   final VoidCallback onTap;
+
   const CBackButton({
     Key key,
     this.onTap,
   }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -59,7 +62,9 @@ class CBackButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(5),
         ),
         child: Icon(
-          LangProvider().getLocaleCode() == 'ar'?Icons.chevron_left: Icons.chevron_right,
+          LangProvider().getLocaleCode() == 'ar'
+              ? Icons.chevron_right
+              : Icons.chevron_left,
           color: CColors.headerText,
         ),
       ),

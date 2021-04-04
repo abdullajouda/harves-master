@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/Widgets/remove_icon.dart';
@@ -18,6 +19,7 @@ import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/widgets/add_new_address_dialog.dart';
 import 'package:harvest/widgets/alerts/myAlerts.dart';
 import 'package:harvest/widgets/dialogs/alert_builder.dart';
+import 'package:harvest/widgets/dialogs/minimun_charge.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:harvest/widgets/no_data.dart';
 import 'package:http/http.dart';
@@ -26,10 +28,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class BasketStep extends StatefulWidget {
   final VoidCallback onContinuePressed;
+  final VoidCallback onErrorFound;
 
   const BasketStep({
     Key key,
-    this.onContinuePressed,
+    this.onContinuePressed, this.onErrorFound,
   }) : super(key: key);
 
   @override
@@ -39,10 +42,11 @@ class BasketStep extends StatefulWidget {
 class _BasketStepState extends State<BasketStep> {
   bool load = true;
   bool showFree = false;
+  bool loadRemaining = true;
   double total;
   double deliveryCost;
   double minOrder;
-  double remains = 0.0;
+  double remains;
 
   List<DeliveryAddresses> addresses = [];
   DeliveryAddresses _selected;
@@ -74,8 +78,56 @@ class _BasketStepState extends State<BasketStep> {
   //     load = false;
   //   });
   // }
+  checkCartItems()async{
+    setState(() {
+      load = true;
+    });
+    var cart = Provider.of<Cart>(context, listen: false);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request = await post(ApiHelper.api + 'checkCart', body: {
+      'delivery_address': _selected.id.toString(),
+    }, headers: {
+      'Accept': 'application/json',
+      'fcmToken': prefs.getString('fcm_token'),
+      'Accept-Language': LangProvider().getLocaleCode(),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    print(response);
+    if (response['code'] == 200) {
+      if (_textEditingController.text !=
+          null) {
+        cart.setAdditional(
+            _textEditingController
+                .text);
+      }
+      cart.setTotal(total);
+      showNextDialog();
+    }
+    else if (response['code'] == 204) {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => MinimumChargeDialog(
+          subTitle: response['message'],
+        ),
+      );
+    }
+    else if (response['code'] == 205) {
+      var list = response['items'];
+      // cart.addError(index);
+      list.forEach((element) {
+        ErrorModel model = ErrorModel.fromJson(element);
+        cart.addError(model);
+        // cart.addError(int.parse(element.toString()));
+      });
+      widget.onErrorFound.call();
+    }
+    setState(() {
+      load = false;
+    });
+  }
 
-  getCart() async {
+  Future getCart() async {
     setState(() {
       load = true;
     });
@@ -131,13 +183,14 @@ class _BasketStepState extends State<BasketStep> {
     var response = json.decode(request.body);
     if (response['status'] == true) {
       setState(() {
-        total = double.parse(response['total']);
+        total = double.parse(response['total'].toString());
       });
     }
     if (response['message'] == 'product deleted') {
       MyAlert.addedToCart(1, context);
     }
     setState(() {
+      getRemains();
       load = false;
     });
   }
@@ -184,7 +237,6 @@ class _BasketStepState extends State<BasketStep> {
     //   ci.addItem(city);
     // });
     var set = json.decode(settings.body)['items'];
-
     if (set['show_delivery_free_msg'] == 1) {
       setState(() {
         showFree = true;
@@ -197,7 +249,9 @@ class _BasketStepState extends State<BasketStep> {
     setState(() {
       minOrder = prefs.getDouble('minOrder');
       deliveryCost = prefs.getDouble('deliveryCost');
+      getRemains();
       _selected = DeliveryAddresses(
+        id: prefs.getInt('deliveryAddressId'),
         address: prefs.getString('address'),
         buildingNumber: prefs.getInt('buildingNumber'),
         city: City(
@@ -210,23 +264,23 @@ class _BasketStepState extends State<BasketStep> {
         unitNumber: prefs.getInt('unitNumber'),
       );
     });
-    getRemains();
   }
 
   Future getRemains() async {
     setState(() {
-      remains = (double.parse(minOrder.toString()) - double.parse(total.toString()));
-      print(remains);
+      remains =
+          double.parse(minOrder.toString()) - double.parse(total.toString());
+      loadRemaining = false;
     });
   }
 
   @override
   void initState() {
+    remains = 1;
     _textEditingController = TextEditingController();
     showFreeDelivery();
-    // getAddresses();
-    getDefault();
-    getCart();
+    getCart().then((value) => getDefault());
+    // getDefault();
     super.initState();
   }
 
@@ -243,7 +297,28 @@ class _BasketStepState extends State<BasketStep> {
       _textFieldHeight = _finalValue;
   }
 
-//
+  showNextDialog() {
+    var cart = Provider.of<Cart>(context, listen: false);
+    showDialog(
+      context: context,
+      // barrierDismissible: false,
+      builder: (context) => _AddressConfirmationDialog(
+        address: _selected,
+        onTapContinue: () {
+          cart.setAddress(_selected);
+          Navigator.pop(context);
+          widget.onContinuePressed.call();
+        },
+        onTapNewOne: () =>
+            Navigator.of(context, rootNavigator: true).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => UserProfile(),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -731,79 +806,88 @@ class _BasketStepState extends State<BasketStep> {
                                 children: [
                                   Container(
                                     child: showFree
-                                        ? Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
+                                        ? loadRemaining
+                                            ? Container()
+                                            : Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
                                                 children: [
-                                                  remains>0?Card(
-                                                    color: CColors.darkOrange,
-                                                    elevation: 0.0,
-                                                    margin: EdgeInsets.zero,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadiusDirectional
-                                                              .only(
-                                                        bottomEnd:
-                                                            Radius.circular(13),
-                                                        topStart:
-                                                            Radius.circular(13),
-                                                        topEnd:
-                                                            Radius.circular(13),
-                                                      ),
-                                                    ),
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          horizontal: 10,
-                                                          vertical: 5),
-                                                      child: FutureBuilder(
-                                                        future: getDefault(),
-                                                        builder: (context,
-                                                            snapshot) {
-                                                          return  Text(
-                                                                  "${remains.toString()} ${"Q.R".trs(context)} ",
-                                                                  style: TextStyle(
-                                                                      color: CColors
-                                                                          .white),
-                                                                );
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ):Container(),
-                                                  SizedBox(width: 5),
-                                                  remains > 0
-                                                      ?Text(
-                                                    "remains_for_free_shipping"
-                                                        .trs(context),
-                                                    style: TextStyle(
-                                                      color: CColors.grey,
-                                                      fontSize: 13,
-                                                    ),
-                                                  ):Text(
-                                                    'you_have_free_shipping'
-                                                        .trs(context),
-                                                    style: TextStyle(
-                                                      color: CColors.grey,
-                                                      fontSize: 13,
-                                                    ),
+                                                  Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      remains > 0.0
+                                                          ? Card(
+                                                              color: CColors
+                                                                  .darkOrange,
+                                                              elevation: 0.0,
+                                                              margin: EdgeInsets
+                                                                  .zero,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadiusDirectional
+                                                                        .only(
+                                                                  bottomEnd: Radius
+                                                                      .circular(
+                                                                          13),
+                                                                  topStart: Radius
+                                                                      .circular(
+                                                                          13),
+                                                                  topEnd: Radius
+                                                                      .circular(
+                                                                          13),
+                                                                ),
+                                                              ),
+                                                              child: Padding(
+                                                                  padding: const EdgeInsets
+                                                                          .symmetric(
+                                                                      horizontal:
+                                                                          10,
+                                                                      vertical:
+                                                                          5),
+                                                                  child: Text(
+                                                                    "${remains.toString()} ${"Q.R".trs(context)} ",
+                                                                    style: TextStyle(
+                                                                        color: CColors
+                                                                            .white),
+                                                                  )),
+                                                            )
+                                                          : Container(),
+                                                      SizedBox(width: 5),
+                                                      remains > 0.0
+                                                          ? Text(
+                                                              "remains_for_free_shipping"
+                                                                  .trs(context),
+                                                              style: TextStyle(
+                                                                color: CColors
+                                                                    .grey,
+                                                                fontSize: 13,
+                                                              ),
+                                                            )
+                                                          : Text(
+                                                              'you_have_free_shipping'
+                                                                  .trs(context),
+                                                              style: TextStyle(
+                                                                color: CColors
+                                                                    .grey,
+                                                                fontSize: 13,
+                                                              ),
+                                                            ),
+                                                    ],
                                                   ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 5),
+                                                    child: FreeShippingSlider(
+                                                      persentage: remains > 0.0
+                                                          ? remains / minOrder
+                                                          : 0.0,
+                                                    ),
+                                                  )
                                                 ],
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 5),
-                                                child: FreeShippingSlider(
-                                                  persentage: remains > 0
-                                                      ? remains / minOrder
-                                                      : 0.0,
-                                                ),
                                               )
-                                            ],
-                                          )
                                         : Container(),
                                   ),
                                   Container(
@@ -861,82 +945,55 @@ class _BasketStepState extends State<BasketStep> {
                                           splashColor: Colors.transparent,
                                           highlightColor: Colors.transparent,
                                           onTap: () {
-                                            if (cart.errors.length == 0) {
-                                              if (_textEditingController.text !=
-                                                  null) {
-                                                cart.setAdditional(
-                                                    _textEditingController
-                                                        .text);
-                                              }
-                                              cart.setTotal(total);
-                                              showDialog(
-                                                context: context,
-                                                // barrierDismissible: false,
-                                                builder: (context) =>
-                                                    _AddressConfirmationDialog(
-                                                  address: _selected,
-                                                  onTapContinue: () {
-                                                    Navigator.pop(context);
-                                                    widget.onContinuePressed
-                                                        .call();
-                                                  },
-                                                  onTapNewOne: () =>
-                                                      Navigator.of(
-                                                              context,
-                                                              rootNavigator:
-                                                                  true)
-                                                          .pushReplacement(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          UserProfile(),
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            } else {
-                                              showGeneralDialog(
-                                                barrierDismissible: true,
-                                                barrierLabel: '',
-                                                barrierColor: Colors.black
-                                                    .withOpacity(0.1),
-                                                transitionDuration:
-                                                    Duration(milliseconds: 400),
-                                                context: context,
-                                                pageBuilder:
-                                                    (context, anim1, anim2) {
-                                                  return GestureDetector(
-                                                    onTap: () =>
-                                                        Navigator.pop(context),
-                                                    child: AlertBuilder(
-                                                      title:
-                                                          'The Highlighted items not available'
-                                                              .trs(context),
-                                                      subTitle:
-                                                          'Try to remove or adjust the number of this items'
-                                                              .trs(context),
-                                                      color: CColors
-                                                          .coldPaleBloodRed,
-                                                      icon: Icon(
-                                                        Icons
-                                                            .warning_amber_rounded,
-                                                        color: CColors.white,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                transitionBuilder: (context,
-                                                    anim1, anim2, child) {
-                                                  return SlideTransition(
-                                                    position: Tween(
-                                                            begin:
-                                                                Offset(0, -1),
-                                                            end: Offset(0, 0))
-                                                        .animate(anim1),
-                                                    child: child,
-                                                  );
-                                                },
-                                              );
-                                            }
+                                            checkCartItems();
+                                            // if (cart.errors.length == 0) {
+                                            //
+                                            //   showNextDialog();
+                                            // }
+                                            // else {
+                                            //   showGeneralDialog(
+                                            //     barrierDismissible: true,
+                                            //     barrierLabel: '',
+                                            //     barrierColor: Colors.black
+                                            //         .withOpacity(0.1),
+                                            //     transitionDuration:
+                                            //         Duration(milliseconds: 400),
+                                            //     context: context,
+                                            //     pageBuilder:
+                                            //         (context, anim1, anim2) {
+                                            //       return GestureDetector(
+                                            //         onTap: () =>
+                                            //             Navigator.pop(context),
+                                            //         child: AlertBuilder(
+                                            //           title:
+                                            //               'The Highlighted items not available'
+                                            //                   .trs(context),
+                                            //           subTitle:
+                                            //               'Try to remove or adjust the number of this items'
+                                            //                   .trs(context),
+                                            //           color: CColors
+                                            //               .coldPaleBloodRed,
+                                            //           icon: Icon(
+                                            //             Icons
+                                            //                 .warning_amber_rounded,
+                                            //             color: CColors.white,
+                                            //           ),
+                                            //         ),
+                                            //       );
+                                            //     },
+                                            //     transitionBuilder: (context,
+                                            //         anim1, anim2, child) {
+                                            //       return SlideTransition(
+                                            //         position: Tween(
+                                            //                 begin:
+                                            //                     Offset(0, -1),
+                                            //                 end: Offset(0, 0))
+                                            //             .animate(anim1),
+                                            //         child: child,
+                                            //       );
+                                            //     },
+                                            //   );
+                                            // }
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(

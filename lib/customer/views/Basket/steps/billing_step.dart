@@ -68,8 +68,8 @@ class _BillingStepState extends State<BillingStep> {
   Widget build(BuildContext context) {
     List<PaymentMethod> _paymentMethods = [
       // PaymentMethod(title: "Bank Account", iconPath: 'assets/images/bank.svg'),
-      PaymentMethod(title: "Cash", iconPath: 'assets/images/cash.svg'),
-      PaymentMethod(title: "Card", iconPath: 'assets/images/credit-card.svg'),
+      PaymentMethod(title: "Cash".trs(context), iconPath: 'assets/images/cash.svg'),
+      PaymentMethod(title: "card".trs(context), iconPath: 'assets/images/credit-card.svg'),
       // PaymentMethod(title: "PayPal", iconPath: 'assets/images/paypal.svg'),
     ];
     var cart = Provider.of<Cart>(context);

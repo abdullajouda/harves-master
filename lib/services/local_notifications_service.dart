@@ -40,7 +40,7 @@ class LocalNotificationsService {
   // local notifications init.
   Future<void> _initLocalNotifications() async {
     var initializationSettingsAndroid =
-        AndroidInitializationSettings('@drawable/app_icon');
+    AndroidInitializationSettings('@drawable/appicon');
     var initializationSettingsIOS = IOSInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,
@@ -51,7 +51,7 @@ class LocalNotificationsService {
           didReceiveLocalNotificationSubject.add(notification);
         });
     initializationSettings = InitializationSettings(
-        initializationSettingsAndroid, initializationSettingsIOS);
+       initializationSettingsAndroid, initializationSettingsIOS);
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: _selectNotification);
   }
@@ -59,12 +59,11 @@ class LocalNotificationsService {
   requestIOSPermission() {
     _flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
+        IOSFlutterLocalNotificationsPlugin>()
         .requestPermissions(alert: true, badge: true, sound: true);
   }
 
-
-  setOnNotificationReceived(Function onReceived){
+  setOnNotificationReceived(Function onReceived) {
     didReceiveLocalNotificationSubject.listen((value) {
       onReceived(value);
     });
@@ -76,7 +75,7 @@ class LocalNotificationsService {
     String token = prefs.getString('userToken');
     try {
       Map<String, dynamic> notification =
-          await jsonDecode(payload) as Map<String, dynamic>;
+      await jsonDecode(payload) as Map<String, dynamic>;
       AppShared.notification = null;
     } catch (error) {
       print(error.toString());
@@ -84,14 +83,20 @@ class LocalNotificationsService {
   }
 
   // ||... show local notification ...||
-  Future<void> showNotification(String title,String message,{String payload}) async {
-    var android = AndroidNotificationDetails('channelId', 'channelName', 'channelDescription', enableVibration: true,
+  Future<void> showNotification(String title, String message,
+      {String payload}) async {
+    var android = AndroidNotificationDetails(
+      'ticksId',
+      'ticksName',
+      'ticksDescription',
+      enableVibration: true,
       enableLights: true,
       playSound: true,
       importance: Importance.Max,
-      priority: Priority.High,);
+      priority: Priority.High,
+    );
     var ios = IOSNotificationDetails();
-    var platform = NotificationDetails(android,ios);
+    var platform = NotificationDetails( android,  ios);
     await _flutterLocalNotificationsPlugin.show(
       ++_id,
       title,
@@ -101,7 +106,9 @@ class LocalNotificationsService {
     );
   }
 }
-LocalNotificationsService localNotificationsService = LocalNotificationsService.instance;
+
+LocalNotificationsService localNotificationsService =
+    LocalNotificationsService.instance;
 
 class ReceiveNotification {
   final int id;
@@ -111,7 +118,7 @@ class ReceiveNotification {
 
   ReceiveNotification(
       {@required this.id,
-      @required this.title,
-      @required this.body,
-      @required this.payload});
+        @required this.title,
+        @required this.body,
+        @required this.payload});
 }

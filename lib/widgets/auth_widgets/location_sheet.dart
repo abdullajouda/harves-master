@@ -82,6 +82,7 @@ class _LocationSheetState extends State<LocationSheet> {
             response['user']['mobile'],
             response['user']['image_profile']);
         Services().setDefaultAddress(
+          addresses.id,
             address: addresses.address,
             buildingNumber: addresses.buildingNumber,
             city: addresses.city.name,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/helpers/api.dart';
@@ -15,7 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class OrderDescription extends StatefulWidget {
   final VoidCallback onTap;
 
-  const OrderDescription({Key key, this.onTap}) : super(key: key);
+  const OrderDescription({Key key, this.onTap,}) : super(key: key);
 
   @override
   _OrderDescriptionState createState() => _OrderDescriptionState();
@@ -268,14 +269,14 @@ class _OrderDescriptionState extends State<OrderDescription> {
                 color: CColors.lightGreen,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Text(
-                    "continue".trs(context),
-                    style: TextStyle(
-                      color: CColors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
+                  child:  Text(
+                          "continue".trs(context),
+                          style: TextStyle(
+                            color: CColors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
                 ),
               ),
             ),
