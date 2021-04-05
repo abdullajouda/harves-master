@@ -112,13 +112,29 @@ class WaveAppBar extends StatelessWidget implements PreferredSizeWidget {
                 child: Center(child: bottomView),
               ),
             Positioned(
-                left: LangProvider().getLocaleCode() == 'ar' ? null : 20,
-                right: LangProvider().getLocaleCode() == 'ar' ? 20 : null,
+                left: LangProvider().hasLocale()
+                    ? LangProvider().getLocaleCode() == 'ar'
+                        ? null
+                        : 20
+                    : 20,
+                right: LangProvider().hasLocale()
+                    ? LangProvider().getLocaleCode() == 'ar'
+                        ? 20
+                        : null
+                    : null,
                 top: 50,
                 child: leading),
             Positioned(
-                right: LangProvider().getLocaleCode() == 'ar' ? null : 10,
-                left: LangProvider().getLocaleCode() == 'ar' ? 10 : null,
+                right: LangProvider().hasLocale()
+                    ? LangProvider().getLocaleCode() == 'ar'
+                        ? null
+                        : 10
+                    : 10,
+                left: LangProvider().hasLocale()
+                    ? LangProvider().getLocaleCode() == 'ar'
+                        ? 10
+                        : null
+                    : null,
                 top: 40,
                 child: actions[0] ?? Container()),
           ],

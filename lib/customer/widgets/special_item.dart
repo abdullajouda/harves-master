@@ -44,24 +44,21 @@ class SpecialItem extends StatelessWidget {
             Positioned(
               right: -6,
               bottom: 5,
-              child: Hero(
-                tag: fruit.image,
-                child: Container(
-                  decoration: BoxDecoration(
-                      // boxShadow: [
-                      //   BoxShadow(
-                      //     color: const Color(0x1a000000),
-                      //     offset: Offset(0, 4),
-                      //     blurRadius: 10,
-                      //   ),
-                      // ],
-                      ),
-                  child: Image.network(
-                    fruit.image,
-                    fit: BoxFit.fitWidth,
-                    width: 130.0,
-                    height: 130.0,
-                  ),
+              child: Container(
+                decoration: BoxDecoration(
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: const Color(0x1a000000),
+                    //     offset: Offset(0, 4),
+                    //     blurRadius: 10,
+                    //   ),
+                    // ],
+                    ),
+                child: Image.network(
+                  fruit.image,
+                  fit: BoxFit.fitWidth,
+                  width: 130.0,
+                  height: 130.0,
                 ),
               ),
             ),

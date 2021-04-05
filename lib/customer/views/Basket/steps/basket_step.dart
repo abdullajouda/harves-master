@@ -43,6 +43,8 @@ class _BasketStepState extends State<BasketStep> {
   bool load = true;
   bool showFree = false;
   bool loadRemaining = true;
+  bool isAuth = false;
+
   double total;
   double deliveryCost;
   double minOrder;
@@ -54,6 +56,16 @@ class _BasketStepState extends State<BasketStep> {
   double _textFieldHeight = 0;
   final double _finalValue = 100.0;
 
+
+  checkToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('userToken') != null) {
+      setState(() {
+        isAuth = true;
+      });
+      showFreeDelivery();
+    }
+  }
   // Future getAddresses() async {
   //   setState(() {
   //     addresses = [];
@@ -161,6 +173,9 @@ class _BasketStepState extends State<BasketStep> {
     //     _errorIndexes.add(value);
     //   }
     // });
+    if(isAuth){
+      getDefault();
+    }
     setState(() {
       load = false;
     });
@@ -278,8 +293,8 @@ class _BasketStepState extends State<BasketStep> {
   void initState() {
     remains = 1;
     _textEditingController = TextEditingController();
-    showFreeDelivery();
-    getCart().then((value) => getDefault());
+    checkToken();
+    getCart();
     // getDefault();
     super.initState();
   }

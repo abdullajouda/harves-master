@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
-
+import 'package:provider/provider.dart';
 
 class MyBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var lang = Provider.of<LangProvider>(context);
     return GestureDetector(
       onTap: () => Navigator.pop(context),
       child: Container(
@@ -17,10 +18,12 @@ class MyBackButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(5),
         ),
         child: Icon(
-          LangProvider().getLocaleCode() == 'ar'?Icons.chevron_left: Icons.chevron_right,
+          lang.getLocaleCode() == 'ar'
+              ? Icons.chevron_right
+              : Icons.chevron_left,
+          textDirection: TextDirection.ltr,
           color: CColors.headerText,
         ),
-
       ),
     );
   }

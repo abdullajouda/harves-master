@@ -15,6 +15,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RootScreen extends StatefulWidget {
+  final int index;
+
+  const RootScreen({Key key, this.index = 0}) : super(key: key);
   @override
   _RootScreenState createState() => _RootScreenState();
 }
@@ -24,7 +27,7 @@ class _RootScreenState extends State<RootScreen> {
 
   @override
   void initState() {
-    _controller = PersistentTabController(initialIndex: 0);
+    _controller = PersistentTabController(initialIndex: widget.index);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<PTVController>().setController(_controller);

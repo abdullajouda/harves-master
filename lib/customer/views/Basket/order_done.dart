@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/models/orders.dart';
+import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/customer/widgets/custom_main_button.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:provider/provider.dart';
+
 class OrderDone extends StatelessWidget {
   final Order order;
+
   const OrderDone({Key key, this.order}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var parsedDate = DateTime.parse(order.deliveryDate);
@@ -100,18 +104,23 @@ class OrderDone extends StatelessWidget {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 25).add(EdgeInsets.only(bottom: 30, top: 20)),
+                          padding: const EdgeInsets.symmetric(horizontal: 25)
+                              .add(EdgeInsets.only(bottom: 30, top: 20)),
                           child: Row(
                             children: [
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
-                                    Navigator.pop(context);
+                                    Navigator.of(context,rootNavigator: true)
+                                        .pushReplacement(MaterialPageRoute(
+                                      builder: (context) => RootScreen(),
+                                    ));
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: CColors.lightGreen, width: 2),
+                                      border: Border.all(
+                                          color: CColors.lightGreen, width: 2),
                                     ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(12),
@@ -127,9 +136,13 @@ class OrderDone extends StatelessWidget {
                               SizedBox(width: 12),
                               Expanded(
                                 flex: 3,
-                                child: MainButton(onTap: () {
-                                  context.read<PTVController>().jumbToTab(AppTabs.Orders);
-                                },
+                                child: MainButton(
+                                  onTap: () {
+                                    Navigator.of(context,rootNavigator: true)
+                                        .pushReplacement(MaterialPageRoute(
+                                      builder: (context) => RootScreen(index: 1,),
+                                    ));
+                                  },
                                   constraints: BoxConstraints(),
                                   titlePadding: EdgeInsets.all(12),
                                   title: "order_details".trs(context),

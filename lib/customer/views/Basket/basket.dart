@@ -76,7 +76,7 @@ class _BasketState extends State<Basket> {
             builder: (context) => OrderDone(
               order: order,
             ),
-          )).then((value) => Navigator.pop(context));
+          ));
       cart.clearAll();
     } else if (response['code'] == 204) {
       showCupertinoDialog(

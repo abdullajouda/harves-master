@@ -65,6 +65,7 @@ class CBackButton extends StatelessWidget {
           LangProvider().getLocaleCode() == 'ar'
               ? Icons.chevron_right
               : Icons.chevron_left,
+          textDirection: TextDirection.ltr,
           color: CColors.headerText,
         ),
       ),

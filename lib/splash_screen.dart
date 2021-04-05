@@ -227,7 +227,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   alignment: Alignment.center,
                   children: [
                     Container(
-                        height: 300,
+                        height: 220,
                         width: size.width,
                         child: Image.asset(
                           'assets/images/home/3.0x/splash_backGround.png',
