@@ -44,11 +44,7 @@ class _BasketState extends State<Basket> {
   bool isAuth = false;
   bool load = false;
 
-  @override
-  void dispose() {
-    _pagesNotifiew?.dispose();
-    super.dispose();
-  }
+
 
   Map<Widget, bool> _stepsAdv;
 
@@ -215,6 +211,14 @@ class _BasketState extends State<Basket> {
       BillingStep(): false,
     };
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    var cart = Provider.of<Cart>(context, listen: false);
+    cart.clearAll();
+    _pagesNotifiew?.dispose();
+    super.dispose();
   }
 
   @override

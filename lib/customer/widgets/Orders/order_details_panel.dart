@@ -32,21 +32,6 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
   OrderDetails _order;
   bool loadOrder = true;
 
-  int step() {
-    switch (widget.order.status) {
-      case 1:
-        return 0;
-        break;
-      case 2:
-        return 1;
-        break;
-      case 3:
-        return 2;
-        break;
-      default:
-        return 0;
-    }
-  }
 
   getOrderDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -63,6 +48,22 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
       _order = order;
       loadOrder = false;
     });
+  }
+
+  int step() {
+    switch (_order.myOrder.status) {
+      case 1:
+        return 0;
+        break;
+      case 2:
+        return 1;
+        break;
+      case 3:
+        return 2;
+        break;
+      default:
+        return 0;
+    }
   }
 
   @override
@@ -223,7 +224,7 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
               ),
             ),
             Text(
-              widget.order.id.toString(),
+              _order.myOrder.id.toString(),
               style: TextStyle(
                 fontSize: 12,
                 color: CColors.headerText,

@@ -306,6 +306,7 @@ class _BasketStepState extends State<BasketStep> {
         address: _selected,
         onTapContinue: () {
           cart.setAddress(_selected);
+          cart.setIsFree(remains<=0);
           Navigator.pop(context);
           widget.onContinuePressed.call();
         },
@@ -881,6 +882,7 @@ class _BasketStepState extends State<BasketStep> {
                                                         const EdgeInsets.only(
                                                             top: 5),
                                                     child: FreeShippingSlider(
+                                                      minOrder: minOrder,
                                                       persentage: remains > 0.0
                                                           ? remains / minOrder
                                                           : 0.0,

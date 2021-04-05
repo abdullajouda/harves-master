@@ -36,15 +36,18 @@ class _OrderDescriptionState extends State<OrderDescription> {
     });
     var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var request = await get(
-        ApiHelper.api + 'getDeliveryCost/${cart.deliveryAddresses.city.id}',
-        headers: {
-          'Accept': 'application/json',
-          'Accept-Language': '${prefs.getString('language')}',
-        });
-    var response = json.decode(request.body);
+    // var request = await get(
+    //     ApiHelper.api + 'getDeliveryCost/${cart.deliveryAddresses.city.id}',
+    //     headers: {
+    //       'Accept': 'application/json',
+    //       'Accept-Language': '${prefs.getString('language')}',
+    //     });
+    // var response = json.decode(request.body);
     setState(() {
-      _deliveryCost = double.parse(response.toString());
+      _deliveryCost = 0;
+      if(!cart.isFree){
+        _deliveryCost = cart.deliveryAddresses.city.deliveryCost;
+      }
       _total = _deliveryCost + cart.total;
       load = false;
     });

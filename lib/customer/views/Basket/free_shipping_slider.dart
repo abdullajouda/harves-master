@@ -4,12 +4,13 @@ import 'package:harvest/helpers/constants.dart';
 
 class FreeShippingSlider extends StatefulWidget {
   final double persentage;
+  final double minOrder;
   final Size size;
 
   const FreeShippingSlider({
     Key key,
     @required this.persentage,
-    this.size,
+    this.size, this.minOrder,
   })  : assert(persentage >= 0.0 && persentage <= 1.0),
         assert(size != Size.zero),
         super(key: key);
@@ -33,12 +34,13 @@ class _FreeShippingSliderState extends State<FreeShippingSlider> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    Offset center = Offset(size.width / 2, size.height / 2);
+    Offset center = Offset(size.width/1.2, size.height / 2);
     final rect =
     Rect.fromCenter(center: center, height: size.height, width: size.width);
     final double imageWidthPersentage =
-        (size.width / 2) - rect.width * widget.persentage;
-    _offset = Offset(imageWidthPersentage, 0);
+        (size.width / 2) - rect.width * (widget.persentage);
+    print(imageWidthPersentage);
+    _offset = Offset(rect.left, 0);
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -54,10 +56,9 @@ class _FreeShippingSliderState extends State<FreeShippingSlider> {
           child: Transform.translate(
             offset: Offset(_offset.dx, 0),
             child: SvgPicture.asset(
-              Constants.freeDileiveryIcon,
-              // widget.persentage >= 1
-              //     ? Constants.fullFreeDileiveryIcon
-              //     : Constants.freeDileiveryIcon,
+              widget.persentage <=0
+                  ? Constants.fullFreeDileiveryIcon
+                  : Constants.freeDileiveryIcon,
               width: height * 2,
             ),
           ),
@@ -126,20 +127,22 @@ class _FreeShippingSliderPainter extends CustomPainter {
     );
     canvas.drawRRect(rrect2, paint2);
     // =======================================
-    final double imageWidthPersentage =
-        (size.width / 1.8) - rectWidth * persentage;
+    final double imageWidthPersentage = (size.width / 2) - size.width  * persentage;
 
-    final Offset _safeOffset = Offset(rectWidth * (_onChangeThrethold - 1), 0);
+    final Offset _safeOffset = Offset(imageWidthPersentage / (1-_onChangeThrethold), 0);
 
     Offset _imageOffset = Offset(imageWidthPersentage, 0);
 
-    if (_imageOffset.dx >= (imageWidthPersentage * _onChangeThrethold)) {
+    if (_imageOffset.dx >= (rectWidth * _onChangeThrethold)) {
       _imageOffset -= _safeOffset;
     }
-    if (persentage <= 1.0) {
+    if (persentage > 0.0) {
       _imageOffset += _safeOffset;
     }
-    if (onChange != null) onChange(_imageOffset);
+    if (onChange != null)
+      onChange(_imageOffset);
+    print(_imageOffset);
+
   }
 
   Radius _endRadius() {

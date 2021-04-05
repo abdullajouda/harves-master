@@ -58,12 +58,17 @@ class Cart with ChangeNotifier {
   String additionalNote;
   String walletBalance;
   String promo;
+  bool isFree;
   DeliveryAddresses deliveryAddresses;
   AvailableDates availableDates;
   Times time;
 
   void setDate(AvailableDates date) {
     availableDates = date;
+    notifyListeners();
+  }
+  void setIsFree(bool free) {
+    isFree = free;
     notifyListeners();
   }
 

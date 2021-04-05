@@ -2,10 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:harvest/customer/models/orders.dart';
+import 'package:harvest/customer/widgets/Orders/order_details_panel.dart';
 import 'package:harvest/helpers/app_shared.dart';
+import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:provider/provider.dart';
 import 'local_notifications_service.dart';
+
 class LocalNotification {
   final String type;
   final Map data;
@@ -44,7 +48,6 @@ class FirebaseMessagingService {
 
   FirebaseMessagingService(this._fcm);
 
-
   // ||.. singleton pattern ..||
   static FirebaseMessagingService get instance {
     if (_instance != null) return _instance;
@@ -62,7 +65,8 @@ class FirebaseMessagingService {
       message['notification']['body'],
     );
     if (message['notification'] != null) {
-      final notification = LocalNotification("notification", message['notification'] as Map);
+      final notification =
+          LocalNotification("notification", message['notification'] as Map);
       // NotificationsBloc.instance.newNotification(notification);
       if (AppShared.notification['notification'] == null) {
         localNotificationsService.showNotification(
@@ -110,30 +114,49 @@ class FirebaseMessagingService {
       return null;
     }
   }
+
   Future initialise() async {
     if (Platform.isIOS) {
       _fcm.requestNotificationPermissions(
           IosNotificationSettings(sound: true, badge: true, alert: true));
     }
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = await _fcm.getToken();
     print("FirebaseMessaging token: $token");
 
     _fcm.configure(
-      onMessage:_onMessage,
+      onMessage: _onMessage,
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
-        AppShared.notification = message;
+        String userToken = prefs.getString('userToken');
+        // AppShared.notification = message;
+        if (userToken != null) {
+          showModalBottomSheet(
+            context: AppShared.navKey.currentContext,
+            backgroundColor: Colors.transparent,
+            isScrollControlled: true,
+            enableDrag: true,
+            builder: (context) => OrderDetailsPanel(
+              order: Order(id: message['data']['target_id']),
+            ),
+          );
+          // AppShared.navKey.currentState.context.read<PTVController>().jumbToTab(AppTabs.Orders);
+        }
       },
       onResume: (Map<String, dynamic> message) async {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
         print("onResume: $message");
-        try {
-          AppShared.notification = message;
-          String token = prefs.getString('userToken');
-          AppShared.notification = null;
-        } catch (error) {
-          print(error.toString());
+        String userToken = prefs.getString('userToken');
+
+        if (userToken != null) {
+          showModalBottomSheet(
+            context: AppShared.navKey.currentContext,
+            backgroundColor: Colors.transparent,
+            isScrollControlled: true,
+            enableDrag: true,
+            builder: (context) => OrderDetailsPanel(
+              order: Order(id: message['data']['target_id']),
+            ),
+          );
         }
       },
     );

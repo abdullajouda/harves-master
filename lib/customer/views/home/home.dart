@@ -260,7 +260,7 @@ class _HomeState extends State<Home> {
         actions: [HomePopUpMenu()],
         leading: GestureDetector(
             onTap: () {
-              Navigator.of(context)
+              Navigator.of(context,rootNavigator: true)
                   .push(
                 CustomPageRoute(
                   // context: context,
