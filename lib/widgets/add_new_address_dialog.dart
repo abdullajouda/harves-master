@@ -298,8 +298,9 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                             children: [
                                               GestureDetector(
                                                 onTap: () {
-                                                  showCupertinoDialog(
+                                                  showDialog(
                                                     context: context,
+                                                    barrierColor: CColors.transparent,
                                                     barrierDismissible: true,
                                                     builder: (context) =>
                                                         Center(

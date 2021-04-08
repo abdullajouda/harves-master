@@ -35,30 +35,30 @@ class OrderDone extends StatelessWidget {
             SafeArea(
               child: Column(
                 children: [
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: InkWell(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          margin: EdgeInsets.all(10),
-                          constraints: BoxConstraints(
-                            maxHeight: 25,
-                            maxWidth: 25,
-                          ),
-                          decoration: BoxDecoration(
-                            color: CColors.white,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: Icon(
-                            Icons.chevron_left,
-                            color: CColors.headerText,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Align(
+                  //   alignment: AlignmentDirectional.centerStart,
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 18),
+                  //     child: InkWell(
+                  //       onTap: () => Navigator.pop(context),
+                  //       child: Container(
+                  //         margin: EdgeInsets.all(10),
+                  //         constraints: BoxConstraints(
+                  //           maxHeight: 25,
+                  //           maxWidth: 25,
+                  //         ),
+                  //         decoration: BoxDecoration(
+                  //           color: CColors.white,
+                  //           borderRadius: BorderRadius.circular(5),
+                  //         ),
+                  //         child: Icon(
+                  //           Icons.chevron_left,
+                  //           color: CColors.headerText,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                   Expanded(
                     child: _HeaderCheckMark(),
                   ),

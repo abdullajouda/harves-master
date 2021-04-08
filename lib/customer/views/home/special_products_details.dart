@@ -199,8 +199,11 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
             children: [
               SafeArea(
                 child: Align(
-                  alignment: AlignmentDirectional(-0.9, -1),
-                  child: CBackButton(),
+                  alignment: LangProvider().getLocaleCode()=='ar'?Alignment.topRight:Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 15,left: 15,top: 15),
+                    child: CBackButton(),
+                  ),
                 ),
               ),
               Expanded(

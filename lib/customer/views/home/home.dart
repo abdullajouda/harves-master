@@ -262,7 +262,7 @@ class _HomeState extends State<Home> {
             onTap: () {
               Navigator.of(context,rootNavigator: true)
                   .push(
-                CustomPageRoute(
+                MaterialPageRoute(
                   // context: context,
                   builder: (context) => Basket(),
                 ),

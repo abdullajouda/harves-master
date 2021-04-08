@@ -253,7 +253,7 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                           child: AnimatedContainer(
                             duration: Duration(milliseconds: 300),
                             height: _expand ? 370 : 64,
-                            width: 260,
+                            width: size.width * .7,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(9.0),
                               color: const Color(0xffffffff),
@@ -278,7 +278,8 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                             children: [
                                               GestureDetector(
                                                 onTap: () {
-                                                  showCupertinoDialog(
+                                                  showDialog(
+                                                    barrierColor: CColors.transparent,
                                                     context: context,
                                                     barrierDismissible: true,
                                                     builder: (context) =>
@@ -332,35 +333,36 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                   ),
                                                 ),
                                               ),
-                                              // Container(
-                                              //   height: 50,
-                                              //   width: size.width * .75,
-                                              //   child: DropdownButton<City>(
-                                              //     icon: Container(),
-                                              //     underline: Container(),
-                                              //     items: op.items.values
-                                              //         .toList()
-                                              //         .map((City value) {
-                                              //       return DropdownMenuItem<
-                                              //           City>(
-                                              //         value: value,
-                                              //         child: Text(
-                                              //           value.name,
-                                              //           style: TextStyle(
-                                              //             fontSize: 10,
-                                              //             color: const Color(
-                                              //                 0xff525768),
-                                              //           ),
-                                              //         ),
-                                              //       );
-                                              //     }).toList(),
-                                              //     onChanged: (value) {
-                                              //       setState(() {
-                                              //         city = value;
-                                              //       });
-                                              //     },
-                                              //   ),
-                                              // ),
+                         // Container(
+                         //                          height: 50,
+                         //                          width: size.width * .75,
+                         //                          child: DropdownButton<City>(
+                         //                            icon: Container(),
+                         //                            underline: Container(),
+                         //                            items: op.items.values
+                         //                                .toList()
+                         //                                .map((City value) {
+                         //                              return DropdownMenuItem<
+                         //                                  City>(
+                         //                                value: value,
+                         //                                child: Text(
+                         //                                  value.name,
+                         //                                  style: TextStyle(
+                         //                                    fontSize: 10,
+                         //                                    color: const Color(
+                         //                                        0xff525768),
+                         //                                  ),
+                         //                                ),
+                         //                              );
+                         //                            }).toList(),
+                         //                            onChanged: (value) {
+                         //                              setState(() {
+                         //                                city = value;
+                         //                              });
+                         //                            },
+                         //                          ),
+                         //                        ),
+
                                             ],
                                           ),
                                         ),
@@ -473,7 +475,7 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.only(
-                                              top: 25, right: 20, left: 10),
+                                              top: 25, right: 20, left: 20),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,

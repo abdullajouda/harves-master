@@ -17,7 +17,7 @@ class Products {
   int parentId;
   String createdAt;
   String availableOffer;
-  int priceOffer;
+  double priceOffer;
   String typeName;
   int available;
   int inCart;
@@ -72,7 +72,7 @@ class Products {
     parentId = json['parent_id'];
     createdAt = json['created_at'];
     availableOffer = json['available_offer'];
-    priceOffer = json['price_offer'];
+    priceOffer = double.parse(json['price_offer'].toString());
     typeName = json['type_name'];
     available = json['available'];
     inCart = json['in_cart'];

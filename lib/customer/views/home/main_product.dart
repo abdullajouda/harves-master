@@ -38,7 +38,7 @@ class _MainProductState extends State<MainProduct> {
       loadProducts = true;
     });
     var request = await get(
-        ApiHelper.api + 'getProductsByParentId/${widget.offers.parentId}',
+        ApiHelper.api + 'getProductsByParentId/${widget.offers.id}',
         headers: {
           'Accept': 'application/json',
           'fcmToken': prefs.getString('fcm_token'),
@@ -68,10 +68,7 @@ class _MainProductState extends State<MainProduct> {
     return Scaffold(
       body: WaveAppBarBody(
         bottomViewOffset: Offset(0, -10),
-        backgroundGradient: widget.offers.color!=''?CColors.gradientGenerator(
-            color1: HexColor.fromHex(widget.offers.color),
-            color2: HexColor.fromHex(widget.offers.color)):CColors.greenAppBarGradient(),
-        shadowColor: widget.offers.color!=''?HexColor.fromHex(widget.offers.color):null,
+        backgroundGradient: CColors.greenAppBarGradient(),
         leading: MyBackButton(),
         actions: [Container()],
         bottomView: Card(
@@ -89,7 +86,7 @@ class _MainProductState extends State<MainProduct> {
               child: Text(
                 widget.offers.name,
                 style: TextStyle(
-                  color: widget.offers.color!=''?HexColor.fromHex(widget.offers.color):CColors.darkGreen,
+                  color:CColors.darkGreen,
                   fontWeight: FontWeight.w500,
                 ),
               )
@@ -121,7 +118,6 @@ class _MainProductState extends State<MainProduct> {
                     // ),
                     child: FruitItem(
                       fruit: _products[index],
-                      color: widget.offers.color!=''?HexColor.fromHex(widget.offers.color):CColors.darkGreen,
                     ),
                   );
                 }

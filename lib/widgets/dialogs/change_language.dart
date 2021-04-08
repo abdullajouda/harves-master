@@ -32,7 +32,7 @@ class _ChangeLanguageDialogState extends State<ChangeLanguageDialog> {
     }
     if (translate.getLocaleCode() == 'ar') {
       translate.setLocale(locale: Locales.en);
-    } else {
+    } else if(translate.getLocaleCode() == 'en') {
       translate.setLocale(locale: Locales.ar);
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -116,7 +116,6 @@ class _ChangeLanguageDialogState extends State<ChangeLanguageDialog> {
                               letterSpacing: 0.14,
                               fontWeight: FontWeight.w700,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ),
                         Row(

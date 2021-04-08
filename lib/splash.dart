@@ -37,6 +37,7 @@ class _SplashState extends State<Splash> {
   }
 
   setLandingPage() async {
+    getCities();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var op = Provider.of<UserFunctions>(context, listen: false);
     String token = prefs.getString('userToken');
@@ -89,7 +90,6 @@ class _SplashState extends State<Splash> {
   void initState() {
     // ApiServices().getSettings();
     startTime();
-    getCities();
     super.initState();
   }
 

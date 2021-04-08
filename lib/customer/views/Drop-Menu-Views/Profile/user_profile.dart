@@ -429,6 +429,7 @@ class _UserProfileState extends State<UserProfile> {
                                   context
                                       .read<PTVController>()
                                       .jumbToTab(AppTabs.Support);
+                                  Navigator.pop(context);
                                 },
                                 iconPath: Constants.questionIcon,
                                 title: "help".trs(context),

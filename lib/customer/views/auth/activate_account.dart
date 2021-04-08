@@ -123,7 +123,7 @@ class _AccountActivationState extends State<AccountActivation>
               builder: (context) => Login2(
                 mobile: widget.mobile,
               ),
-            ));
+            ),);
       } else {
         Fluttertoast.showToast(msg: response['message']);
         setState(() {

@@ -47,16 +47,16 @@ class HomeSlider extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    offers.title ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: const Color(0xffffffff),
-                      letterSpacing: 0.266,
-                      fontWeight: FontWeight.w300,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
+                  // Text(
+                  //   offers.title ?? '',
+                  //   style: TextStyle(
+                  //     fontSize: 14,
+                  //     color: const Color(0xffffffff),
+                  //     letterSpacing: 0.266,
+                  //     fontWeight: FontWeight.w300,
+                  //   ),
+                  //   textAlign: TextAlign.left,
+                  // ),
                   // Text(
                   //   'Save Up to 50%',
                   //   style: TextStyle(

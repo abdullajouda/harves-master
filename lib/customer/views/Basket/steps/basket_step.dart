@@ -145,11 +145,11 @@ class _BasketStepState extends State<BasketStep> {
   }
 
   Future getCart() async {
-    setState(() {
-      load = true;
-    });
+    // setState(() {
+    //   load = true;
+    // });
     var cart = Provider.of<Cart>(context, listen: false);
-    cart.clearFav();
+    // cart.clearFav();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getMyCart', headers: {
       'Accept': 'application/json',
@@ -217,6 +217,7 @@ class _BasketStepState extends State<BasketStep> {
 
   removeFromCart(CartItem item) async {
     var cart = Provider.of<Cart>(context, listen: false);
+    cart.removeCartItem(item.productId);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(
         ApiHelper.api + 'deleteProductCart/${item.productId}',
@@ -330,8 +331,7 @@ class _BasketStepState extends State<BasketStep> {
           Navigator.pop(context);
           widget.onContinuePressed.call();
         },
-        onTapNewOne: () =>
-            Navigator.of(context, rootNavigator: true).pushReplacement(
+        onTapNewOne: () => Navigator.of(context, rootNavigator: true).push(
           MaterialPageRoute(
             builder: (context) => UserProfile(),
           ),
@@ -436,286 +436,339 @@ class _BasketStepState extends State<BasketStep> {
                                               .toString())),
                             ),
                           ),
-                        RemoveIcon(
-                          onTap: () {
-                            removeFromCart(cart.items.values.toList()[index]);
-                          },
-                          iconAlignment: Alignment.topRight,
-                          deocation: RemoveIconDecoration.copyWith(
-                            iconColor: CColors.headerText,
-                            iconSize: 18,
-                            backgroundColor: CColors.white,
-                            borderColor: _hasError
-                                ? CColors.coldPaleBloodRed
-                                : CColors.white,
-                            borderWidth: 2,
-                            elevation: 1,
-                            raduis: 2,
-                          ),
-                          shadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(15),
-                              offset: Offset(0, 5.0),
-                              spreadRadius: 1,
-                              blurRadius: 10,
-                            ),
-                          ],
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(13),
-                              border: Border.all(
-                                color: _hasError
-                                    ? CColors.coldPaleBloodRed
-                                    : CColors.transparent,
-                                width: 2,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withAlpha(10),
-                                  offset: Offset(0, 5.0),
-                                  spreadRadius: 1,
-                                  blurRadius: 10,
-                                ),
-                              ],
-                            ),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              leading: Image.network(
-                                  cart.items.values
-                                      .toList()[index]
-                                      .product
-                                      .image,
-                                  width: 70,
-                                  height: 70,
-                                  fit: BoxFit.cover),
-                              title: Padding(
-                                padding: const EdgeInsets.only(bottom: 5),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      cart.items.values
-                                          .toList()[index]
-                                          .product
-                                          .name,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: const Color(0xff3c984f),
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      cart.items.values
-                                              .toList()[index]
-                                              .product
-                                              .description ??
-                                          '',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: const Color(0xff888a8d),
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    )
-                                  ],
-                                ),
-                              ),
-                              subtitle: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      cart.items.values
-                                                      .toList()[index]
-                                                      .product
-                                                      .discount >
-                                                  0 &&
-                                              cart.items.values
-                                                      .toList()[index]
-                                                      .product
-                                                      .priceOffer >
-                                                  0
-                                          ? Text(
-                                              "${(cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                color: const Color(0xff3c984f),
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            )
-                                          : Text(
-                                              "${cart.items.values.toList()[index].product.price}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                color: const Color(0xff3c984f),
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                      SizedBox(width: 3),
-                                      CIconButton(
-                                        onTap: () {
-                                          if (cart.items.values
-                                                  .toList()[index]
-                                                  .quantity !=
-                                              1) {
-                                            setState(() {
-                                              cart.items.values
-                                                  .toList()[index]
-                                                  .quantity = cart.items.values
-                                                      .toList()[index]
-                                                      .quantity -
-                                                  cart.items.values
-                                                      .toList()[index]
-                                                      .product
-                                                      .unitRate;
-
-                                              if (cart.items.values
-                                                      .toList()[index]
-                                                      .product
-                                                      .qty <
-                                                  cart.items.values
-                                                      .toList()[index]
-                                                      .quantity) {
-                                                cart.addError(ErrorModel(
-                                                    id: cart.items.values
-                                                        .toList()[index]
-                                                        .productId,
-                                                    remain: cart.items.values
-                                                        .toList()[index]
-                                                        .product
-                                                        .qty));
-                                                // cart.addError(index);
-                                              } else {
-                                                cart.errors.removeWhere(
-                                                    (key, value) =>
-                                                        key.toString() ==
-                                                        cart.items.values
-                                                            .toList()[index]
-                                                            .productId
-                                                            .toString());
-                                              }
-                                            });
-                                            changeQnt(
-                                                2,
-                                                cart.items.values
-                                                    .toList()[index]
-                                                    .productId);
-                                          }
-                                        },
-                                        color: CColors.darkOrange,
-                                        icon: Icon(Icons.remove,
-                                            color: CColors.white, size: 15),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 2),
-                                        child: Text(
-                                          "${cart.items.values.toList()[index].quantity}",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: CColors.headerText,
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      ),
-                                      CIconButton(
-                                        onTap: () {
-                                          setState(() {
-                                            cart.items.values
-                                                .toList()[index]
-                                                .quantity = cart.items.values
-                                                    .toList()[index]
-                                                    .quantity +
-                                                cart.items.values
-                                                    .toList()[index]
-                                                    .product
-                                                    .unitRate;
-                                            if (cart.items.values
-                                                    .toList()[index]
-                                                    .product
-                                                    .qty <
-                                                cart.items.values
-                                                    .toList()[index]
-                                                    .quantity) {
-                                              cart.addError(ErrorModel(
-                                                  id: cart.items.values
-                                                      .toList()[index]
-                                                      .productId,
-                                                  remain: cart.items.values
-                                                      .toList()[index]
-                                                      .product
-                                                      .qty));
-                                              // cart.addError(index);
-                                            } else {
-                                              cart.errors.removeWhere(
-                                                  (key, value) =>
-                                                      key.toString() ==
-                                                      cart.items.values
-                                                          .toList()[index]
-                                                          .productId
-                                                          .toString());
-                                            }
-                                          });
-                                          changeQnt(
-                                              1,
-                                              cart.items.values
-                                                  .toList()[index]
-                                                  .productId);
-                                        },
-                                        color: CColors.darkOrange,
-                                        icon: Icon(Icons.add,
-                                            color: CColors.white, size: 15),
-                                      ),
-                                    ],
+                        Container(
+                          height: 100,
+                          child: Stack(
+                            children: [
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: RemoveIcon(
+                                  onTap: () {
+                                    removeFromCart(
+                                        cart.items.values.toList()[index]);
+                                  },
+                                  iconAlignment: Alignment.topRight,
+                                  deocation: RemoveIconDecoration.copyWith(
+                                    iconColor: CColors.headerText,
+                                    iconSize: 20,
+                                    backgroundColor: CColors.white,
+                                    borderColor: _hasError
+                                        ? CColors.coldPaleBloodRed
+                                        : CColors.white,
+                                    borderWidth: 2,
+                                    elevation: 1,
+                                    raduis: 2,
                                   ),
-                                  Text.rich(
-                                    TextSpan(
-                                      text: "Q.R".trs(context),
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: const Color(0xfff88518),
-                                        fontWeight: FontWeight.w600,
+                                  shadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withAlpha(15),
+                                      offset: Offset(0, 5.0),
+                                      spreadRadius: 1,
+                                      blurRadius: 10,
+                                    ),
+                                  ],
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(13),
+                                      border: Border.all(
+                                        color: _hasError
+                                            ? CColors.coldPaleBloodRed
+                                            : CColors.transparent,
+                                        width: 2,
                                       ),
-                                      children: [
-                                        cart.items.values
-                                                    .toList()[index]
-                                                    .product
-                                                    .discount >
-                                                0 &&
-                                            cart.items.values
-                                                .toList()[index]
-                                                .product
-                                                .priceOffer >
-                                                0
-                                            ? TextSpan(
-                                                text:
-                                                    " ${(cart.items.values.toList()[index].quantity * (cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))).toStringAsFixed(2)}",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color:
-                                                      const Color(0xff3c4959),
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              )
-                                            : TextSpan(
-                                                text:
-                                                    " ${cart.items.values.toList()[index].quantity * cart.items.values.toList()[index].product.price}",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  color:
-                                                      const Color(0xff3c4959),
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withAlpha(10),
+                                          offset: Offset(0, 5.0),
+                                          spreadRadius: 1,
+                                          blurRadius: 10,
+                                        ),
                                       ],
                                     ),
+                                    child: ListTile(
+                                      contentPadding: EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 10),
+                                      leading: Image.network(
+                                          cart.items.values
+                                              .toList()[index]
+                                              .product
+                                              .image,
+                                          width: 70,
+                                          height: 70,
+                                          fit: BoxFit.cover),
+                                      title: Padding(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              cart.items.values
+                                                  .toList()[index]
+                                                  .product
+                                                  .name,
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: const Color(0xff3c984f),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            ConstrainedBox(
+                                              constraints: BoxConstraints(maxHeight: 12,),
+                                              child: Text(
+                                                cart.items.values
+                                                        .toList()[index]
+                                                        .product
+                                                        .description ??
+                                                    '',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: const Color(0xff888a8d),
+                                                ),overflow: TextOverflow.ellipsis,
+                                                textAlign: TextAlign.left,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      subtitle: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              cart.items.values
+                                                              .toList()[index]
+                                                              .product
+                                                              .discount >
+                                                          0 &&
+                                                      cart.items.values
+                                                              .toList()[index]
+                                                              .product
+                                                              .priceOffer >
+                                                          0
+                                                  ? Text(
+                                                      "${(cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: const Color(
+                                                            0xff3c984f),
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    )
+                                                  : Text(
+                                                      "${cart.items.values.toList()[index].product.price}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: const Color(
+                                                            0xff3c984f),
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                              SizedBox(width: 3),
+                                              CIconButton(
+                                                onTap: () {
+                                                  if (cart.items.values
+                                                          .toList()[index]
+                                                          .quantity !=
+                                                      1) {
+                                                    setState(() {
+                                                      cart.items.values
+                                                          .toList()[index]
+                                                          .quantity = cart
+                                                              .items.values
+                                                              .toList()[index]
+                                                              .quantity -
+                                                          cart.items.values
+                                                              .toList()[index]
+                                                              .product
+                                                              .unitRate;
+
+                                                      if (cart.items.values
+                                                              .toList()[index]
+                                                              .product
+                                                              .qty <
+                                                          cart.items.values
+                                                              .toList()[index]
+                                                              .quantity) {
+                                                        cart.addError(
+                                                            ErrorModel(
+                                                                id: cart.items
+                                                                    .values
+                                                                    .toList()[
+                                                                        index]
+                                                                    .productId,
+                                                                remain: cart
+                                                                    .items
+                                                                    .values
+                                                                    .toList()[
+                                                                        index]
+                                                                    .product
+                                                                    .qty));
+                                                        // cart.addError(index);
+                                                      } else {
+                                                        cart.errors.removeWhere(
+                                                            (key, value) =>
+                                                                key.toString() ==
+                                                                cart.items
+                                                                    .values
+                                                                    .toList()[
+                                                                        index]
+                                                                    .productId
+                                                                    .toString());
+                                                      }
+                                                    });
+                                                    changeQnt(
+                                                        2,
+                                                        cart.items.values
+                                                            .toList()[index]
+                                                            .productId);
+                                                  }
+                                                },
+                                                color: CColors.darkOrange,
+                                                icon: Icon(Icons.remove,
+                                                    color: CColors.white,
+                                                    size: 15),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 2),
+                                                child: Text(
+                                                  "${cart.items.values.toList()[index].quantity}",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    color: CColors.headerText,
+                                                    fontSize: 15,
+                                                  ),
+                                                ),
+                                              ),
+                                              CIconButton(
+                                                onTap: () {
+                                                  setState(() {
+                                                    cart.items.values
+                                                        .toList()[index]
+                                                        .quantity = cart
+                                                            .items.values
+                                                            .toList()[index]
+                                                            .quantity +
+                                                        cart.items.values
+                                                            .toList()[index]
+                                                            .product
+                                                            .unitRate;
+                                                    if (cart.items.values
+                                                            .toList()[index]
+                                                            .product
+                                                            .qty <
+                                                        cart.items.values
+                                                            .toList()[index]
+                                                            .quantity) {
+                                                      cart.addError(ErrorModel(
+                                                          id: cart.items.values
+                                                              .toList()[index]
+                                                              .productId,
+                                                          remain: cart
+                                                              .items.values
+                                                              .toList()[index]
+                                                              .product
+                                                              .qty));
+                                                      // cart.addError(index);
+                                                    } else {
+                                                      cart.errors.removeWhere(
+                                                          (key, value) =>
+                                                              key.toString() ==
+                                                              cart.items.values
+                                                                  .toList()[
+                                                                      index]
+                                                                  .productId
+                                                                  .toString());
+                                                    }
+                                                  });
+                                                  changeQnt(
+                                                      1,
+                                                      cart.items.values
+                                                          .toList()[index]
+                                                          .productId);
+                                                },
+                                                color: CColors.darkOrange,
+                                                icon: Icon(Icons.add,
+                                                    color: CColors.white,
+                                                    size: 15),
+                                              ),
+                                            ],
+                                          ),
+                                          Text.rich(
+                                            TextSpan(
+                                              text: "Q.R".trs(context),
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: const Color(0xfff88518),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              children: [
+                                                cart.items.values
+                                                                .toList()[index]
+                                                                .product
+                                                                .discount >
+                                                            0 &&
+                                                        cart.items.values
+                                                                .toList()[index]
+                                                                .product
+                                                                .priceOffer >
+                                                            0
+                                                    ? TextSpan(
+                                                        text:
+                                                            " ${(cart.items.values.toList()[index].quantity * (cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))).toStringAsFixed(2)}",
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: const Color(
+                                                              0xff3c4959),
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      )
+                                                    : TextSpan(
+                                                        text:
+                                                            " ${cart.items.values.toList()[index].quantity * cart.items.values.toList()[index].product.price}",
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: const Color(
+                                                              0xff3c4959),
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                              Align(
+                                alignment:
+                                    LangProvider().getLocaleCode() == 'ar'
+                                        ? Alignment.topLeft
+                                        : Alignment.topRight,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    removeFromCart(
+                                        cart.items.values.toList()[index]);
+                                  },
+                                  child: Container(
+                                    height: 30,
+                                    width: 30,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],

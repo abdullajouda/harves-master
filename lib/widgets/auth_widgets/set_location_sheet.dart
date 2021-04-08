@@ -290,8 +290,9 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
                                           children: [
                                             GestureDetector(
                                               onTap: () {
-                                                showCupertinoDialog(
+                                                showDialog(
                                                   context: context,
+                                                  barrierColor: CColors.transparent,
                                                   barrierDismissible: true,
                                                   builder: (context) =>
                                                       Center(

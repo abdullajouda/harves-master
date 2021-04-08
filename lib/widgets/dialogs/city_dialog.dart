@@ -47,7 +47,7 @@ class _CityDropDownState extends State<CityDropDown> {
       color: Colors.transparent,
       child: Container(
         height: 300,
-        width: size.width * .75,
+        width: size.width * .7,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15.0),
           color: const Color(0xffffffff),
@@ -101,6 +101,7 @@ class _CityDropDownState extends State<CityDropDown> {
                     },
                     child: Container(
                       height: 50,
+                      width: size.width * .7,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -149,6 +150,7 @@ class _CityDropDownState extends State<CityDropDown> {
                     },
                     child: Container(
                       height: 50,
+                      width: size.width * .7,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

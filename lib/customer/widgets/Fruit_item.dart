@@ -201,7 +201,7 @@ class _FruitItemState extends State<FruitItem> {
                             Text(
                               widget.fruit.name ?? '',
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 16,
                                 color: const Color(0xff3c4959),
                                 fontWeight: FontWeight.w500,
                               ),
@@ -310,21 +310,25 @@ class _FruitItemState extends State<FruitItem> {
                               ? Padding(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 3),
-                                  child: Text(
-                                    widget.fruit.description,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: const Color(0xffe3e7eb),
-                                      fontWeight: FontWeight.w300,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(maxWidth: 90),
+                                    child: Text(
+                                      widget.fruit.description,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: const Color(0xffe3e7eb),
+                                        fontWeight: FontWeight.w300,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.left,
                                     ),
-                                    textAlign: TextAlign.left,
                                   ),
                                 )
                               : Container(),
                           Row(
                             children: [
                               Text(
-                                '${widget.fruit.discount > 0 && widget.fruit.priceOffer > 0 ? widget.fruit.price - (widget.fruit.price * widget.fruit.discount / 100) : widget.fruit.price}  ${'Q.R'.trs(context)}/${widget.fruit.typeName}',
+                                '${widget.fruit.discount > 0 && widget.fruit.priceOffer > 0 ? widget.fruit.price - (widget.fruit.price * widget.fruit.discount / 100) : widget.fruit.price % 1 == 0 ? widget.fruit.price.toStringAsFixed(0) : widget.fruit.price}  ${'Q.R'.trs(context)}/${widget.fruit.typeName}',
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: widget.color != null
@@ -343,12 +347,16 @@ class _FruitItemState extends State<FruitItem> {
                                           '  ${widget.fruit.price.toStringAsFixed(0)}  ',
                                           style: TextStyle(
                                             fontSize: 10,
-                                            color: const Color(0xff7cba89),
+                                            color: widget.color != null
+                                                ? widget.color
+                                                : const Color(0xff3c984f),
                                             fontWeight: FontWeight.w600,
                                           ),
                                           textAlign: TextAlign.left,
                                         ),
-                                        SvgPicture.asset('assets/line.svg')
+                                        SvgPicture.asset('assets/line.svg',color: widget.color != null
+                                            ? widget.color
+                                            : const Color(0xff3c984f),)
                                       ],
                                     )
                                   : Container(),
