@@ -60,22 +60,18 @@ class FirebaseMessagingService {
 
   Future<void> _onMessage(Map<String, dynamic> message) async {
     print("onMessage $message");
-    localNotificationsService.showNotification(
-      message['notification']['title'],
-      message['notification']['body'],
-    );
     if (message['notification'] != null) {
       final notification =
           LocalNotification("notification", message['notification'] as Map);
       // NotificationsBloc.instance.newNotification(notification);
-      if (AppShared.notification['notification'] == null) {
+      if (message['notification'] == null) {
         localNotificationsService.showNotification(
           message['title'],
           message['body'],
           payload: jsonEncode(AppShared.notification),
         );
       } else {
-        if ((AppShared.notification['notification'] as Map).isEmpty)
+        if ((message['notification'] as Map).isEmpty)
           localNotificationsService.showNotification(
             message['title'],
             message['body'],
@@ -89,30 +85,30 @@ class FirebaseMessagingService {
       }
       return null;
     }
-    if (message['data'] != null) {
-      final notification = LocalNotification("data", message['data'] as Map);
-      // NotificationsBloc.instance.newNotification(notification);
-      if (AppShared.notification['notification'] == null) {
-        localNotificationsService.showNotification(
-          message['title'],
-          message['body'],
-          payload: jsonEncode(AppShared.notification),
-        );
-      } else {
-        if ((AppShared.notification['notification'] as Map).isEmpty)
-          localNotificationsService.showNotification(
-            message['title'],
-            message['body'],
-          );
-        else
-          localNotificationsService.showNotification(
-            message['notification']['title'],
-            message['notification']['body'],
-            payload: jsonEncode(AppShared.notification),
-          );
-      }
-      return null;
-    }
+    // if (message['data'] != null) {
+    //   final notification = LocalNotification("data", message['data'] as Map);
+    //   // NotificationsBloc.instance.newNotification(notification);
+    //   if (AppShared.notification['notification'] == null) {
+    //     localNotificationsService.showNotification(
+    //       message['title'],
+    //       message['body'],
+    //       payload: jsonEncode(AppShared.notification),
+    //     );
+    //   } else {
+    //     if ((AppShared.notification['notification'] as Map).isEmpty)
+    //       localNotificationsService.showNotification(
+    //         message['title'],
+    //         message['body'],
+    //       );
+    //     else
+    //       localNotificationsService.showNotification(
+    //         message['notification']['title'],
+    //         message['notification']['body'],
+    //         payload: jsonEncode(AppShared.notification),
+    //       );
+    //   }
+    //   return null;
+    // }
   }
 
   Future initialise() async {
@@ -130,7 +126,7 @@ class FirebaseMessagingService {
         print("onLaunch: $message");
         String userToken = prefs.getString('userToken');
         // AppShared.notification = message;
-        if (userToken != null) {
+        if (message['data']['target_id'] == '0') if (userToken != null) {
           showModalBottomSheet(
             context: AppShared.navKey.currentContext,
             backgroundColor: Colors.transparent,
@@ -138,6 +134,7 @@ class FirebaseMessagingService {
             enableDrag: true,
             builder: (context) => OrderDetailsPanel(
               order: Order(id: message['data']['target_id']),
+              status: 1,
             ),
           );
           // AppShared.navKey.currentState.context.read<PTVController>().jumbToTab(AppTabs.Orders);
@@ -146,8 +143,7 @@ class FirebaseMessagingService {
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
         String userToken = prefs.getString('userToken');
-
-        if (userToken != null) {
+        if (message['data']['target_id'] == '0') if (userToken != null) {
           showModalBottomSheet(
             context: AppShared.navKey.currentContext,
             backgroundColor: Colors.transparent,
@@ -155,6 +151,7 @@ class FirebaseMessagingService {
             enableDrag: true,
             builder: (context) => OrderDetailsPanel(
               order: Order(id: message['data']['target_id']),
+              status: 1,
             ),
           );
         }

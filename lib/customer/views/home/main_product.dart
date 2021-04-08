@@ -2,36 +2,33 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
-import 'package:harvest/customer/models/favorite.dart';
-import 'package:harvest/customer/models/offers_slider.dart';
-import 'package:harvest/customer/models/products.dart';
 
 import 'package:harvest/customer/widgets/Fruit_item.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/color_converter.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/customer/models/products.dart';
 
 import 'package:harvest/widgets/backButton.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:http/http.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class OffersPage extends StatefulWidget {
-  final Offers offers;
+class MainProduct extends StatefulWidget {
+  final Products offers;
   final String color;
 
-  const OffersPage({Key key, this.offers, this.color}) : super(key: key);
+  const MainProduct({Key key, this.offers, this.color}) : super(key: key);
 
   @override
-  _OffersPageState createState() => _OffersPageState();
+  _MainProductState createState() => _MainProductState();
 }
 
-class _OffersPageState extends State<OffersPage> {
-
+class _MainProductState extends State<MainProduct> {
   List<Products> _products = [];
   bool loadProducts = false;
 
@@ -41,7 +38,7 @@ class _OffersPageState extends State<OffersPage> {
       loadProducts = true;
     });
     var request = await get(
-        ApiHelper.api + 'getOffers/${widget.offers.categoryId}',
+        ApiHelper.api + 'getProductsByParentId/${widget.offers.parentId}',
         headers: {
           'Accept': 'application/json',
           'fcmToken': prefs.getString('fcm_token'),
@@ -71,10 +68,10 @@ class _OffersPageState extends State<OffersPage> {
     return Scaffold(
       body: WaveAppBarBody(
         bottomViewOffset: Offset(0, -10),
-        backgroundGradient: CColors.gradientGenerator(
-            color1: HexColor.fromHex(widget.color),
-            color2: HexColor.fromHex(widget.color)),
-        shadowColor: HexColor.fromHex(widget.color),
+        backgroundGradient: widget.offers.color!=''?CColors.gradientGenerator(
+            color1: HexColor.fromHex(widget.offers.color),
+            color2: HexColor.fromHex(widget.offers.color)):CColors.greenAppBarGradient(),
+        shadowColor: widget.offers.color!=''?HexColor.fromHex(widget.offers.color):null,
         leading: MyBackButton(),
         actions: [Container()],
         bottomView: Card(
@@ -82,7 +79,7 @@ class _OffersPageState extends State<OffersPage> {
           elevation: 10,
           shadowColor: Colors.black26,
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           child: Container(
               decoration: BoxDecoration(
                 // color: Colors.teal,
@@ -90,57 +87,19 @@ class _OffersPageState extends State<OffersPage> {
               ),
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Text(
-                widget.offers.title,
+                widget.offers.name,
                 style: TextStyle(
-                  color: HexColor.fromHex(widget.color),
+                  color: widget.offers.color!=''?HexColor.fromHex(widget.offers.color):CColors.darkGreen,
                   fontWeight: FontWeight.w500,
                 ),
               )
-              // Text.rich(
-              //   TextSpan(
-              //     text: "Save Up to 50%" + "\t\t",
-              //     style: TextStyle(
-              //       color: HexColor.fromHex(widget.color),
-              //       fontWeight: FontWeight.w500,
-              //     ),
-              //     children: [
-              //       TextSpan(
-              //         text: "April Offers",
-              //         style: TextStyle(
-              //           color: CColors.normalText,
-              //           fontWeight: FontWeight.normal,
-              //           fontSize: 13,
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-              ),
+          ),
         ),
         children: [
-          // FlatButton(
-          //   onPressed: () {
-          //     Navigator.of(context, rootNavigator: true).push(platformPageRoute(
-          //       context: context,
-          //       builder: (context) => ProductBundleDetails(),
-          //     ));
-          //
-          //     // AlertManager.showDropDown(
-          //     //   alertBody: AlertBody(
-          //     //     title: "added successfully to Cart",
-          //     //     message: "You can find it in your cart  screen",
-          //     //     icon: Icon(
-          //     //       Icons.check,
-          //     //     ),
-          //     //   ),
-          //     // );
-          //   },
-          //   child: Text("Go to Bundle"),
-          // ),
           loadProducts? Center(
               child: Container(
                   height: 200, width: 200, child: LoadingPhone()))
-              : GridView.builder(
+              :GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   childAspectRatio: 1,
                   crossAxisCount: 2,
@@ -161,19 +120,14 @@ class _OffersPageState extends State<OffersPage> {
                     //   ),
                     // ),
                     child: FruitItem(
-                      fruit:_products[index],
-                      color: HexColor.fromHex(widget.color),
+                      fruit: _products[index],
+                      color: widget.offers.color!=''?HexColor.fromHex(widget.offers.color):CColors.darkGreen,
                     ),
                   );
                 }
-               )
+              )
         ],
       ),
     );
-  }
-
-  @override
-  void reassemble() {
-    super.reassemble();
   }
 }

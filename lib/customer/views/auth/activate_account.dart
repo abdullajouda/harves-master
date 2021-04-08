@@ -66,7 +66,6 @@ class _AccountActivationState extends State<AccountActivation>
       deviceType = 'android';
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var op = Provider.of<UserFunctions>(context, listen: false);
     setState(() {
       load = true;
     });
@@ -82,13 +81,11 @@ class _AccountActivationState extends State<AccountActivation>
         'Accept-Language': LangProvider().getLocaleCode(),
       });
       var response = json.decode(request.body);
-      Fluttertoast.showToast(msg: response['message']);
       if (response['code'] == 200) {
         if (response['user'] != null) {
           User user = User.fromJson(response['user']);
           DeliveryAddresses addresses = DeliveryAddresses.fromJson(
               response['user']['delivery_addresses'][0]);
-          op.setUser(user);
           Services().setToken(response['user']['access_token']);
           Services().setUser(
               response['user']['id'],
@@ -97,8 +94,7 @@ class _AccountActivationState extends State<AccountActivation>
               response['user']['email'],
               response['user']['mobile'],
               response['user']['image_profile']);
-          Services().setDefaultAddress(
-              addresses.id,
+          Services().setDefaultAddress(addresses.id,
               address: addresses.address,
               buildingNumber: addresses.buildingNumber,
               city: addresses.city.name,
@@ -129,12 +125,12 @@ class _AccountActivationState extends State<AccountActivation>
               ),
             ));
       } else {
+        Fluttertoast.showToast(msg: response['message']);
         setState(() {
           load = false;
         });
       }
     }
-
     setState(() {
       load = false;
     });

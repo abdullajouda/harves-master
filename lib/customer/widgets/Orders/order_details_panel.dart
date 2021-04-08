@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/order-details.dart';
 import 'package:harvest/customer/models/orders.dart';
 
@@ -12,16 +13,20 @@ import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/Loader.dart';
+import 'package:harvest/widgets/alerts/myAlerts.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'order_item_list_tile.dart';
 import 'package:http/http.dart';
 
 class OrderDetailsPanel extends StatefulWidget {
   final Order order;
+  final int status;
 
   const OrderDetailsPanel({
     Key key,
     this.order,
+    this.status,
   }) : super(key: key);
 
   @override
@@ -31,7 +36,6 @@ class OrderDetailsPanel extends StatefulWidget {
 class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
   OrderDetails _order;
   bool loadOrder = true;
-
 
   getOrderDetails() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -47,6 +51,31 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
     setState(() {
       _order = order;
       loadOrder = false;
+    });
+  }
+
+  reOrder() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var request =
+        await get(ApiHelper.api + 'reOrder/${widget.order.id}', headers: {
+      'Accept': 'application/json',
+      'fcmToken': prefs.getString('fcm_token'),
+      'Accept-Language': prefs.getString('language'),
+      'Authorization': 'Bearer ${prefs.getString('userToken')}'
+    });
+    var response = json.decode(request.body);
+    if(response['code'] == 200){
+      Navigator.pop(context);
+      MyAlert.addedToCart(0, context);
+    }
+    var cart = Provider.of<Cart>(context, listen: false);
+    _order.orderProduct.forEach((element) {
+      cart.addItem(CartItem(
+        id: element.productId,
+        product: element.product,
+        productId: element.productId,
+        quantity: int.parse(element.quantity),
+      ));
     });
   }
 
@@ -153,14 +182,20 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 9),
-                            child: _OrderStepper(
-                              currentStep: step(),
-                              titles: [
-                                "DPreparing".trs(context),
-                                "DOn_my_way".trs(context),
-                                "DDelivered".trs(context),
-                              ],
-                            ),
+                            child: _order.myOrder.status == 4
+                                ? Text(
+                                    'cancelled'.trs(context),
+                                    style: TextStyle(
+                                        fontSize: 13, color: CColors.grey),
+                                  )
+                                : _OrderStepper(
+                                    currentStep: step(),
+                                    titles: [
+                                      "DPreparing".trs(context),
+                                      "DOn_my_way".trs(context),
+                                      "DDelivered".trs(context),
+                                    ],
+                                  ),
                           ),
                           _buildPanelHeader(),
                           Expanded(
@@ -333,25 +368,25 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
             )
           ],
         ),
-        // widget.order.status == 3 || widget.order.status == 4
-        //     ? FlatButton.icon(
-        //         onPressed: () => Navigator.pop(context),
-        //         shape: RoundedRectangleBorder(
-        //             borderRadius: BorderRadius.circular(5)),
-        //         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        //         color: CColors.lightGreen,
-        //         icon:
-        //             Icon(FontAwesomeIcons.redo, size: 13, color: CColors.white),
-        //         label: Text(
-        //           "re_order".trs(context),
-        //           style: TextStyle(
-        //             color: CColors.white,
-        //             fontSize: 13,
-        //             fontWeight: FontWeight.normal,
-        //           ),
-        //         ),
-        //       )
-        //     : Container(),
+        widget.status == 2
+            ? FlatButton.icon(
+                onPressed: () => reOrder(),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5)),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                color: CColors.lightGreen,
+                icon:
+                    Icon(FontAwesomeIcons.redo, size: 13, color: CColors.white),
+                label: Text(
+                  "re_order".trs(context),
+                  style: TextStyle(
+                    color: CColors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              )
+            : Container(),
       ],
     );
   }

@@ -1,11 +1,17 @@
 
+import 'dart:io';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/main.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class ChangeLanguageDialog extends StatefulWidget {
@@ -14,10 +20,51 @@ class ChangeLanguageDialog extends StatefulWidget {
 }
 
 class _ChangeLanguageDialogState extends State<ChangeLanguageDialog> {
+  String deviceType;
+
+  changeLanguage()async{
+    var translate = Provider.of<LangProvider>(context,listen: false);
+
+    if (Platform.isIOS) {
+      deviceType = "ios";
+    } else {
+      deviceType = 'android';
+    }
+    if (translate.getLocaleCode() == 'ar') {
+      translate.setLocale(locale: Locales.en);
+    } else {
+      translate.setLocale(locale: Locales.ar);
+    }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    FirebaseMessaging _firebaseMessaging = new FirebaseMessaging();
+    final fToken = await _firebaseMessaging.getToken();
+    prefs.setString('fcm_token', fToken);
+    Map<String, String> headers = {
+      "Authorization": "Bearer ${prefs.getString('userToken')}",
+      "Accept-Language": "${translate.getLocaleCode()}",
+      "Accept": "application/json",
+    };
+
+    Map<String, String> body = {
+      'accept_notification': '1',
+      'device_type': Platform.isIOS?'ios':'android',
+      'fcm_token': fToken,
+    };
+    var request =
+    await post(ApiHelper.api + 'updateFcmToken',body: body, headers: headers);
+
+    Navigator.popUntil(
+        context, (route) => route.isFirst);
+    Navigator.of(context, rootNavigator: true)
+        .pushReplacement(MaterialPageRoute(
+      // context: context,
+      builder: (context) => MyApp(),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Size size = MediaQuery.of(context).size;
-    var translate = Provider.of<LangProvider>(context);
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -101,18 +148,7 @@ class _ChangeLanguageDialogState extends State<ChangeLanguageDialog> {
                             ),
                             GestureDetector(
                               onTap: (){
-                                if (translate.getLocaleCode() == 'ar') {
-                                  translate.setLocale(locale: Locales.en);
-                                } else {
-                                  translate.setLocale(locale: Locales.ar);
-                                }
-                                Navigator.popUntil(
-                                    context, (route) => route.isFirst);
-                                Navigator.of(context, rootNavigator: true)
-                                    .pushReplacement(MaterialPageRoute(
-                                  // context: context,
-                                  builder: (context) => MyApp(),
-                                ));
+                                changeLanguage();
                               } ,
                               child: Container(
                                 height: 35,

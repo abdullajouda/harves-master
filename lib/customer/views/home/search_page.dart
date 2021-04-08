@@ -14,6 +14,7 @@ import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/widgets/backButton.dart';
 import 'package:harvest/widgets/basket_button.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 import 'package:harvest/widgets/my_animation.dart';
@@ -107,17 +108,7 @@ class _SearchResultsState extends State<SearchResults> {
           ),
         ),
         actions: [HomePopUpMenu()],
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                platformPageRoute(
-                  context: context,
-                  builder: (context) => Basket(),
-                ),
-              );
-            },
-            child: BasketButton()),
+        leading: MyBackButton(),
         children: [
           Padding(
             padding: const EdgeInsets.all(20.0),

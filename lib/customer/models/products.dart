@@ -23,6 +23,7 @@ class Products {
   int inCart;
   String name;
   String description;
+  String color;
 
   Products(
       {this.id,
@@ -48,6 +49,7 @@ class Products {
       this.available,
       this.inCart,
       this.name,
+      this.color,
       this.description});
 
   Products.fromJson(Map<String, dynamic> json) {
@@ -76,6 +78,7 @@ class Products {
     inCart = json['in_cart'];
     name = json['name'];
     description = json['description'];
+    color = json['special_food_bg'];
   }
 
   Map<String, dynamic> toJson() {

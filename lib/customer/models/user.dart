@@ -67,7 +67,7 @@ class UserFunctions with ChangeNotifier {
   }
 
   clearUser(){
-    _user = null;
+    _user = User();
   }
 
 }

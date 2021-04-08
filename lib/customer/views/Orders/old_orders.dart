@@ -1,13 +1,16 @@
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:harvest/customer/widgets/Orders/order_current_list_tile.dart';
 import 'package:harvest/customer/widgets/Orders/order_details_panel.dart';
 import 'package:harvest/customer/widgets/Orders/order_list_tile.dart';
 import 'dart:convert';
 
 import 'package:harvest/customer/models/orders.dart';
+import 'package:harvest/helpers/Localization/lang_provider.dart';
 
 import 'package:harvest/helpers/api.dart';
+import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:harvest/widgets/dialogs/signup_first.dart';
 import 'package:harvest/widgets/no_data.dart';
@@ -33,7 +36,7 @@ class _OldOrdersState extends State<OldOrders> {
       var request =
           await get(ApiHelper.api + 'getMyOrdersByStatus/2', headers: {
         'Accept': 'application/json',
-        'Accept-Language': 'en',
+        'Accept-Language': LangProvider().getLocaleCode(),
         'Authorization': 'Bearer ${prefs.getString('userToken')}'
       });
       var response = json.decode(request.body);
@@ -59,7 +62,7 @@ class _OldOrdersState extends State<OldOrders> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => OrderDetailsPanel(
-        order: order,
+        order: order,status: 2,
       ),
     );
   }
@@ -98,14 +101,53 @@ class _OldOrdersState extends State<OldOrders> {
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: OrderListTile(
+                    child:OrderCurrentListTile(
                       onTap: () => _showButtonPanel(_orders[index]),
                       billNumber: _orders[index].id,
                       billTotal: _orders[index].totalPrice,
                       billDate: _orders[index].createdAt,
+                      backgroundColor: backGroundColor(_orders[index]),
+                      leadingIconColor: textColor(_orders[index]),
                     ),
                   );
                 },
               );
+  }
+  Color backGroundColor(Order order) {
+    switch (order.status) {
+      case 1:
+        return CColors.lightOrange;
+        break;
+      case 2:
+        return CColors.lightBlue;
+        break;
+      case 3:
+        return CColors.fadeBlueAccent;
+        break;
+      case 4:
+        return CColors.lightGrey;
+        break;
+      default:
+        return CColors.lightOrange;
+    }
+  }
+
+  Color textColor(Order order) {
+    switch (order.status) {
+      case 1:
+        return CColors.darkOrange;
+        break;
+      case 2:
+        return CColors.skyBlue;
+        break;
+      case 3:
+        return CColors.darkGreen;
+        break;
+      case 4:
+        return CColors.grey;
+        break;
+      default:
+        return CColors.darkOrange;
+    }
   }
 }

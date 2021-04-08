@@ -20,6 +20,7 @@ import 'package:harvest/widgets/add_new_address_dialog.dart';
 import 'package:harvest/widgets/alerts/myAlerts.dart';
 import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:harvest/widgets/dialogs/minimun_charge.dart';
+import 'package:harvest/widgets/dialogs/signup_dialog.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:harvest/widgets/no_data.dart';
 import 'package:http/http.dart';
@@ -32,7 +33,8 @@ class BasketStep extends StatefulWidget {
 
   const BasketStep({
     Key key,
-    this.onContinuePressed, this.onErrorFound,
+    this.onContinuePressed,
+    this.onErrorFound,
   }) : super(key: key);
 
   @override
@@ -56,7 +58,6 @@ class _BasketStepState extends State<BasketStep> {
   double _textFieldHeight = 0;
   final double _finalValue = 100.0;
 
-
   checkToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getString('userToken') != null) {
@@ -66,6 +67,7 @@ class _BasketStepState extends State<BasketStep> {
       showFreeDelivery();
     }
   }
+
   // Future getAddresses() async {
   //   setState(() {
   //     addresses = [];
@@ -90,53 +92,56 @@ class _BasketStepState extends State<BasketStep> {
   //     load = false;
   //   });
   // }
-  checkCartItems()async{
-    setState(() {
-      load = true;
-    });
-    var cart = Provider.of<Cart>(context, listen: false);
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var request = await post(ApiHelper.api + 'checkCart', body: {
-      'delivery_address': _selected.id.toString(),
-    }, headers: {
-      'Accept': 'application/json',
-      'fcmToken': prefs.getString('fcm_token'),
-      'Accept-Language': LangProvider().getLocaleCode(),
-      'Authorization': 'Bearer ${prefs.getString('userToken')}'
-    });
-    var response = json.decode(request.body);
-    print(response);
-    if (response['code'] == 200) {
-      if (_textEditingController.text !=
-          null) {
-        cart.setAdditional(
-            _textEditingController
-                .text);
+  checkCartItems() async {
+    if (isAuth) {
+      setState(() {
+        load = true;
+      });
+      var cart = Provider.of<Cart>(context, listen: false);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var request = await post(ApiHelper.api + 'checkCart', body: {
+        'delivery_address': _selected.id.toString(),
+      }, headers: {
+        'Accept': 'application/json',
+        'fcmToken': prefs.getString('fcm_token'),
+        'Accept-Language': LangProvider().getLocaleCode(),
+        'Authorization': 'Bearer ${prefs.getString('userToken')}'
+      });
+      var response = json.decode(request.body);
+      print(response);
+      if (response['code'] == 200) {
+        if (_textEditingController.text != null) {
+          cart.setAdditional(_textEditingController.text);
+        }
+        cart.setTotal(total);
+        showNextDialog();
+      } else if (response['code'] == 204) {
+        showCupertinoDialog(
+          context: context,
+          builder: (context) => MinimumChargeDialog(
+            subTitle: response['message'],
+          ),
+        );
+      } else if (response['code'] == 205) {
+        var list = response['items'];
+        // cart.addError(index);
+        list.forEach((element) {
+          ErrorModel model = ErrorModel.fromJson(element);
+          cart.addError(model);
+          // cart.addError(int.parse(element.toString()));
+        });
+        widget.onErrorFound.call();
       }
-      cart.setTotal(total);
-      showNextDialog();
-    }
-    else if (response['code'] == 204) {
+      setState(() {
+        load = false;
+      });
+    } else {
       showCupertinoDialog(
         context: context,
-        builder: (context) => MinimumChargeDialog(
-          subTitle: response['message'],
-        ),
+        barrierDismissible: true,
+        builder: (context) => SignUpDialog(),
       );
     }
-    else if (response['code'] == 205) {
-      var list = response['items'];
-      // cart.addError(index);
-      list.forEach((element) {
-        ErrorModel model = ErrorModel.fromJson(element);
-        cart.addError(model);
-        // cart.addError(int.parse(element.toString()));
-      });
-      widget.onErrorFound.call();
-    }
-    setState(() {
-      load = false;
-    });
   }
 
   Future getCart() async {
@@ -173,7 +178,7 @@ class _BasketStepState extends State<BasketStep> {
     //     _errorIndexes.add(value);
     //   }
     // });
-    if(isAuth){
+    if (isAuth) {
       getDefault();
     }
     setState(() {
@@ -321,7 +326,7 @@ class _BasketStepState extends State<BasketStep> {
         address: _selected,
         onTapContinue: () {
           cart.setAddress(_selected);
-          cart.setIsFree(remains<=0);
+          cart.setIsFree(remains <= 0);
           Navigator.pop(context);
           widget.onContinuePressed.call();
         },
@@ -524,10 +529,15 @@ class _BasketStepState extends State<BasketStep> {
                                   Row(
                                     children: [
                                       cart.items.values
-                                                  .toList()[index]
-                                                  .product
-                                                  .discount >
-                                              0
+                                                      .toList()[index]
+                                                      .product
+                                                      .discount >
+                                                  0 &&
+                                              cart.items.values
+                                                      .toList()[index]
+                                                      .product
+                                                      .priceOffer >
+                                                  0
                                           ? Text(
                                               "${(cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
                                               style: TextStyle(
@@ -674,6 +684,11 @@ class _BasketStepState extends State<BasketStep> {
                                                     .toList()[index]
                                                     .product
                                                     .discount >
+                                                0 &&
+                                            cart.items.values
+                                                .toList()[index]
+                                                .product
+                                                .priceOffer >
                                                 0
                                             ? TextSpan(
                                                 text:

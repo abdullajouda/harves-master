@@ -407,7 +407,7 @@ class _HomeState extends State<Home> {
                           padding: EdgeInsets.symmetric(horizontal: 10),
                           itemCount: _featuredProducts.length,
                           shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
+                          // physics: NeverScrollableScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) => GestureDetector(
                               onTap: () =>

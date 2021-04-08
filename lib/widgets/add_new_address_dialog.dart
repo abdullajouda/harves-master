@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -20,6 +21,8 @@ import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
+
+import 'dialogs/city_dialog.dart';
 
 class AddNewAddressDialog extends StatefulWidget {
   @override
@@ -293,72 +296,91 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                               vertical: 15, horizontal: 20),
                                           child: Stack(
                                             children: [
-                                              Container(
-                                                height: 50,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          12.0),
-                                                  border: Border.all(
-                                                      width: 1.0,
-                                                      color: const Color(
-                                                          0xffe3e7eb)),
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets
-                                                          .symmetric(
-                                                      horizontal: 15),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        city != null
-                                                            ? city.name
-                                                            : 'city'
-                                                                .trs(context),
-                                                        style: TextStyle(
-                                                          fontSize: 8,
-                                                          color: const Color(
-                                                              0xff525768),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  showCupertinoDialog(
+                                                    context: context,
+                                                    barrierDismissible: true,
+                                                    builder: (context) =>
+                                                        Center(
+                                                            child:
+                                                            CityDropDown()),
+                                                  ).then((value) {
+                                                    if (value is Map<String,
+                                                        dynamic>) {
+                                                      setState(() {
+                                                        city = value['city'];
+                                                      });
+                                                    }
+                                                  });
+                                                },
+                                                child: Container(
+                                                  height: 50,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12.0),
+                                                    border: Border.all(
+                                                        width: 1.0,
+                                                        color: const Color(
+                                                            0xffe3e7eb)),
+                                                  ),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 15),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                          city != null
+                                                              ? city.name
+                                                              : 'city'
+                                                                  .trs(context),
+                                                          style: TextStyle(
+                                                            fontSize: 8,
+                                                            color: const Color(
+                                                                0xff525768),
+                                                          ),
                                                         ),
-                                                      ),
-                                                      SvgPicture.asset(
-                                                          'assets/icons/arrow-down.svg')
-                                                    ],
+                                                        SvgPicture.asset(
+                                                            'assets/icons/arrow-down.svg')
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                              Container(
-                                                height: 50,
-                                                width: size.width * .75,
-                                                child: DropdownButton<City>(
-                                                  icon: Container(),
-                                                  underline: Container(),
-                                                  items: op.items.values
-                                                      .toList()
-                                                      .map((City value) {
-                                                    return DropdownMenuItem<
-                                                        City>(
-                                                      value: value,
-                                                      child: Text(
-                                                        value.name,
-                                                        style: TextStyle(
-                                                          fontSize: 8,
-                                                          color: const Color(
-                                                              0xff525768),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      city = value;
-                                                    });
-                                                  },
-                                                ),
-                                              ),
+                                              // Container(
+                                              //   height: 50,
+                                              //   width: size.width * .75,
+                                              //   child: DropdownButton<City>(
+                                              //     icon: Container(),
+                                              //     underline: Container(),
+                                              //     items: op.items.values
+                                              //         .toList()
+                                              //         .map((City value) {
+                                              //       return DropdownMenuItem<
+                                              //           City>(
+                                              //         value: value,
+                                              //         child: Text(
+                                              //           value.name,
+                                              //           style: TextStyle(
+                                              //             fontSize: 8,
+                                              //             color: const Color(
+                                              //                 0xff525768),
+                                              //           ),
+                                              //         ),
+                                              //       );
+                                              //     }).toList(),
+                                              //     onChanged: (value) {
+                                              //       setState(() {
+                                              //         city = value;
+                                              //       });
+                                              //     },
+                                              //   ),
+                                              // ),
                                             ],
                                           ),
                                         ),
@@ -477,31 +499,31 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.center,
                                             children: [
-                                              Container(
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    // Text(
-                                                    //   'Is Default Address'.trs(context),
-                                                    //   style: TextStyle(
-                                                    //     fontSize: 10,
-                                                    //     color:
-                                                    //         const Color(0xff525768),
-                                                    //   ),
-                                                    // ),
-                                                    // Switch(
-                                                    //   activeColor: CColors.darkOrange,
-                                                    //   value: isDefault,
-                                                    //   onChanged: (value) {
-                                                    //     setState(() {
-                                                    //       isDefault = value;
-                                                    //     });
-                                                    //   },
-                                                    // ),
-                                                  ],
-                                                ),
-                                              ),
+                                              // Container(
+                                              //   child: Row(
+                                              //     mainAxisSize:
+                                              //         MainAxisSize.min,
+                                              //     children: [
+                                              //       // Text(
+                                              //       //   'Is Default Address'.trs(context),
+                                              //       //   style: TextStyle(
+                                              //       //     fontSize: 10,
+                                              //       //     color:
+                                              //       //         const Color(0xff525768),
+                                              //       //   ),
+                                              //       // ),
+                                              //       // Switch(
+                                              //       //   activeColor: CColors.darkOrange,
+                                              //       //   value: isDefault,
+                                              //       //   onChanged: (value) {
+                                              //       //     setState(() {
+                                              //       //       isDefault = value;
+                                              //       //     });
+                                              //       //   },
+                                              //       // ),
+                                              //     ],
+                                              //   ),
+                                              // ),
                                               Align(
                                                 alignment:
                                                     Alignment.centerRight,

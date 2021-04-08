@@ -35,15 +35,15 @@ class _LoginState extends State<Login> {
       load = true;
     });
     if (_formKey.currentState.validate()) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final lang = Provider.of<LangProvider>(context,listen: false);
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
       var request = await post(ApiHelper.api + 'sendLoginCode', body: {
         'mobile': mobile
       }, headers: {
         'Accept': 'application/json',
-        'Accept-Language': prefs.getString('language'),
+        'Accept-Language': LangProvider().getLocaleCode(),
       });
       var response = json.decode(request.body);
-      Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
         Navigator.pushReplacement(
             context,
@@ -53,6 +53,7 @@ class _LoginState extends State<Login> {
               ),
             ));
       } else {
+        Fluttertoast.showToast(msg: response['message']);
         setState(() {
           load = false;
         });

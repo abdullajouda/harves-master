@@ -7,15 +7,19 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/models/city.dart';
 import 'package:harvest/customer/models/delivery-data.dart';
+import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/api.dart';
+import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/helpers/services.dart';
 import 'package:harvest/widgets/auth_widgets/set_location_sheet.dart';
 import 'package:harvest/widgets/button_loader.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:harvest/helpers/Localization/localization.dart';
 
 class LocationSheet extends StatefulWidget {
   final String name;
@@ -36,6 +40,7 @@ class _LocationSheetState extends State<LocationSheet> {
   City city;
   bool load = false;
   String deviceType;
+  int group = 0;
 
   onContinue() async {
     if (Platform.isIOS) {
@@ -60,16 +65,17 @@ class _LocationSheetState extends State<LocationSheet> {
         'lan': '$lng',
         'full_address': '$fullAddress',
         'city': '${city.id}',
-        'building_no': '$buildingNo',
-        'unit_no': '$unitNo',
+        'building_no': '${buildingNo.toString()}',
+        'unit_no': '${unitNo.toString()}',
         'additional_notes': '$additionalNotes',
       }, headers: {
         'Accept': 'application/json',
         'Accept-Language': prefs.getString('language'),
       });
       var response = json.decode(request.body);
-      DeliveryAddresses addresses = DeliveryAddresses.fromJson(
-          response['user']['delivery_addresses'][0]);
+      var op = Provider.of<UserFunctions>(context, listen: false);
+      DeliveryAddresses addresses =
+          DeliveryAddresses.fromJson(response['user']['delivery_addresses'][0]);
       // Fluttertoast.showToast(msg: response['message']);
       if (response['status'] == true) {
         prefs.setString('userToken', response['user']['access_token']);
@@ -83,35 +89,59 @@ class _LocationSheetState extends State<LocationSheet> {
             response['user']['image_profile']);
         Services().setDefaultAddress(
           addresses.id,
-            address: addresses.address,
-            buildingNumber: addresses.buildingNumber,
-            city: addresses.city.name,
-            deliveryCost: addresses.city.deliveryCost,
-            lat: addresses.lat,
-            lng: addresses.lan,
-            minOrder: addresses.city.minOrder,
-            unitNumber: addresses.unitNumber);
+          address: addresses.address,
+          buildingNumber: addresses.buildingNumber,
+          city: addresses.city.name,
+          deliveryCost: addresses.city.deliveryCost,
+          lat: addresses.lat,
+          lng: addresses.lan,
+          minOrder: addresses.city.minOrder,
+          unitNumber: addresses.unitNumber,
+        );
+        op.setUser(
+          User(
+            id: response['user']['id'],
+            name: response['user']['name'],
+            mobile: response['user']['mobile'],
+            email: response['user']['email'],
+            cityId: response['user']['city_id'],
+            imageProfile: response['user']['image_profile'],
+          ),
+        );
         Navigator.push(
-            context,
-            CustomPageRoute(
-              builder: (context) => RootScreen(),
-            ));
+          context,
+          CustomPageRoute(
+            builder: (context) => RootScreen(),
+          ),
+        );
       }
     } else {
-      Fluttertoast.showToast(msg: 'Please set your location');
+      Fluttertoast.showToast(msg: 'Please set your location'.trs(context));
     }
     setState(() {
       load = false;
     });
   }
 
-  openMap() {
+  openMap({bool isEdit}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       enableDrag: false,
       backgroundColor: Colors.transparent,
-      builder: (context) => SetLocationSheet(),
+      builder: (context) => isEdit
+          ? SetLocationSheet(
+              isEdit: true,
+              address: DeliveryAddresses(
+                  city: city,
+                  lat: lat,
+                  lan: lng,
+                  address: fullAddress,
+                  buildingNumber: int.parse(buildingNo),
+                  unitNumber: int.parse(unitNo),
+                  note: additionalNotes),
+            )
+          : SetLocationSheet(),
     ).then((value) {
       if (value is Map<String, dynamic>) {
         if (value['addressLine'] == null) {
@@ -217,7 +247,8 @@ class _LocationSheetState extends State<LocationSheet> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              fullAddress ?? city.name ?? '',
+                                              '${city.name}, $fullAddress' ??
+                                                  '',
                                               style: TextStyle(
                                                 fontSize: 13,
                                                 color: const Color(0xff3c4959),
@@ -243,7 +274,7 @@ class _LocationSheetState extends State<LocationSheet> {
                                   top: 0,
                                   right: 0,
                                   child: GestureDetector(
-                                    onTap: () => openMap(),
+                                    onTap: () => openMap(isEdit: true),
                                     child: Container(
                                       height: 18,
                                       width: 18,
@@ -270,9 +301,8 @@ class _LocationSheetState extends State<LocationSheet> {
                   Padding(
                     padding: const EdgeInsets.only(top: 15),
                     child: Text(
-                      'Add new specific address\ndetails for your home',
+                      'Add new specific address'.trs(context),
                       style: TextStyle(
-                        fontFamily: 'SF Pro Rounded',
                         fontSize: 12,
                         color: const Color(0xff888a8d),
                       ),
@@ -282,7 +312,7 @@ class _LocationSheetState extends State<LocationSheet> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 15),
                     child: GestureDetector(
-                      onTap: () => openMap(),
+                      onTap: () => openMap(isEdit: false),
                       child: Container(
                         height: 31,
                         width: 147,
@@ -292,9 +322,8 @@ class _LocationSheetState extends State<LocationSheet> {
                         ),
                         child: Center(
                           child: Text(
-                            'Add New Address',
+                            'add_new_adress'.trs(context),
                             style: TextStyle(
-                              fontFamily: 'SF Pro Rounded',
                               fontSize: 12,
                               color: const Color(0xff3c984f),
                               fontWeight: FontWeight.w500,
@@ -325,9 +354,8 @@ class _LocationSheetState extends State<LocationSheet> {
                     child: load
                         ? LoadingBtn()
                         : Text(
-                            'Continue ',
+                            'continue'.trs(context),
                             style: TextStyle(
-                              fontFamily: 'SF Pro Rounded',
                               fontSize: 16,
                               color: const Color(0xffffffff),
                             ),
@@ -345,10 +373,19 @@ class _LocationSheetState extends State<LocationSheet> {
                     children: [
                       Row(
                         children: [
+                          Theme(
+                            data: ThemeData(
+                                unselectedWidgetColor: Colors.grey[300]),
+                            child: Radio<int>(
+                              value: 0,
+                              groupValue: group,
+                              activeColor: CColors.darkGreen,
+                              onChanged: (value) {},
+                            ),
+                          ),
                           Text(
-                            'By Continuing you agree to our',
+                            'By Continuing you agree to our'.trs(context),
                             style: TextStyle(
-                              fontFamily: 'SF Pro Rounded',
                               fontSize: 10,
                               color: const Color(0xff888a8d),
                             ),
@@ -365,9 +402,8 @@ class _LocationSheetState extends State<LocationSheet> {
                                   ));
                             },
                             child: Text(
-                              'Terms Of Use',
+                              'Terms of use'.trs(context),
                               style: TextStyle(
-                                fontFamily: 'SF Pro Rounded',
                                 fontSize: 10,
                                 color: const Color(0xff3c984f),
                               ),
@@ -376,24 +412,23 @@ class _LocationSheetState extends State<LocationSheet> {
                           ),
                         ],
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              CustomPageRoute(
-                                builder: (context) => RootScreen(),
-                              ));
-                        },
-                        child: Text(
-                          'Skip',
-                          style: TextStyle(
-                            fontFamily: 'SF Pro Rounded',
-                            fontSize: 10,
-                            color: const Color(0xfffdaa5c),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
+                      // TextButton(
+                      //   onPressed: () {
+                      //     Navigator.push(
+                      //         context,
+                      //         CustomPageRoute(
+                      //           builder: (context) => RootScreen(),
+                      //         ));
+                      //   },
+                      //   child: Text(
+                      //     'Skip'.trs(context),
+                      //     style: TextStyle(
+                      //       fontSize: 10,
+                      //       color: const Color(0xfffdaa5c),
+                      //     ),
+                      //     textAlign: TextAlign.center,
+                      //   ),
+                      // )
                     ],
                   ),
                 ),

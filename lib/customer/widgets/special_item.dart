@@ -42,8 +42,8 @@ class SpecialItem extends StatelessWidget {
               ),
             ),
             Positioned(
-              right: -6,
-              bottom: 5,
+              right: -16,
+              bottom: -5,
               child: Container(
                 decoration: BoxDecoration(
                     // boxShadow: [
@@ -63,7 +63,8 @@ class SpecialItem extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: 4,
+              left: LangProvider().getLocaleCode() == 'ar' ? null : 8,
+              right: LangProvider().getLocaleCode() == 'ar' ? 15 : null,
               top: 15,
               child: Container(
                 width: 100,
@@ -82,7 +83,7 @@ class SpecialItem extends StatelessWidget {
                     Text(
                       '${fruit.price} ${'Q.R'.trs(context)}/${fruit.typeName}',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 10,
                         color: const Color(0xffffffff),
                       ),
                       textAlign: TextAlign.left,

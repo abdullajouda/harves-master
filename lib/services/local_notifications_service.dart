@@ -40,7 +40,7 @@ class LocalNotificationsService {
   // local notifications init.
   Future<void> _initLocalNotifications() async {
     var initializationSettingsAndroid =
-    AndroidInitializationSettings('@drawable/appicon');
+    AndroidInitializationSettings('@drawable/ic_app');
     var initializationSettingsIOS = IOSInitializationSettings(
         requestAlertPermission: true,
         requestBadgePermission: true,

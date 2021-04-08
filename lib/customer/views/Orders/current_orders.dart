@@ -61,7 +61,7 @@ class _CurrentOrdersState extends State<CurrentOrders> {
       isScrollControlled: true,
       enableDrag: true,
       builder: (context) => OrderDetailsPanel(
-        order: order,
+        order: order, status: 1,
       ),
     );
   }

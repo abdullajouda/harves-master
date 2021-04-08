@@ -38,6 +38,7 @@ class UserProfile extends StatefulWidget {
 class _UserProfileState extends State<UserProfile> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   File selectedImage;
+  String _avatar;
   TextEditingController _name, _mobile, _email;
   bool isChanged = false;
   bool load = false;
@@ -185,18 +186,28 @@ class _UserProfileState extends State<UserProfile> {
     //return image;
   }
 
+  getUserInfo()async{
+    setState(() {
+      load = true;
+    });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _name = new TextEditingController(text: prefs.getString('username'));
+    _mobile = new TextEditingController(text:prefs.getString('mobile'));
+    _email = new TextEditingController(text: prefs.getString('email'));
+    setState(() {
+      _avatar = prefs.getString('avatar');
+      load = false;
+    });
+  }
+
   @override
   void initState() {
-    var op = Provider.of<UserFunctions>(context, listen: false);
-    _name = new TextEditingController(text: op.user.name);
-    _mobile = new TextEditingController(text: op.user.mobile);
-    _email = new TextEditingController(text: op.user.email);
+    getUserInfo();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var op = Provider.of<UserFunctions>(context);
     final Size size = MediaQuery.of(context).size;
     final trs = AppTranslations.of(context);
     return Scaffold(
@@ -231,8 +242,8 @@ class _UserProfileState extends State<UserProfile> {
                           fit: BoxFit.cover,
                           image: selectedImage != null
                               ? FileImage(selectedImage)
-                              : op.user.imageProfile != null
-                                  ? NetworkImage(op.user.imageProfile)
+                              : _avatar != null
+                                  ? NetworkImage(_avatar)
                                   : AssetImage(''),
                         ),
                       ),
@@ -268,7 +279,7 @@ class _UserProfileState extends State<UserProfile> {
             Padding(
               padding: const EdgeInsets.only(top: 5),
               child: Text(
-                op.user.name ?? '',
+                _name.text ?? '',
                 style: TextStyle(
                   color: CColors.headerText,
                   fontWeight: FontWeight.w600,

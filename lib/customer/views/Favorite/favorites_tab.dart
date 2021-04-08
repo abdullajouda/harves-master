@@ -187,7 +187,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
         ),
         body: SmartRefresher(
             enablePullDown: true,
-            header:WaterDropHeader(
+            header: WaterDropHeader(
               waterDropColor: CColors.darkGreen,
             ),
             controller: _refreshController,
@@ -195,8 +195,8 @@ class _FavoritesTabState extends State<FavoritesTab> {
             child: ListView(
               children: [
                 load
-                    ? Expanded(child: Container(
-                    height: 150,child: Center(child: Loader())))
+                    ? Container(
+                        height: 150, child: Center(child: Loader()))
                     : !isAuthenticated
                         ? NotAuthPage()
                         : Column(
@@ -217,32 +217,39 @@ class _FavoritesTabState extends State<FavoritesTab> {
                                   ],
                                 ),
                               ),
-                              op.items.length==0?NoData():GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  // padding: EdgeInsets.only(top: 10, bottom: 40)
-                                  //     .add(EdgeInsets.symmetric(horizontal: 20)),
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                          childAspectRatio: 1,
-                                          crossAxisCount: 2,
-                                          crossAxisSpacing: 18,
-                                          mainAxisSpacing: 18),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 15, vertical: 15),
-                                  itemCount: op.items.length,
-                                  itemBuilder: (context, index) {
-                                    final bool _isSelected = _isIndexSelected(
-                                        op.items.values.toList()[index]);
-                                    return FavoriteItem(
-                                      remove: () {
-                                        removeFav(op.items.values
-                                            .toList()[index]);
-                                      },
-                                      fruit:
-                                          op.items.values.toList()[index],
-                                    );
-                                  }),
+                              op.items.length == 0
+                                  ? NoData()
+                                  : GridView.builder(
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      // padding: EdgeInsets.only(top: 10, bottom: 40)
+                                      //     .add(EdgeInsets.symmetric(horizontal: 20)),
+
+                                      gridDelegate:
+                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                              childAspectRatio: 1,
+                                              crossAxisCount: 2,
+                                              crossAxisSpacing: 18,
+                                              mainAxisSpacing: 18),
+                                      padding: EdgeInsets.only(
+                                          left: 15,
+                                          right: 15,
+                                          top: 15,
+                                          bottom: 40),
+                                      itemCount: op.items.length,
+                                      itemBuilder: (context, index) {
+                                        final bool _isSelected =
+                                            _isIndexSelected(op.items.values
+                                                .toList()[index]);
+                                        return FavoriteItem(
+                                          remove: () {
+                                            removeFav(op.items.values
+                                                .toList()[index]);
+                                          },
+                                          fruit:
+                                              op.items.values.toList()[index],
+                                        );
+                                      }),
                             ],
                           ),
               ],

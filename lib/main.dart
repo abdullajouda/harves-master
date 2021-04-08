@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:harvest/customer/models/city.dart';
@@ -9,6 +12,7 @@ import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/helpers/Localization/appliction.dart';
 import 'package:harvest/splash.dart';
+import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'customer/models/cart_items.dart';
 import 'customer/models/favorite.dart';
@@ -38,6 +42,21 @@ class _MyAppState extends State<MyApp> {
 
   void onLocaleChange(Locale locale) => setState(
       () => _newLocaleDelegate = AppTranslationsDelegate(newLocale: locale));
+
+  Future<bool> checkUpdates() async {
+    final RemoteConfig remoteConfig = await RemoteConfig.instance;
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    await remoteConfig.fetch();
+    await remoteConfig.activateFetched();
+
+    final requiredBuildNumber = remoteConfig.getInt(Platform.isAndroid
+        ? 'requiredBuildNumberAndroid'
+        : 'requiredBuildNumberIOS');
+
+    final currentBuildNumber = int.parse(packageInfo.buildNumber);
+
+    return currentBuildNumber < requiredBuildNumber;
+  }
 
   @override
   void initState() {

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -16,6 +17,7 @@ import 'dart:ui' as ui;
 
 import 'package:harvest/helpers/variables.dart';
 import 'package:geocoder/geocoder.dart';
+import 'package:harvest/widgets/dialogs/city_dialog.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -110,7 +112,7 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
           _expand = true;
         });
       }
-    }else{
+    } else {
       setState(() {
         _expand = true;
       });
@@ -158,7 +160,7 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
     var op = Provider.of<CityOperations>(context);
     return Padding(
       padding:
-      EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         // width: size.width,
         decoration: BoxDecoration(
@@ -191,7 +193,7 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                     Positioned(
                       top: 0,
                       child: Container(
-                        height: size.height * .57,
+                        height: size.height * .56,
                         width: size.width * .8,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(13.0),
@@ -250,7 +252,7 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                           duration: Duration(milliseconds: 600),
                           child: AnimatedContainer(
                             duration: Duration(milliseconds: 300),
-                            height: _expand ? 400 : 64,
+                            height: _expand ? 370 : 64,
                             width: 260,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(9.0),
@@ -265,8 +267,8 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                             ),
                             child: _expand
                                 ? Form(
-                              key: _locationFormKey,
-                                  child: Column(
+                                    key: _locationFormKey,
+                                    child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Padding(
@@ -274,69 +276,91 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                               vertical: 15, horizontal: 20),
                                           child: Stack(
                                             children: [
-                                              Container(
-                                                height: 50,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(12.0),
-                                                  border: Border.all(
-                                                      width: 1.0,
-                                                      color:
-                                                          const Color(0xffe3e7eb)),
-                                                ),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                          horizontal: 15),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        city != null
-                                                            ? city.name
-                                                            : 'City',
-                                                        style: TextStyle(
-                                                          fontSize: 8,
-                                                          color: const Color(
-                                                              0xff525768),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  showCupertinoDialog(
+                                                    context: context,
+                                                    barrierDismissible: true,
+                                                    builder: (context) =>
+                                                        Center(
+                                                            child:
+                                                                CityDropDown()),
+                                                  ).then((value) {
+                                                    if (value is Map<String,
+                                                        dynamic>) {
+                                                      setState(() {
+                                                        city = value['city'];
+                                                      });
+                                                    }
+                                                  });
+                                                },
+                                                child: Container(
+                                                  height: 50,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12.0),
+                                                    border: Border.all(
+                                                        width: 1.0,
+                                                        color: const Color(
+                                                            0xffe3e7eb)),
+                                                  ),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets
+                                                            .symmetric(
+                                                        horizontal: 15),
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Text(
+                                                          city != null
+                                                              ? city.name
+                                                              : 'city'
+                                                                  .trs(context),
+                                                          style: TextStyle(
+                                                            fontSize: 8,
+                                                            color: const Color(
+                                                                0xff525768),
+                                                          ),
                                                         ),
-                                                      ),
-                                                      SvgPicture.asset(
-                                                          'assets/icons/arrow-down.svg')
-                                                    ],
+                                                        SvgPicture.asset(
+                                                            'assets/icons/arrow-down.svg')
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ),
-                                              Container(
-                                                height: 50,
-                                                width: size.width * .75,
-                                                child: DropdownButton<City>(
-                                                  icon: Container(),
-                                                  underline: Container(),
-                                                  items: op.items.values
-                                                      .toList()
-                                                      .map((City value) {
-                                                    return DropdownMenuItem<City>(
-                                                      value: value,
-                                                      child: Text(
-                                                        value.name,
-                                                        style: TextStyle(
-                                                          fontSize: 10,
-                                                          color: const Color(
-                                                              0xff525768),
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                  onChanged: (value) {
-                                                    setState(() {
-                                                      city = value;
-                                                    });
-                                                  },
-                                                ),
-                                              ),
+                                              // Container(
+                                              //   height: 50,
+                                              //   width: size.width * .75,
+                                              //   child: DropdownButton<City>(
+                                              //     icon: Container(),
+                                              //     underline: Container(),
+                                              //     items: op.items.values
+                                              //         .toList()
+                                              //         .map((City value) {
+                                              //       return DropdownMenuItem<
+                                              //           City>(
+                                              //         value: value,
+                                              //         child: Text(
+                                              //           value.name,
+                                              //           style: TextStyle(
+                                              //             fontSize: 10,
+                                              //             color: const Color(
+                                              //                 0xff525768),
+                                              //           ),
+                                              //         ),
+                                              //       );
+                                              //     }).toList(),
+                                              //     onChanged: (value) {
+                                              //       setState(() {
+                                              //         city = value;
+                                              //       });
+                                              //     },
+                                              //   ),
+                                              // ),
                                             ],
                                           ),
                                         ),
@@ -350,13 +374,16 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                         value, context),
                                                 style: TextStyle(
                                                   fontSize: 10,
-                                                  color: const Color(0xff525768),
+                                                  color:
+                                                      const Color(0xff525768),
                                                 ),
                                                 controller: fullAddress,
                                                 cursorColor: CColors.darkOrange,
                                                 cursorWidth: 1,
-                                                decoration: locationFieldDecoration(
-                                                    'Full address')),
+                                                decoration:
+                                                    locationFieldDecoration(
+                                                        'Full address'
+                                                            .trs(context))),
                                           ),
                                         ),
                                         Padding(
@@ -370,11 +397,12 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                 width: size.width * .25,
                                                 child: Center(
                                                   child: TextFormField(
-                                                      keyboardType: TextInputType.number,
+                                                      keyboardType:
+                                                          TextInputType.number,
                                                       style: TextStyle(
                                                         fontSize: 10,
-                                                        color:
-                                                            const Color(0xff525768),
+                                                        color: const Color(
+                                                            0xff525768),
                                                       ),
                                                       controller: unitNo,
                                                       cursorColor:
@@ -382,7 +410,8 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                       cursorWidth: 1,
                                                       decoration:
                                                           locationFieldDecoration(
-                                                              'Unit No.')),
+                                                              'unit_no'.trs(
+                                                                  context))),
                                                 ),
                                               ),
                                               Container(
@@ -391,17 +420,19 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                   child: TextFormField(
                                                       style: TextStyle(
                                                         fontSize: 10,
-                                                        color:
-                                                            const Color(0xff525768),
+                                                        color: const Color(
+                                                            0xff525768),
                                                       ),
                                                       controller: buildingNo,
-                                                      keyboardType: TextInputType.number,
+                                                      keyboardType:
+                                                          TextInputType.number,
                                                       cursorColor:
                                                           CColors.darkOrange,
                                                       cursorWidth: 1,
                                                       decoration:
                                                           locationFieldDecoration(
-                                                              'Building No.')),
+                                                              'building_no'.trs(
+                                                                  context))),
                                                 ),
                                               ),
                                             ],
@@ -416,19 +447,21 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                 TextFormField(
                                                     style: TextStyle(
                                                       fontSize: 10,
-                                                      color:
-                                                          const Color(0xff525768),
+                                                      color: const Color(
+                                                          0xff525768),
                                                     ),
                                                     validator: (value) =>
                                                         FieldValidator.validate(
                                                             value, context),
                                                     controller: additionalNotes,
                                                     maxLines: 5,
-                                                    cursorColor: CColors.darkOrange,
+                                                    cursorColor:
+                                                        CColors.darkOrange,
                                                     cursorWidth: 1,
                                                     decoration:
                                                         locationFieldDecoration(
-                                                            'Additional Notes')),
+                                                            'additional_note'
+                                                                .trs(context))),
                                                 // Positioned(
                                                 //     bottom: 5,
                                                 //     right: 5,
@@ -440,7 +473,7 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.only(
-                                              top: 25, right: 20,left: 10),
+                                              top: 25, right: 20, left: 10),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -484,7 +517,8 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                               //   ),
                                               // ),
                                               Align(
-                                                alignment: Alignment.centerRight,
+                                                alignment:
+                                                    Alignment.centerRight,
                                                 child: GestureDetector(
                                                   onTap: () {
                                                     if (_locationFormKey
@@ -496,8 +530,8 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                         });
                                                       } else {
                                                         Fluttertoast.showToast(
-                                                            msg:
-                                                            'Select your city first'.trs(context));
+                                                            msg: 'Select your city first'
+                                                                .trs(context));
                                                       }
                                                     }
                                                   },
@@ -508,12 +542,12 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               5.0),
-                                                      color:
-                                                          const Color(0xfff88518),
+                                                      color: const Color(
+                                                          0xfff88518),
                                                     ),
                                                     child: Center(
                                                       child: Text(
-                                                        'Save',
+                                                        'save'.trs(context),
                                                         style: TextStyle(
                                                           fontSize: 12,
                                                           color: const Color(
@@ -521,7 +555,8 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                                           fontWeight:
                                                               FontWeight.w500,
                                                         ),
-                                                        textAlign: TextAlign.left,
+                                                        textAlign:
+                                                            TextAlign.left,
                                                       ),
                                                     ),
                                                   ),
@@ -532,7 +567,7 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
                                         )
                                       ],
                                     ),
-                                )
+                                  )
                                 : Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
@@ -627,3 +662,5 @@ class _EditAddressDialogState extends State<EditAddressDialog> {
     );
   }
 }
+
+

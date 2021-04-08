@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/customer/models/user.dart';
 import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/api.dart';
@@ -39,37 +41,34 @@ class _SplashState extends State<Splash> {
     var op = Provider.of<UserFunctions>(context, listen: false);
     String token = prefs.getString('userToken');
     int loginCount = prefs.getInt('loginCount');
-      if (token != null) {
-        op.setUser(User(
-            id: prefs.getInt('id'),
-            name: prefs.getString('username'),
-            mobile: prefs.getString('mobile'),
-            email: prefs.getString('email'),
-            cityId: prefs.getInt('cityId'),
-            imageProfile: prefs.getString('avatar')));
+    if (token != null) {
+      op.setUser(User(
+          id: prefs.getInt('id'),
+          name: prefs.getString('username'),
+          mobile: prefs.getString('mobile'),
+          email: prefs.getString('email'),
+          cityId: prefs.getInt('cityId'),
+          imageProfile: prefs.getString('avatar')));
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RootScreen(),
+          ));
+    } else {
+      if (loginCount == 1) {
+        Navigator.of(context).pushReplacement(CustomPageRoute(
+          builder: (context) {
+            return Login();
+          },
+        ));
+      } else {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => RootScreen(),
+              builder: (context) => SplashScreen(),
             ));
-      }else {
-        if(loginCount == 1){
-          Navigator.of(context)
-              .pushReplacement(CustomPageRoute(
-            builder: (context) {
-              return Login();
-            },
-          ));
-        }else {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SplashScreen(),
-              ));
-        }
       }
-
-
+    }
   }
 
   getCities() async {
@@ -101,13 +100,40 @@ class _SplashState extends State<Splash> {
     return Scaffold(
       backgroundColor: CColors.lightOrange,
       body: Container(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(30.0),
-            child: AnimatedSplash(),
-          ),
-        ),
-      ),
+          height: size.height,
+          width: size.width,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                  top: 0,
+                  child: Opacity(
+                    opacity: 0.1,
+                    child: Column(
+                      children: [
+                        SvgPicture.asset('assets/splash_background.svg'),
+                        SvgPicture.asset('assets/splash_background.svg')
+                      ],
+                    ),
+                  )),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset('assets/logo.svg'),
+                  SizedBox(height: 22,),
+                  Text(
+                    'Freshly Picked … to Doorstep',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: const Color(0xfff88518),
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
+            ],
+          )),
     );
   }
 }

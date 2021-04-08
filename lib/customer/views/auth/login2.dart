@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/customer/views/root_screen.dart';
+import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/auth_widgets/location_sheet.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
-
+import 'package:harvest/helpers/Localization/localization.dart';
 class Login2 extends StatefulWidget {
   final String mobile;
 
@@ -18,7 +19,8 @@ class Login2 extends StatefulWidget {
 class _Login2State extends State<Login2> {
   final GlobalKey<FormState> _login2Key = GlobalKey<FormState>();
   bool load = false;
-  String name;
+  TextEditingController name;
+  int group = 0 ;
 
   onContinue() {
     if (_login2Key.currentState.validate()) {
@@ -28,8 +30,22 @@ class _Login2State extends State<Login2> {
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (context) =>
-              LocationSheet(name: name, mobile: widget.mobile));
+              LocationSheet(name: name.text, mobile: widget.mobile));
     }
+  }
+
+
+  @override
+  void initState() {
+    name = TextEditingController();
+    super.initState();
+  }
+
+
+  @override
+  void dispose() {
+    name.dispose();
+    super.dispose();
   }
 
   @override
@@ -51,7 +67,7 @@ class _Login2State extends State<Login2> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 30),
                     child: Text(
-                      'Login',
+                      'login'.trs(context),
                       style: TextStyle(
                         fontSize: 22,
                         color: const Color(0xff3c4959),
@@ -123,19 +139,16 @@ class _Login2State extends State<Login2> {
                               width: 260,
                               child: Center(
                                 child: TextFormField(
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      name = newValue;
-                                    });
-                                  },
+                                  controller: name,
                                   validator: (value) {
                                     if (value.isEmpty) {
-                                      return "* Required";
+                                      return "* Required".trs(context);
                                     } else
                                       return null;
                                   },
+                                  keyboardType: TextInputType.name,
                                   decoration: inputDecorationWithIcon(
-                                    'Your Name',
+                                    'Your Name'.trs(context),
                                     Container(
                                       height: 20,
                                       width: 20,
@@ -161,7 +174,7 @@ class _Login2State extends State<Login2> {
                             ),
                             child: Center(
                               child: Text(
-                                'Continue ',
+                                'continue'.trs(context),
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: const Color(0xffffffff),
@@ -182,8 +195,19 @@ class _Login2State extends State<Login2> {
                           children: [
                             Row(
                               children: [
+                                Theme(
+                                  data: ThemeData(
+                                      unselectedWidgetColor:
+                                      Colors.grey[300]),
+                                  child: Radio<int>(
+                                    value: 0,
+                                    groupValue: group,
+                                    activeColor: CColors.darkGreen,
+                                    onChanged: (value) {},
+                                  ),
+                                ),
                                 Text(
-                                  'By Continuing you agree to our',
+                                  'By Continuing you agree to our'.trs(context),
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: const Color(0xff888a8d),
@@ -201,7 +225,7 @@ class _Login2State extends State<Login2> {
                                         ));
                                   },
                                   child: Text(
-                                    'Terms Of Use',
+                                    'Terms of use'.trs(context),
                                     style: TextStyle(
                                       fontSize: 10,
                                       color: const Color(0xff3c984f),
@@ -211,23 +235,23 @@ class _Login2State extends State<Login2> {
                                 ),
                               ],
                             ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    CustomPageRoute(
-                                      builder: (context) => RootScreen(),
-                                    ));
-                              },
-                              child: Text(
-                                'Skip',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: const Color(0xfffdaa5c),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            )
+                            // TextButton(
+                            //   onPressed: () {
+                            //     Navigator.push(
+                            //         context,
+                            //         CustomPageRoute(
+                            //           builder: (context) => RootScreen(),
+                            //         ));
+                            //   },
+                            //   child: Text(
+                            //     'Skip',
+                            //     style: TextStyle(
+                            //       fontSize: 10,
+                            //       color: const Color(0xfffdaa5c),
+                            //     ),
+                            //     textAlign: TextAlign.center,
+                            //   ),
+                            // )
                           ],
                         ),
                       ),

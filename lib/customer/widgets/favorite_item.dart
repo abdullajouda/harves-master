@@ -162,7 +162,8 @@ class _FavoriteItemState extends State<FavoriteItem> {
                 ),
               ),
             ),
-            widget.fruit.discount != 0
+            widget.fruit.discount != 0 &&
+                widget.fruit.priceOffer > 0
                 ? Positioned(
                     top: 0,
                     left: 0,
@@ -191,8 +192,13 @@ class _FavoriteItemState extends State<FavoriteItem> {
                   )
                 : Container(),
             Positioned(
-              left: 20,
-              bottom: widget.fruit.inCart != 0 ? 40 : 13,
+              left: LangProvider().getLocaleCode() == 'ar' ? null : 20,
+              right: LangProvider().getLocaleCode() == 'ar' ? 30 : null,
+              bottom: widget.fruit.inCart != 0
+                  ? 40
+                  : LangProvider().getLocaleCode() == 'ar'
+                  ? 23
+                  : 13,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,15 +226,36 @@ class _FavoriteItemState extends State<FavoriteItem> {
                       textAlign: TextAlign.left,
                     ),
                   ),
-                  Text(
-                    '${widget.fruit.price} ${'Q.R'.trs(context)} /${widget.fruit.typeName}',
-                    style: TextStyle(
-
-                      fontSize: 12,
-                      color: const Color(0xff3c984f),
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.left,
+                  Row(
+                    children: [
+                      Text(
+                        '${widget.fruit.discount > 0 && widget.fruit.priceOffer > 0 ? widget.fruit.price - (widget.fruit.price * widget.fruit.discount / 100) : widget.fruit.price}  ${'Q.R'.trs(context)}/${widget.fruit.typeName}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: const Color(0xff3c984f),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+                      widget.fruit.discount > 0 &&
+                          widget.fruit.priceOffer > 0
+                          ? Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Text(
+                            '  ${widget.fruit.price.toStringAsFixed(0)}  ',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: const Color(0xff7cba89),
+                              fontWeight: FontWeight.w600,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                          SvgPicture.asset('assets/line.svg')
+                        ],
+                      )
+                          : Container(),
+                    ],
                   )
                 ],
               ),
