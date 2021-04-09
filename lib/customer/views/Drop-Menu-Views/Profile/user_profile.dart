@@ -210,261 +210,264 @@ class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final trs = AppTranslations.of(context);
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      resizeToAvoidBottomInset: false,
-      body: WaveAppBarBody(
-        bottomViewOffset: Offset(0, 10),
-        leading: MyBackButton(),
-        // pinned: true,
-        // hideActions: true,
-        backgroundGradient: CColors.greenAppBarGradient(),
-        actions: [HomePopUpMenu()],
-        bottomView: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              height: 73,
-              width: 73,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: Container(
-                      height: 71,
-                      width: 71,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: CColors.lightOrange,
-                        border: Border.all(color: CColors.white, width: 3),
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: selectedImage != null
-                              ? FileImage(selectedImage)
-                              : _avatar != null
-                                  ? NetworkImage(_avatar)
-                                  : AssetImage(''),
+    return Directionality(
+      textDirection: LangProvider().getLocaleCode()=='ar'?TextDirection.rtl:TextDirection.ltr,
+      child: Scaffold(
+        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: false,
+        body: WaveAppBarBody(
+          bottomViewOffset: Offset(0, 10),
+          leading: MyBackButton(),
+          // pinned: true,
+          // hideActions: true,
+          backgroundGradient: CColors.greenAppBarGradient(),
+          actions: [HomePopUpMenu()],
+          bottomView: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: 73,
+                width: 73,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Container(
+                        height: 71,
+                        width: 71,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: CColors.lightOrange,
+                          border: Border.all(color: CColors.white, width: 3),
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: selectedImage != null
+                                ? FileImage(selectedImage)
+                                : _avatar != null
+                                    ? NetworkImage(_avatar)
+                                    : AssetImage(''),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () => pickImageDialog(),
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Container(
-                        height: 25,
-                        width: 25,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30.0),
-                          color: CColors.darkGreen,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(3.0),
-                          child: Center(
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 15,
+                    GestureDetector(
+                      onTap: () => pickImageDialog(),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Container(
+                          height: 25,
+                          width: 25,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30.0),
+                            color: CColors.darkGreen,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3.0),
+                            child: Center(
+                              child: Icon(
+                                Icons.add,
+                                color: Colors.white,
+                                size: 15,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Text(
+                  _name.text ?? '',
+                  style: TextStyle(
+                    color: CColors.headerText,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              )
+            ],
+          ),
+          children: [
             Padding(
-              padding: const EdgeInsets.only(top: 5),
-              child: Text(
-                _name.text ?? '',
-                style: TextStyle(
-                  color: CColors.headerText,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
+              padding: const EdgeInsets.only(top: 50),
+              child: SingleChildScrollView(
+                physics: NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.only(
+                  left: 25,
+                  right: 25,
+                  bottom: 30,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "account_setting".trs(context),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: CColors.headerText,
+                      ),
+                    ),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          NoBGTextField(
+                            hint: 'User Name',
+                            validator: (value) =>
+                                FieldValidator.validate(value, context),
+                            onChanged: (value) {
+                              setState(() {
+                                isChanged = true;
+                              });
+                            },
+                            controller: _name,
+                            contentPadding: EdgeInsetsDirectional.only(
+                                start: 20, top: 15, bottom: 15),
+                          ),
+                          NoBGTextField(
+                            isEnabled: false,
+                            validator: (value) =>
+                                FieldValidator.validate(value, context),
+                            hint: 'Phone Number',
+                            onChanged: (value) {
+                              setState(() {
+                                isChanged = true;
+                              });
+                            },
+                            controller: _mobile,
+                            textInputType: TextInputType.phone,
+                            icon: Icon(FontAwesomeIcons.mobileAlt,
+                                color: CColors.lightGreen),
+                          ),
+                          NoBGTextField(
+                            hint: 'Email',
+                            onChanged: (value) {
+                              setState(() {
+                                isChanged = true;
+                              });
+                            },
+                            controller: _email,
+                            textInputType: TextInputType.emailAddress,
+                            icon: Icon(FontAwesomeIcons.envelope,
+                                color: CColors.lightGreen),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // NoBGTextField(
+                    //   hint: "Address",
+                    //   textInputType: TextInputType.emailAddress,
+                    //   icon: Container(
+                    //       height: 20,
+                    //       width: 15,
+                    //       child: Center(
+                    //           child: SvgPicture.asset(
+                    //               'assets/icons/location_icon.svg',
+                    //               color: CColors.lightGreen))),
+                    // ),
+                    isChanged
+                        ? Center(
+                            child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 25),
+                            child: MainButton(
+                              title: 'save'.trs(context),
+                              loading: load,
+                              onTap: () {
+                                updateProfile();
+                              },
+                            ),
+                          ))
+                        : Container(),
+                    UserAddresses(),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: CColors.fadeBlue,
+                            borderRadius: BorderRadius.circular(13),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 20),
+                                  child: Row(
+                                    children: [
+                                      SvgPicture.asset(Constants.settingsIcon),
+                                      Text(
+                                        "app_setting".trs(context),
+                                        style: TextStyle(
+                                          color: CColors.headerText,
+                                          fontSize: 18,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                _SettingsButton(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) =>
+                                          ChangeLanguageDialog(),
+                                    );
+                                  },
+                                  iconPath: Constants.languageIcon,
+                                  title: LangProvider().getLocaleCode() == 'ar'
+                                      ? "العربية"
+                                      : "English",
+                                ),
+                                _SettingsButton(
+                                  onTap: () {
+                                    context
+                                        .read<PTVController>()
+                                        .jumbToTab(AppTabs.Support);
+                                    Navigator.pop(context);
+                                  },
+                                  iconPath: Constants.questionIcon,
+                                  title: "help".trs(context),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned.directional(
+                          textDirection: trs.textDirection,
+                          end: -10,
+                          top: -10,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: CColors.darkOrange,
+                              border: Border.all(color: CColors.white, width: 3),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(3.0),
+                              child: Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             )
           ],
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 50),
-            child: SingleChildScrollView(
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.only(
-                left: 25,
-                right: 25,
-                bottom: 30,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "account_setting".trs(context),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: CColors.headerText,
-                    ),
-                  ),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        NoBGTextField(
-                          hint: 'User Name',
-                          validator: (value) =>
-                              FieldValidator.validate(value, context),
-                          onChanged: (value) {
-                            setState(() {
-                              isChanged = true;
-                            });
-                          },
-                          controller: _name,
-                          contentPadding: EdgeInsetsDirectional.only(
-                              start: 20, top: 15, bottom: 15),
-                        ),
-                        NoBGTextField(
-                          isEnabled: false,
-                          validator: (value) =>
-                              FieldValidator.validate(value, context),
-                          hint: 'Phone Number',
-                          onChanged: (value) {
-                            setState(() {
-                              isChanged = true;
-                            });
-                          },
-                          controller: _mobile,
-                          textInputType: TextInputType.phone,
-                          icon: Icon(FontAwesomeIcons.mobileAlt,
-                              color: CColors.lightGreen),
-                        ),
-                        NoBGTextField(
-                          hint: 'Email',
-                          onChanged: (value) {
-                            setState(() {
-                              isChanged = true;
-                            });
-                          },
-                          controller: _email,
-                          textInputType: TextInputType.emailAddress,
-                          icon: Icon(FontAwesomeIcons.envelope,
-                              color: CColors.lightGreen),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // NoBGTextField(
-                  //   hint: "Address",
-                  //   textInputType: TextInputType.emailAddress,
-                  //   icon: Container(
-                  //       height: 20,
-                  //       width: 15,
-                  //       child: Center(
-                  //           child: SvgPicture.asset(
-                  //               'assets/icons/location_icon.svg',
-                  //               color: CColors.lightGreen))),
-                  // ),
-                  isChanged
-                      ? Center(
-                          child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 25),
-                          child: MainButton(
-                            title: 'save'.trs(context),
-                            loading: load,
-                            onTap: () {
-                              updateProfile();
-                            },
-                          ),
-                        ))
-                      : Container(),
-                  UserAddresses(),
-                  Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: CColors.fadeBlue,
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 20),
-                                child: Row(
-                                  children: [
-                                    SvgPicture.asset(Constants.settingsIcon),
-                                    Text(
-                                      "app_setting".trs(context),
-                                      style: TextStyle(
-                                        color: CColors.headerText,
-                                        fontSize: 18,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 10),
-                              _SettingsButton(
-                                onTap: () {
-                                  showCupertinoDialog(
-                                    context: context,
-                                    builder: (context) =>
-                                        ChangeLanguageDialog(),
-                                  );
-                                },
-                                iconPath: Constants.languageIcon,
-                                title: LangProvider().getLocaleCode() == 'ar'
-                                    ? "العربية"
-                                    : "English",
-                              ),
-                              _SettingsButton(
-                                onTap: () {
-                                  context
-                                      .read<PTVController>()
-                                      .jumbToTab(AppTabs.Support);
-                                  Navigator.pop(context);
-                                },
-                                iconPath: Constants.questionIcon,
-                                title: "help".trs(context),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned.directional(
-                        textDirection: trs.textDirection,
-                        end: -10,
-                        top: -10,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: CColors.darkOrange,
-                            border: Border.all(color: CColors.white, width: 3),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(3.0),
-                            child: Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                              size: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          )
-        ],
       ),
     );
   }

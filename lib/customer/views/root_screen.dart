@@ -97,7 +97,6 @@ class _RootScreenState extends State<RootScreen> {
         ),
       ];
     }
-
     return OnExit(
       child: PersistentTabView(
         context,

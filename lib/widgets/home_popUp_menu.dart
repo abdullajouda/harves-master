@@ -75,7 +75,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
         title: 'Home',
         onPressed: () =>
             Navigator.of(context, rootNavigator: true).pushReplacement(
-          CustomPageRoute(
+          MaterialPageRoute(
             // context: context,
             builder: (context) => RootScreen(),
           ),
@@ -87,7 +87,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
           title: 'Profile',
           onPressed: () {
             Navigator.of(context, rootNavigator: true).push(
-              CustomPageRoute(
+              MaterialPageRoute(
                 // context: context,
                 builder: (context) => UserProfile(),
               ),
@@ -99,7 +99,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
           iconPath: 'assets/icons/credit-card.svg',
           title: 'wallet',
           onPressed: () {
-            Navigator.of(context, rootNavigator: true).push(CustomPageRoute(
+            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
               builder: (context) => Wallet(),
             ));
           },
@@ -107,7 +107,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
       HomePopUpMenuModel(
         iconPath: 'assets/icons/info.svg',
         title: 'About Us',
-        onPressed: () => Navigator.of(context, rootNavigator: true).push(CustomPageRoute(
+        onPressed: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
             builder: (context) => AboutUs(),
           ),
         ),
@@ -116,7 +116,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
         iconPath: Constants.mailMenuIcon,
         title: 'Find Us',
         onPressed: () {
-          Navigator.of(context, rootNavigator: true).push(CustomPageRoute(
+          Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
               builder: (context) => FindUS(),
             ),
           );
@@ -126,7 +126,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
         HomePopUpMenuModel(
           iconPath: 'assets/icons/bell.svg',
           title: 'Notifications',
-          onPressed: () => Navigator.of(context, rootNavigator: true).push(CustomPageRoute(
+          onPressed: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
               builder: (context) => Notifications(),
             ),
           ),
@@ -134,7 +134,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
       HomePopUpMenuModel(
         iconPath: Constants.termsMenuIcon,
         title: 'Terms of use',
-        onPressed: () => Navigator.of(context, rootNavigator: true).push(CustomPageRoute(
+        onPressed: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
             builder: (context) => Terms(),
           ),
         ),
@@ -142,7 +142,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
       HomePopUpMenuModel(
         iconPath: Constants.privacyMenuIcon,
         title: 'Privacy',
-        onPressed: () => Navigator.of(context, rootNavigator: true).push(CustomPageRoute(
+        onPressed: () => Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
             builder: (context) => Privacy(),
           ),
         ),
@@ -162,8 +162,7 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
           onPressed: () {
             Navigator.popUntil(context, (route) => route.isFirst);
             Navigator.of(context, rootNavigator: true)
-                .pushReplacement(platformPageRoute(
-              context: context,
+                .pushReplacement(MaterialPageRoute(
               builder: (context) => MyApp(),
             ));
           },

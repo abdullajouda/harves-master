@@ -65,44 +65,47 @@ class _NotificationsState extends State<Notifications> {
   @override
   Widget build(BuildContext context) {
     var op = Provider.of<NotificationOperations>(context);
-    return Scaffold(
-      body: WaveAppBarBody(
-        backgroundGradient: CColors.greenAppBarGradient(),
-        bottomViewOffset: Offset(0, -10),
-        actions: [HomePopUpMenu()],
-        leading: MyBackButton(),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              'Notifications'.trs(context),
-              style: TextStyle(
-                fontSize: 20,
-                color: const Color(0xff3c4959),
-                fontWeight: FontWeight.w600,
+    return Directionality(
+      textDirection: LangProvider().getLocaleCode()=='ar'?TextDirection.rtl:TextDirection.ltr,
+      child: Scaffold(
+        body: WaveAppBarBody(
+          backgroundGradient: CColors.greenAppBarGradient(),
+          bottomViewOffset: Offset(0, -10),
+          actions: [HomePopUpMenu()],
+          leading: MyBackButton(),
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                'Notifications'.trs(context),
+                style: TextStyle(
+                  fontSize: 20,
+                  color: const Color(0xff3c4959),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
-          ),
-          load
-              ? Center(
-                  child:
-                      Container(height: 200, width: 200, child: LoadingPhone()))
-              : op.itemCount == 0
-                  ? NoData()
-                  : ListView.builder(
-                      itemCount: op.items.length,
-                      shrinkWrap: true,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) => NoticeItem(
-                        note: op.items.values.toList()[index],
+            load
+                ? Center(
+                    child:
+                        Container(height: 200, width: 200, child: LoadingPhone()))
+                : op.itemCount == 0
+                    ? NoData()
+                    : ListView.builder(
+                        itemCount: op.items.length,
+                        shrinkWrap: true,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) => NoticeItem(
+                          note: op.items.values.toList()[index],
+                        ),
                       ),
-                    ),
-          SizedBox(
-            height: 50,
-          )
-        ],
+            SizedBox(
+              height: 50,
+            )
+          ],
+        ),
       ),
     );
   }

@@ -119,76 +119,79 @@ class _FindUSState extends State<FindUS> {
         },
       ),
     ];
-    return Scaffold(
-      appBar: WaveAppBar(
-        leading: MyBackButton(),
-        bottomViewOffset: Offset(0, -10),
-        backgroundGradient: CColors.greenAppBarGradient(),
-        actions: [HomePopUpMenu()],
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          children: [
-            Text(
-              "find_us".trs(context),
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: CColors.headerText,
-                fontSize: 16,
+    return Directionality(
+      textDirection: LangProvider().getLocaleCode()=='ar'?TextDirection.rtl:TextDirection.ltr,
+      child: Scaffold(
+        appBar: WaveAppBar(
+          leading: MyBackButton(),
+          bottomViewOffset: Offset(0, -10),
+          backgroundGradient: CColors.greenAppBarGradient(),
+          actions: [HomePopUpMenu()],
+        ),
+        body: SafeArea(
+          child: ListView(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            children: [
+              Text(
+                "find_us".trs(context),
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: CColors.headerText,
+                  fontSize: 16,
+                ),
               ),
-            ),
-            SizedBox(height: size.height * 0.05),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(
-                _socialMedia.length,
-                (index) {
-                  final _connection = _socialMedia[index];
-                  return _CSupportContainer(
-                    size: Size(60, 60),
-                    onTap: _connection.handler,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: SvgPicture.asset(_connection.iconPath),
-                    ),
-                  );
-                },
+              SizedBox(height: size.height * 0.05),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  _socialMedia.length,
+                  (index) {
+                    final _connection = _socialMedia[index];
+                    return _CSupportContainer(
+                      size: Size(60, 60),
+                      onTap: _connection.handler,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SvgPicture.asset(_connection.iconPath),
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: size.height * 0.1),
-            load
-                ? Center(child: Loader())
-                : Column(
-                    children: List.generate(
-                      _hyperLinks.length,
-                      (index) {
-                        final _hyperLink = _hyperLinks[index];
-                        return _CSupportContainer(
-                          size: Size(size.width * 0.5, 50),
-                          onTap: _hyperLink.handler,
-                          margin: EdgeInsets.only(bottom: 20),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                  child: SvgPicture.asset(_hyperLink.iconPath)),
-                              Expanded(
-                                flex: 3,
-                                child: Text(
-                                  _hyperLink.title,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                  ).merge(_hyperLink.titleStyle),
+              SizedBox(height: size.height * 0.1),
+              load
+                  ? Center(child: Loader())
+                  : Column(
+                      children: List.generate(
+                        _hyperLinks.length,
+                        (index) {
+                          final _hyperLink = _hyperLinks[index];
+                          return _CSupportContainer(
+                            size: Size(size.width * 0.5, 50),
+                            onTap: _hyperLink.handler,
+                            margin: EdgeInsets.only(bottom: 20),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    child: SvgPicture.asset(_hyperLink.iconPath)),
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    _hyperLink.title,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                    ).merge(_hyperLink.titleStyle),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  )
-          ],
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    )
+            ],
+          ),
         ),
       ),
     );

@@ -224,112 +224,115 @@ class _BasketState extends State<Basket> {
   @override
   Widget build(BuildContext context) {
     var cart = Provider.of<Cart>(context);
-    return Scaffold(
-      appBar: WaveAppBar(
-          // hideActions: true,
-          backgroundGradient: CColors.greenAppBarGradient(),
-          actions: [Container()],
-          leading: MyBackButton()),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            Center(
-              child: ValueListenableBuilder(
-                valueListenable: _pagesNotifiew,
-                builder: (context, value, child) => child,
-                child: Container(
-                  // color: Colors.teal,
-                  child: BasketStepper(
-                    currentStep: _step,
+    return Directionality(
+      textDirection: LangProvider().getLocaleCode()=='ar'?TextDirection.rtl:TextDirection.ltr,
+      child: Scaffold(
+        appBar: WaveAppBar(
+            // hideActions: true,
+            backgroundGradient: CColors.greenAppBarGradient(),
+            actions: [Container()],
+            leading: MyBackButton()),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              SizedBox(height: 20),
+              Center(
+                child: ValueListenableBuilder(
+                  valueListenable: _pagesNotifiew,
+                  builder: (context, value, child) => child,
+                  child: Container(
+                    // color: Colors.teal,
+                    child: BasketStepper(
+                      currentStep: _step,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: IndexedStack(
-                index: _pagesNotifiew.value.round(),
-                children: _stepsAdv.keys.map((step) {
-                  final _isVisible = _stepsAdv[step];
-                  return Visibility(
-                    visible: _isVisible,
-                    child: step,
-                  );
-                }).toList(),
+              Expanded(
+                child: IndexedStack(
+                  index: _pagesNotifiew.value.round(),
+                  children: _stepsAdv.keys.map((step) {
+                    final _isVisible = _stepsAdv[step];
+                    return Visibility(
+                      visible: _isVisible,
+                      child: step,
+                    );
+                  }).toList(),
+                ),
               ),
-            ),
-            ValueListenableBuilder<int>(
-              valueListenable: _pagesNotifiew,
-              builder: (context, index, child) {
-                final _BasketSteps _currentStep = _getCurrentStep(index);
-                if (_currentStep == _BasketSteps.Basket) return SizedBox();
-                return BasketPagesControlles(
-                  onContinuePressed: () {
-                    setState(() {
-                      if (index != 3) {
-                        if (index != 2) {
-                          if (index != 1) {
-                            _step++;
-                            return _jumpTo();
+              ValueListenableBuilder<int>(
+                valueListenable: _pagesNotifiew,
+                builder: (context, index, child) {
+                  final _BasketSteps _currentStep = _getCurrentStep(index);
+                  if (_currentStep == _BasketSteps.Basket) return SizedBox();
+                  return BasketPagesControlles(
+                    onContinuePressed: () {
+                      setState(() {
+                        if (index != 3) {
+                          if (index != 2) {
+                            if (index != 1) {
+                              _step++;
+                              return _jumpTo();
+                            } else {
+                              showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: CColors.transparent,
+                                  isDismissible: false,
+                                  enableDrag: false,
+                                  builder: (context) => OrderDescription(
+                                    onTap: () {
+                                      checkCartItems(1);
+                                    },
+                                  ),
+                                  isScrollControlled: true);
+                            }
                           } else {
-                            showModalBottomSheet(
+                            if (cart.availableDates == null ||
+                                cart.time == null) {
+                              showCupertinoDialog(
                                 context: context,
-                                backgroundColor: CColors.transparent,
-                                isDismissible: false,
-                                enableDrag: false,
-                                builder: (context) => OrderDescription(
-                                  onTap: () {
-                                    checkCartItems(1);
-                                  },
-                                ),
-                                isScrollControlled: true);
+                                builder: (context) => ChooseTime(),
+                              );
+                            } else {
+                              checkCartItems(0);
+                            }
                           }
                         } else {
-                          if (cart.availableDates == null ||
-                              cart.time == null) {
+                          if (cart.paymentType == null) {
                             showCupertinoDialog(
                               context: context,
-                              builder: (context) => ChooseTime(),
+                              builder: (context) => SelectPaymentDialog(),
                             );
                           } else {
-                            checkCartItems(0);
+                            showCupertinoDialog(
+                              context: context,
+                              builder: (context) => UseWallet(),
+                            ).then((value) => checkOut());
+                            // if (double.parse(cart.walletBalance.toString()) >=
+                            //     cart.totalPrice) {
+                            //
+                            // }else{
+                            //   checkOut();
+                            // }
+
                           }
                         }
-                      } else {
-                        if (cart.paymentType == null) {
-                          showCupertinoDialog(
-                            context: context,
-                            builder: (context) => SelectPaymentDialog(),
-                          );
-                        } else {
-                          showCupertinoDialog(
-                            context: context,
-                            builder: (context) => UseWallet(),
-                          ).then((value) => checkOut());
-                          // if (double.parse(cart.walletBalance.toString()) >=
-                          //     cart.totalPrice) {
-                          //
-                          // }else{
-                          //   checkOut();
-                          // }
-
+                      });
+                    },
+                    onPrevPressed: () {
+                      setState(() {
+                        if (index != 0) {
+                          _step--;
                         }
-                      }
-                    });
-                  },
-                  onPrevPressed: () {
-                    setState(() {
-                      if (index != 0) {
-                        _step--;
-                      }
-                    });
-                    return _jumpTo(index - 1);
-                  },
-                );
-              },
-            ),
-          ],
+                      });
+                      return _jumpTo(index - 1);
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

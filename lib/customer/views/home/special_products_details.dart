@@ -186,243 +186,246 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
   Widget build(BuildContext context) {
     var fav = Provider.of<FavoriteOperations>(context);
     final Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: SafeArea(
-        top: false,
-        child: Container(
-          color: HexColor.fromHex(widget.fruit.specialFoodBg != ''
-              ? widget.fruit.specialFoodBg
-              : '#5ECC74'),
-          width: size.width,
-          height: size.height,
-          child: Column(
-            children: [
-              SafeArea(
-                child: Align(
-                  alignment: LangProvider().getLocaleCode()=='ar'?Alignment.topRight:Alignment.topLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 15,left: 15,top: 15),
-                    child: CBackButton(),
+    return Directionality(
+      textDirection: LangProvider().getLocaleCode()=='ar'?TextDirection.rtl:TextDirection.ltr,
+      child: Scaffold(
+        body: SafeArea(
+          top: false,
+          child: Container(
+            color: HexColor.fromHex(widget.fruit.specialFoodBg != ''
+                ? widget.fruit.specialFoodBg
+                : '#5ECC74'),
+            width: size.width,
+            height: size.height,
+            child: Column(
+              children: [
+                SafeArea(
+                  child: Align(
+                    alignment: LangProvider().getLocaleCode()=='ar'?Alignment.topRight:Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 15,left: 15,top: 15),
+                      child: CBackButton(),
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Hero(
-                  tag: widget.fruit.image,
-                  child: Image.network(
-                    widget.fruit.image,
-                    // height: size.width * 0.5,
-                    // width: size.width * 0.5,
-                    // fit: BoxFit.fitHeight,
+                Expanded(
+                  child: Hero(
+                    tag: widget.fruit.image,
+                    child: Image.network(
+                      widget.fruit.image,
+                      // height: size.width * 0.5,
+                      // width: size.width * 0.5,
+                      // fit: BoxFit.fitHeight,
+                    ),
                   ),
                 ),
-              ),
-              // SizedBox(height: 20),
-              Expanded(
-                flex: widget.fruit.basketItem.length != 0 ? 2 : 1,
-                child: Container(
-                  width: size.width,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(40)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(20),
-                        offset: Offset(0, -1.5),
-                        blurRadius: 15,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.only(
-                      left: 30, right: 30, top: 20, bottom: 20),
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Row(
-                          children: [
-                            Text(
-                              widget.fruit.name,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: CColors.headerText,
-                                fontSize: 20,
-                              ),
-                            ),
-                            // SizedBox(width: 10),
-                            // Text(
-                            //   "${widget.fruit.qty} ${widget.fruit.typeName}",
-                            //   style: TextStyle(
-                            //     fontWeight: FontWeight.w400,
-                            //     color: CColors.headerText.withAlpha(150),
-                            //     fontSize: 15,
-                            //   ),
-                            // ),
-                          ],
+                // SizedBox(height: 20),
+                Expanded(
+                  flex: widget.fruit.basketItem.length != 0 ? 2 : 1,
+                  child: Container(
+                    width: size.width,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(40)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(20),
+                          offset: Offset(0, -1.5),
+                          blurRadius: 15,
+                          spreadRadius: 1,
                         ),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          widget.fruit.inCart != 0
-                              ? Row(
-                                  children: [
-                                    CIconButton(
-                                      onTap: () {
-                                        setState(() {
-                                          widget.fruit.inCart =
-                                              widget.fruit.inCart -
-                                                  widget.fruit.unitRate;
-                                        });
-                                        changeQnt(2, widget.fruit.id);
-                                      },
-                                      icon: Icon(Icons.remove,
-                                          color: CColors.headerText, size: 25),
-                                    ),
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        minWidth: size.width * 0.12,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          widget.fruit.inCart.toString(),
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: CColors.headerText,
-                                            fontSize: 18,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    CIconButton(
-                                      onTap: () {
-                                        setState(widget.fruit.inCart != 0
-                                            ? () {
-                                                widget.fruit.inCart =
-                                                    widget.fruit.inCart +
-                                                        widget.fruit.unitRate;
-                                              }
-                                            : () {});
-                                        widget.fruit.inCart == 0
-                                            ? addToBasket(widget.fruit.id)
-                                            : changeQnt(1, widget.fruit.id);
-                                      },
-                                      icon: Icon(Icons.add,
-                                          color: CColors.headerText, size: 25),
-                                    ),
-                                    // if (widget.fruit.minQty == 0)
-                                    //   Text("add_to_basket".trs(context),
-                                    //       style: TextStyle(
-                                    //           fontSize: 13, color: CColors.grey)),
-                                  ],
-                                )
-                              : Container(),
-                          Row(
+                      ],
+                    ),
+                    padding: const EdgeInsets.only(
+                        left: 30, right: 30, top: 20, bottom: 20),
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Row(
                             children: [
                               Text(
-                                "${widget.fruit.price}",
+                                widget.fruit.name,
                                 style: TextStyle(
-                                  color: CColors.darkOrange,
-                                  fontSize: 24,
-                                ),
-                              ),
-                              Text(
-                                "  ${'Q.R'.trs(context)}  ",
-                                style: TextStyle(
-                                  color: CColors.darkOrange,
+                                  fontWeight: FontWeight.w500,
+                                  color: CColors.headerText,
                                   fontSize: 20,
                                 ),
                               ),
+                              // SizedBox(width: 10),
+                              // Text(
+                              //   "${widget.fruit.qty} ${widget.fruit.typeName}",
+                              //   style: TextStyle(
+                              //     fontWeight: FontWeight.w400,
+                              //     color: CColors.headerText.withAlpha(150),
+                              //     fontSize: 15,
+                              //   ),
+                              // ),
                             ],
                           ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Expanded(
-                        child: Column(
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            widget.fruit.inCart != 0
+                                ? Row(
+                                    children: [
+                                      CIconButton(
+                                        onTap: () {
+                                          setState(() {
+                                            widget.fruit.inCart =
+                                                widget.fruit.inCart -
+                                                    widget.fruit.unitRate;
+                                          });
+                                          changeQnt(2, widget.fruit.id);
+                                        },
+                                        icon: Icon(Icons.remove,
+                                            color: CColors.headerText, size: 25),
+                                      ),
+                                      ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          minWidth: size.width * 0.12,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            widget.fruit.inCart.toString(),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: CColors.headerText,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      CIconButton(
+                                        onTap: () {
+                                          setState(widget.fruit.inCart != 0
+                                              ? () {
+                                                  widget.fruit.inCart =
+                                                      widget.fruit.inCart +
+                                                          widget.fruit.unitRate;
+                                                }
+                                              : () {});
+                                          widget.fruit.inCart == 0
+                                              ? addToBasket(widget.fruit.id)
+                                              : changeQnt(1, widget.fruit.id);
+                                        },
+                                        icon: Icon(Icons.add,
+                                            color: CColors.headerText, size: 25),
+                                      ),
+                                      // if (widget.fruit.minQty == 0)
+                                      //   Text("add_to_basket".trs(context),
+                                      //       style: TextStyle(
+                                      //           fontSize: 13, color: CColors.grey)),
+                                    ],
+                                  )
+                                : Container(),
                             Row(
                               children: [
-                                Container(
-                                  width: size.width * .8,
-                                  child: Text(
-                                    widget.fruit.description ?? '',
-                                    softWrap: true,
-                                    style: TextStyle(
-                                      color: CColors.normalText,
-                                      fontSize: 14,
-                                    ),
+                                Text(
+                                  "${widget.fruit.price}",
+                                  style: TextStyle(
+                                    color: CColors.darkOrange,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                                Text(
+                                  "  ${'Q.R'.trs(context)}  ",
+                                  style: TextStyle(
+                                    color: CColors.darkOrange,
+                                    fontSize: 20,
                                   ),
                                 ),
                               ],
                             ),
-                            widget.fruit.basketItem.length != 0
-                                ? ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: widget.fruit.basketItem.length,
-                                    padding: EdgeInsets.zero,
-                                    itemBuilder: (context, index) {
-                                      return _BundleProduct(
-                                        title: widget
-                                            .fruit.basketItem[index].item.name,
-                                        imagePath: widget
-                                            .fruit.basketItem[index].item.image,
-                                        numOfItems: widget
-                                            .fruit.basketItem[index].qty
-                                            .toString(),
-                                      );
-                                    },
-                                  )
-                                : Container(),
                           ],
                         ),
-                      ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          MakeFavoriteButton(
-                            activeColor: CColors.lightGreen,
-                            inActiveColor: CColors.lightGreen,
-                            padding: EdgeInsets.all(10.0),
-                            onValueChanged: () {
-                              setState(() => _isFavorite = !_isFavorite);
-                              if (widget.fruit.inFavorite == '1') {
-                                removeFav();
-                              } else {
-                                setFav();
-                              }
-                            },
-                            value:
-                                widget.fruit.inFavorite == '1' ? true : false,
+                        SizedBox(height: 10),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: size.width * .8,
+                                    child: Text(
+                                      widget.fruit.description ?? '',
+                                      softWrap: true,
+                                      style: TextStyle(
+                                        color: CColors.normalText,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              widget.fruit.basketItem.length != 0
+                                  ? ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: widget.fruit.basketItem.length,
+                                      padding: EdgeInsets.zero,
+                                      itemBuilder: (context, index) {
+                                        return _BundleProduct(
+                                          title: widget
+                                              .fruit.basketItem[index].item.name,
+                                          imagePath: widget
+                                              .fruit.basketItem[index].item.image,
+                                          numOfItems: widget
+                                              .fruit.basketItem[index].qty
+                                              .toString(),
+                                        );
+                                      },
+                                    )
+                                  : Container(),
+                            ],
                           ),
-                          SizedBox(width: 10),
-                          widget.fruit.inCart != 0
-                              ? Container()
-                              : Expanded(
-                                  child: load
-                                      ? Center(child: LoadingBtn())
-                                      : MainButton(
-                                          onTap: () {
-                                            addToBasket(widget.fruit.id);
-                                          },
-                                          constraints:
-                                              BoxConstraints(maxHeight: 45),
-                                          titleTextStyle:
-                                              TextStyle(fontSize: 15),
-                                          title: 'add_to_basket'.trs(context),
-                                        ),
-                                ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            MakeFavoriteButton(
+                              activeColor: CColors.lightGreen,
+                              inActiveColor: CColors.lightGreen,
+                              padding: EdgeInsets.all(10.0),
+                              onValueChanged: () {
+                                setState(() => _isFavorite = !_isFavorite);
+                                if (widget.fruit.inFavorite == '1') {
+                                  removeFav();
+                                } else {
+                                  setFav();
+                                }
+                              },
+                              value:
+                                  widget.fruit.inFavorite == '1' ? true : false,
+                            ),
+                            SizedBox(width: 10),
+                            widget.fruit.inCart != 0
+                                ? Container()
+                                : Expanded(
+                                    child: load
+                                        ? Center(child: LoadingBtn())
+                                        : MainButton(
+                                            onTap: () {
+                                              addToBasket(widget.fruit.id);
+                                            },
+                                            constraints:
+                                                BoxConstraints(maxHeight: 45),
+                                            titleTextStyle:
+                                                TextStyle(fontSize: 15),
+                                            title: 'add_to_basket'.trs(context),
+                                          ),
+                                  ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
