@@ -92,7 +92,7 @@ class _MyAppState extends State<MyApp> {
           ChangeNotifierProvider(create: (context) => Cart()),
         ],
         child: MaterialApp(
-          // navigatorKey: AppShared.navKey = GlobalKey(),
+          navigatorKey: AppShared.navKey = GlobalKey(),
           supportedLocales: application.supportedLocales(),
           locale: _newLocaleDelegate.newLocale,
           localizationsDelegates: [
