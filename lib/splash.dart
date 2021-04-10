@@ -70,25 +70,29 @@ class _SplashState extends State<Splash> {
     }
   }
 
-  Future getCities() async {
-    var op = Provider.of<CityOperations>(context, listen: false);
-    op.clearFav();
-    var request = await get(ApiHelper.api + 'getCities', headers: {
-      'Accept': 'application/json',
-      'Accept-Language': LangProvider().getLocaleCode(),
-    });
-    var response = json.decode(request.body);
-    var items = response['cities'];
-
-    items.forEach((element) {
-      City city = City.fromJson(element);
-      op.addItem(city);
-    });
-  }
+  // Future getCities() async {
+  //   var op = Provider.of<CityOperations>(context, listen: false);
+  //   print('this is locale :'+LangProvider().getLocaleCode());
+  //   var request = await get(ApiHelper.api + 'getCities', headers: {
+  //     'Accept': 'application/json',
+  //     'Accept-Language': LangProvider().getLocaleCode(),
+  //   });
+  //   var response = json.decode(request.body);
+  //   var items = response['cities'];
+  //   op.clearCity();
+  //   print(op.items.values.toList());
+  //   print('after');
+  //   items.forEach((element) {
+  //     City city = City.fromJson(element);
+  //     op.addItem(city);
+  //     print(city.name);
+  //   });
+  // }
 
   @override
   void initState() {
-    getCities().then((value) => startTime());
+    startTime();
+    // getCities().then((value) => );
     // ApiServices().getSettings();
     super.initState();
   }

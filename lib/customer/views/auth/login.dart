@@ -144,9 +144,8 @@ class _LoginState extends State<Login> {
                               }
                               Navigator.popUntil(
                                   context, (route) => route.isFirst);
-                              Navigator.pushReplacement(
-                                  context,
-                                  CustomPageRoute(
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
                                     builder: (context) => MyApp(),
                                   ));
                             }

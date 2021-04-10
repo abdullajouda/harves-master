@@ -102,21 +102,21 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
     return await Geolocator.getCurrentPosition();
   }
 
-  Future getCities() async {
-    var op = Provider.of<CityOperations>(context, listen: false);
-    op.clearFav();
-    var request = await get(ApiHelper.api + 'getCities', headers: {
-      'Accept': 'application/json',
-      'Accept-Language': LangProvider().getLocaleCode(),
-    });
-    var response = json.decode(request.body);
-    var items = response['cities'];
-
-    items.forEach((element) {
-      City city = City.fromJson(element);
-      op.addItem(city);
-    });
-  }
+  // Future getCities() async {
+  //   var op = Provider.of<CityOperations>(context,listen: false);
+  //   var request = await get(ApiHelper.api + 'getCities', headers: {
+  //     'Accept': 'application/json',
+  //     'Accept-Language': LangProvider().getLocaleCode(),
+  //   });
+  //   var response = json.decode(request.body);
+  //   var items = response['cities'];
+  //   op.clearCity();
+  //   items.forEach((element) {
+  //     City city = City.fromJson(element);
+  //     op.addItem(city);
+  //     print(city.name);
+  //   });
+  // }
 
   save() async {
     if (fullAddress.text != '' &&
@@ -152,7 +152,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
 
   @override
   void initState() {
-    getCities();
+    // getCities();
     if(widget.isEdit == true){
       setState(() {
         _visible = true;

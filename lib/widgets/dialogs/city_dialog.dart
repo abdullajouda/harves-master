@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:harvest/customer/models/city.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/variables.dart';
+import 'package:harvest/widgets/Loader.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 class CityDropDown extends StatefulWidget {
@@ -10,15 +15,17 @@ class CityDropDown extends StatefulWidget {
 }
 
 class _CityDropDownState extends State<CityDropDown> {
+  bool load = true;
   TextEditingController _search;
   List<City> _cities = [];
+  List<City> cities = [];
 
   search() {
     setState(() {
       _cities.clear();
     });
-    var op = Provider.of<CityOperations>(context, listen: false);
-    op.items.values.toList().forEach((element) {
+    // var op = Provider.of<CityOperations>(context, listen: false);
+    cities.forEach((element) {
       if (element.name.toLowerCase().contains(_search.text)) {
         _cities.add(element);
         setState(() {});
@@ -26,9 +33,27 @@ class _CityDropDownState extends State<CityDropDown> {
     });
     // _cities.add(value);
   }
+  getCities() async {
+    print('this is locale :'+LangProvider().getLocaleCode());
+    var request = await get(ApiHelper.api + 'getCities', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+    });
+    var response = json.decode(request.body);
+    var items = response['cities'];
+    print('after');
+    items.forEach((element) {
+      City city = City.fromJson(element);
+      cities.add(city);
+    });
+    setState(() {
+      load = false;
+    });
+  }
 
   @override
   void initState() {
+    getCities();
     _search = TextEditingController();
     super.initState();
   }
@@ -42,7 +67,10 @@ class _CityDropDownState extends State<CityDropDown> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    var op = Provider.of<CityOperations>(context);
+    // var op = Provider.of<CityOperations>(context);
+    // op.items.values.toList().forEach((element) {
+    //   print(element.name);
+    // });
     return Material(
       color: Colors.transparent,
       child: Directionality(
@@ -80,7 +108,7 @@ class _CityDropDownState extends State<CityDropDown> {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 15, right: 15),
-                child: Container(
+                child: load?Center(child: Loader()):Container(
                   height: 200,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12.0),
@@ -143,11 +171,11 @@ class _CityDropDownState extends State<CityDropDown> {
                     ),
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
-                    itemCount: op.itemCount,
+                    itemCount: cities.length,
                     itemBuilder: (context, index) => GestureDetector(
                       onTap: () {
                         Navigator.of(context).pop({
-                          'city': op.items.values.toList()[index],
+                          'city': cities[index],
                         });
                       },
                       child: Container(
@@ -160,7 +188,7 @@ class _CityDropDownState extends State<CityDropDown> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10),
                               child: Text(
-                                '${op.items.values.toList()[index].name}',
+                                '${cities[index].name}',
                                 style: TextStyle(
                                   fontSize: 10,
                                   color: const Color(0xff525768),
@@ -170,7 +198,7 @@ class _CityDropDownState extends State<CityDropDown> {
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context).pop({
-                                  'city': op.items.values.toList()[index],
+                                  'city': cities[index],
                                 });
                               },
                               child: Text(

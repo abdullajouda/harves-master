@@ -209,11 +209,10 @@ class _UserProfileState extends State<UserProfile> {
     });
     var response = json.decode(request.body);
     var items = response['cities'];
-    op.clearFav();
+    op.clearCity();
     items.forEach((element) {
       City city = City.fromJson(element);
       op.addItem(city);
-      print(city.name);
     });
   }
 
