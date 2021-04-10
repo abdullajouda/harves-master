@@ -318,7 +318,7 @@ class _BasketStepState extends State<BasketStep> {
           Navigator.pop(context);
           widget.onContinuePressed.call();
         },
-        onTapNewOne: () => Navigator.of(context, rootNavigator: true).push(
+        onTapNewOne: () => Navigator.of(context, rootNavigator: true).pushReplacement(
           MaterialPageRoute(
             builder: (context) => UserProfile(),
           ),

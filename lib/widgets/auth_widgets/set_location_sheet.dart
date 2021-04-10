@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -12,6 +13,7 @@ import 'package:harvest/customer/models/city.dart';
 import 'package:harvest/customer/models/delivery-data.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/terms.dart';
 import 'package:harvest/customer/views/root_screen.dart';
+import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'dart:ui' as ui;
@@ -19,6 +21,7 @@ import 'dart:ui' as ui;
 import 'package:harvest/helpers/variables.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:harvest/widgets/dialogs/city_dialog.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 
@@ -99,11 +102,25 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
     return await Geolocator.getCurrentPosition();
   }
 
+  Future getCities() async {
+    var op = Provider.of<CityOperations>(context, listen: false);
+    op.clearFav();
+    var request = await get(ApiHelper.api + 'getCities', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+    });
+    var response = json.decode(request.body);
+    var items = response['cities'];
+
+    items.forEach((element) {
+      City city = City.fromJson(element);
+      op.addItem(city);
+    });
+  }
+
   save() async {
     if (fullAddress.text != '' &&
-        additionalNotes.text != '' &&
-        buildingNo.text != '' &&
-        unitNo.text != '') {
+        additionalNotes.text != '') {
       if (city != null) {
         if (markers[0] != null) {
           Navigator.of(context).pop({
@@ -127,7 +144,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
       }
     }else{
       setState(() {
-        Fluttertoast.showToast(msg: 'All Fields are Required'.trs(context));
+        // Fluttertoast.showToast(msg: 'All Fields are Required'.trs(context));
         _expand = true;
       });
     }
@@ -135,6 +152,7 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
 
   @override
   void initState() {
+    getCities();
     if(widget.isEdit == true){
       setState(() {
         _visible = true;

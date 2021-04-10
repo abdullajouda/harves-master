@@ -14,6 +14,7 @@ import 'package:harvest/customer/views/Basket/steps/basket_step.dart';
 import 'package:harvest/customer/views/Basket/steps/billing_step.dart';
 import 'package:harvest/customer/views/Basket/steps/delivery_time_step.dart';
 import 'package:harvest/customer/views/Basket/steps/places_step.dart';
+import 'package:harvest/customer/views/webview.dart';
 import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
 import 'package:harvest/helpers/api.dart';
@@ -72,13 +73,25 @@ class _BasketState extends State<Basket> {
     Fluttertoast.showToast(msg: response['message']);
     if (response['code'] == 200) {
       Order order = Order.fromJson(response['order']);
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OrderDone(
-              order: order,
-            ),
-          ));
+      if(cart.paymentType == 1){
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WebViewExample(
+                order: order,
+                url: response['payment_link'],
+              ),
+            ));
+      }else{
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OrderDone(
+                order: order,
+              ),
+            ));
+      }
+
     } else if (response['code'] == 204) {
       showCupertinoDialog(
         context: context,
@@ -308,17 +321,14 @@ class _BasketState extends State<Basket> {
                               builder: (context) => SelectPaymentDialog(),
                             );
                           } else {
-                            showCupertinoDialog(
-                              context: context,
-                              builder: (context) => UseWallet(),
-                            ).then((value) => checkOut());
-                            // if (double.parse(cart.walletBalance.toString()) >=
-                            //     cart.totalPrice) {
-                            //
-                            // }else{
-                            //   checkOut();
-                            // }
-
+                            if(double.parse(cart.walletBalance.toString()) > 0){
+                              showCupertinoDialog(
+                                context: context,
+                                builder: (context) => UseWallet(),
+                              ).then((value) => checkOut());
+                            }else{
+                              checkOut();
+                            }
                           }
                         }
                       });

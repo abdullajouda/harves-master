@@ -30,9 +30,9 @@ class _ChangeLanguageDialogState extends State<ChangeLanguageDialog> {
     } else {
       deviceType = 'android';
     }
-    if (translate.getLocaleCode() == 'ar') {
+    if (LangProvider().getLocaleCode() == 'ar') {
       translate.setLocale(locale: Locales.en);
-    } else if(translate.getLocaleCode() == 'en') {
+    } else if(LangProvider().getLocaleCode() == 'en') {
       translate.setLocale(locale: Locales.ar);
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();

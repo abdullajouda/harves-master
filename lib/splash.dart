@@ -72,13 +72,14 @@ class _SplashState extends State<Splash> {
 
   Future getCities() async {
     var op = Provider.of<CityOperations>(context, listen: false);
+    op.clearFav();
     var request = await get(ApiHelper.api + 'getCities', headers: {
       'Accept': 'application/json',
       'Accept-Language': LangProvider().getLocaleCode(),
     });
     var response = json.decode(request.body);
     var items = response['cities'];
-    op.clearFav();
+
     items.forEach((element) {
       City city = City.fromJson(element);
       op.addItem(city);

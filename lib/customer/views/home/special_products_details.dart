@@ -48,6 +48,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
     setState(() {
       widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
     });
+    MyAlert.addedToCart(0, context);
     cart.addItem(CartItem(
       productId: widget.fruit.id,
       quantity: widget.fruit.inCart,
@@ -71,7 +72,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
-    MyAlert.addedToCart(0, context);
+    // MyAlert.addedToCart(0, context);
     if (response['status'] == true) {
       var items = response['cart'];
       if (items != null) {

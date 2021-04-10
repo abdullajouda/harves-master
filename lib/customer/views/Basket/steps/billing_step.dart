@@ -46,7 +46,7 @@ class _BillingStepState extends State<BillingStep> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getWallet', headers: {
       'Accept': 'application/json',
-      'Accept-Language': 'en',
+      'Accept-Language': LangProvider().getLocaleCode(),
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);

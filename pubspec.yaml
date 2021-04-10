@@ -75,6 +75,7 @@ dependencies:
   firebase_remote_config:
   firebase_messaging:
   flutter_local_notifications:
+  flutter_webview_plugin: ^0.3.11
   rxdart:
   pull_to_refresh: 1.6.3
   flushbar: ^1.10.4
