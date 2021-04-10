@@ -149,7 +149,6 @@ class _BasketStepState extends State<BasketStep> {
     //   load = true;
     // });
     var cart = Provider.of<Cart>(context, listen: false);
-    // cart.clearFav();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = await get(ApiHelper.api + 'getMyCart', headers: {
       'Accept': 'application/json',
@@ -163,7 +162,9 @@ class _BasketStepState extends State<BasketStep> {
     setState(() {
       total = double.parse(response['total']);
     });
+    cart.clearFav();
     for (int i = 0; i < items.length; i++) {
+      print(items[i]);
       CartItem item = CartItem.fromJson(items[i]);
       cart.addItem(item);
       if (item.quantity > item.product.qty) {
@@ -239,24 +240,10 @@ class _BasketStepState extends State<BasketStep> {
   }
 
   showFreeDelivery() async {
-    var op = Provider.of<UserFunctions>(context, listen: false);
-    var ci = Provider.of<CityOperations>(context, listen: false);
-    ci.clearFav();
     var settings = await get(ApiHelper.api + 'getSetting', headers: {
       'Accept': 'application/json',
       'Accept-Language': LangProvider().getLocaleCode(),
     });
-    // var request = await get(ApiHelper.api + 'getCities', headers: {
-    //   'Accept': 'application/json',
-    //   'Accept-Language': LangProvider().getLocaleCode(),
-    // });
-    // var response = json.decode(request.body);
-    // var items = response['cities'];
-    // items.forEach((element) {
-    //   City city = City.fromJson(element);
-    //   _cities.add(city);
-    //   ci.addItem(city);
-    // });
     var set = json.decode(settings.body)['items'];
     if (set['show_delivery_free_msg'] == 1) {
       setState(() {
@@ -540,36 +527,39 @@ class _BasketStepState extends State<BasketStep> {
                                         children: [
                                           Row(
                                             children: [
-                                              cart.items.values
-                                                              .toList()[index]
-                                                              .product
-                                                              .discount >
-                                                          0 &&
-                                                      cart.items.values
-                                                              .toList()[index]
-                                                              .product
-                                                              .priceOffer >
-                                                          0
-                                                  ? Text(
-                                                      "${(cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
-                                                      style: TextStyle(
-                                                        fontSize: 10,
-                                                        color: const Color(
-                                                            0xff3c984f),
-                                                        fontWeight:
-                                                            FontWeight.w500,
+                                              Container(
+                                                width: 70,
+                                                child: cart.items.values
+                                                                .toList()[index]
+                                                                .product
+                                                                .discount >
+                                                            0 &&
+                                                        cart.items.values
+                                                                .toList()[index]
+                                                                .product
+                                                                .priceOffer >
+                                                            0
+                                                    ? Text(
+                                                        "${(cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          color: const Color(
+                                                              0xff3c984f),
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      )
+                                                    : Text(
+                                                        "${cart.items.values.toList()[index].product.price}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          color: const Color(
+                                                              0xff3c984f),
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                        ),
                                                       ),
-                                                    )
-                                                  : Text(
-                                                      "${cart.items.values.toList()[index].product.price}  ${"Q.R".trs(context)}/${cart.items.values.toList()[index].product.typeName}",
-                                                      style: TextStyle(
-                                                        fontSize: 10,
-                                                        color: const Color(
-                                                            0xff3c984f),
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
+                                              ),
                                               SizedBox(width: 3),
                                               CIconButton(
                                                 onTap: () {
@@ -723,7 +713,7 @@ class _BasketStepState extends State<BasketStep> {
                                                             0
                                                     ? TextSpan(
                                                         text:
-                                                            " ${(cart.items.values.toList()[index].quantity * (cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))).toStringAsFixed(2)}",
+                                                            " ${(cart.items.values.toList()[index].quantity * (cart.items.values.toList()[index].product.price - (cart.items.values.toList()[index].product.price * cart.items.values.toList()[index].product.discount / 100))).toStringAsFixed(1)}",
                                                         style: TextStyle(
                                                           fontSize: 14,
                                                           color: const Color(
@@ -931,7 +921,7 @@ class _BasketStepState extends State<BasketStep> {
                                                                       vertical:
                                                                           5),
                                                                   child: Text(
-                                                                    "${remains.toString()} ${"Q.R".trs(context)} ",
+                                                                    "${remains.toStringAsFixed(2)} ${"Q.R".trs(context)} ",
                                                                     style: TextStyle(
                                                                         color: CColors
                                                                             .white),
@@ -1013,7 +1003,7 @@ class _BasketStepState extends State<BasketStep> {
                                                   ),
                                                   children: [
                                                     TextSpan(
-                                                      text: " $total ",
+                                                      text: " ${total.toStringAsFixed(1)} ",
                                                       style: TextStyle(
                                                         fontSize: 18,
                                                         color:

@@ -10,7 +10,6 @@ import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/splash_screen.dart';
-import 'package:harvest/widgets/animated_splash.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -37,7 +36,6 @@ class _SplashState extends State<Splash> {
   }
 
   setLandingPage() async {
-    getCities();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var op = Provider.of<UserFunctions>(context, listen: false);
     String token = prefs.getString('userToken');
@@ -72,7 +70,7 @@ class _SplashState extends State<Splash> {
     }
   }
 
-  getCities() async {
+  Future getCities() async {
     var op = Provider.of<CityOperations>(context, listen: false);
     var request = await get(ApiHelper.api + 'getCities', headers: {
       'Accept': 'application/json',
@@ -80,6 +78,7 @@ class _SplashState extends State<Splash> {
     });
     var response = json.decode(request.body);
     var items = response['cities'];
+    op.clearFav();
     items.forEach((element) {
       City city = City.fromJson(element);
       op.addItem(city);
@@ -88,8 +87,8 @@ class _SplashState extends State<Splash> {
 
   @override
   void initState() {
+    getCities().then((value) => startTime());
     // ApiServices().getSettings();
-    startTime();
     super.initState();
   }
 

@@ -91,7 +91,7 @@ class OrderItemListTile extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        price.toStringAsFixed(2),
+                        (price*(int.parse(itemsNum))).toStringAsFixed(1),
                         style: TextStyle(
                           fontSize: 16,
                           color: CColors.headerText,

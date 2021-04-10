@@ -54,6 +54,7 @@ class _FavoritesTabState extends State<FavoritesTab> {
       var request = await get(ApiHelper.api + 'getMyFavorites', headers: {
         'Accept': 'application/json',
         'Accept-Language': prefs.getString('language'),
+        'fcmToken': prefs.getString('fcm_token'),
         'Authorization': 'Bearer ${prefs.getString('userToken')}'
       });
       var response = json.decode(request.body);
@@ -140,7 +141,20 @@ class _FavoritesTabState extends State<FavoritesTab> {
           bottomViewOffset: Offset(0, -10),
           backgroundGradient: CColors.greenAppBarGradient(),
           actions: [HomePopUpMenu()],
-          leading: BasketButton(),
+          leading:GestureDetector(
+              onTap: () {
+                Navigator.of(context,rootNavigator: true)
+                    .push(
+                  MaterialPageRoute(
+                    // context: context,
+                    builder: (context) => Basket(),
+                  ),
+                )
+                    .then((value) {
+                  getFavorite();
+                });
+              },
+              child: BasketButton()),
           bottomView: !isAuthenticated
               ? Container()
               : Padding(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:harvest/customer/models/city.dart';
 import 'package:harvest/customer/views/Basket/basket.dart';
 import 'package:harvest/customer/widgets/custom_icon_button.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
@@ -200,8 +201,25 @@ class _UserProfileState extends State<UserProfile> {
     });
   }
 
+  Future getCities() async {
+    var op = Provider.of<CityOperations>(context, listen: false);
+    var request = await get(ApiHelper.api + 'getCities', headers: {
+      'Accept': 'application/json',
+      'Accept-Language': LangProvider().getLocaleCode(),
+    });
+    var response = json.decode(request.body);
+    var items = response['cities'];
+    op.clearFav();
+    items.forEach((element) {
+      City city = City.fromJson(element);
+      op.addItem(city);
+      print(city.name);
+    });
+  }
+
   @override
   void initState() {
+    getCities();
     getUserInfo();
     super.initState();
   }
@@ -441,7 +459,7 @@ class _UserProfileState extends State<UserProfile> {
                           ),
                         ),
                         Positioned.directional(
-                          textDirection: trs.textDirection,
+                          textDirection: LangProvider().getLocaleCode() == 'ar'?TextDirection.rtl:TextDirection.ltr,
                           end: -10,
                           top: -10,
                           child: Container(

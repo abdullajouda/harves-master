@@ -29,7 +29,7 @@ class SelectPaymentDialog extends StatelessWidget {
                   child: Image.asset('assets/no_payment.png'),
                 ),
                 Text(
-                  'Select Your Payment Method',
+                  'Select Your Payment Method'.trs(context),
                   style: TextStyle(
                     fontSize: 18,
                     color: const Color(0xff3c4959),
@@ -40,7 +40,7 @@ class SelectPaymentDialog extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(14.0),
                   child: Text(
-                    'You Need To Select Your Payment Method to Complete Your Purchase',
+                    'You Need To Select Your Payment Method to Complete Your Purchase'.trs(context),
                     style: TextStyle(
                       fontSize: 14,
                       color: const Color(0xff888a8d),
@@ -61,7 +61,7 @@ class SelectPaymentDialog extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Try Again',
+                          'Try Again'.trs(context),
                           style: TextStyle(
                             fontSize: 12,
                             color: const Color(0xff3c984f),

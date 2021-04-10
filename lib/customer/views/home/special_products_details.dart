@@ -50,7 +50,18 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
     });
     cart.addItem(CartItem(
       productId: widget.fruit.id,
-      product: Products(),
+      quantity: widget.fruit.inCart,
+      product: Products(
+          id: widget.fruit.id,
+          name: widget.fruit.name,
+          image: widget.fruit.image,
+          inCart: widget.fruit.inCart,
+          typeName: widget.fruit.typeName,
+          type: widget.fruit.type,
+          isFavorite: widget.fruit.inFavorite,
+          priceOffer: widget.fruit.priceOffer,
+          discount: widget.fruit.discount,
+          price: widget.fruit.price.toDouble()),
       fcmToken: prefs.getString('fcm_token'),
     ));
     var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
@@ -86,6 +97,32 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
       'Authorization': 'Bearer ${prefs.getString('userToken')}'
     });
     var response = json.decode(request.body);
+    cart.addItem(CartItem(
+      productId: widget.fruit.id,
+      product: Products(
+          id: widget.fruit.id,
+          name: widget.fruit.name,
+          image: widget.fruit.image,
+          inCart: widget.fruit.inCart,
+          typeName: widget.fruit.typeName,
+          type: widget.fruit.type,
+          isFavorite: widget.fruit.inFavorite,
+          priceOffer: widget.fruit.priceOffer,
+          discount: widget.fruit.discount,
+          price: widget.fruit.price.toDouble()),
+      quantity: int.parse(response['Quantity'].toString()),
+      fcmToken: prefs.getString('fcm_token'),
+    ));
+    if (response['status'] == true) {
+      var items = response['cart'];
+      if (items != null) {
+        items.forEach((element) {
+          CartItem item = CartItem.fromJson(element);
+          cart.addItem(item);
+        });
+      }
+    }
+    print(response);
     if (response['message'] == 'product deleted') {
       cart.removeCartItem(id);
       MyAlert.addedToCart(1, context);
@@ -187,7 +224,9 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
     var fav = Provider.of<FavoriteOperations>(context);
     final Size size = MediaQuery.of(context).size;
     return Directionality(
-      textDirection: LangProvider().getLocaleCode()=='ar'?TextDirection.rtl:TextDirection.ltr,
+      textDirection: LangProvider().getLocaleCode() == 'ar'
+          ? TextDirection.rtl
+          : TextDirection.ltr,
       child: Scaffold(
         body: SafeArea(
           top: false,
@@ -201,9 +240,12 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
               children: [
                 SafeArea(
                   child: Align(
-                    alignment: LangProvider().getLocaleCode()=='ar'?Alignment.topRight:Alignment.topLeft,
+                    alignment: LangProvider().getLocaleCode() == 'ar'
+                        ? Alignment.topRight
+                        : Alignment.topLeft,
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 15,left: 15,top: 15),
+                      padding:
+                          const EdgeInsets.only(right: 15, left: 15, top: 15),
                       child: CBackButton(),
                     ),
                   ),
@@ -282,7 +324,8 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                           changeQnt(2, widget.fruit.id);
                                         },
                                         icon: Icon(Icons.remove,
-                                            color: CColors.headerText, size: 25),
+                                            color: CColors.headerText,
+                                            size: 25),
                                       ),
                                       ConstrainedBox(
                                         constraints: BoxConstraints(
@@ -313,7 +356,8 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                               : changeQnt(1, widget.fruit.id);
                                         },
                                         icon: Icon(Icons.add,
-                                            color: CColors.headerText, size: 25),
+                                            color: CColors.headerText,
+                                            size: 25),
                                       ),
                                       // if (widget.fruit.minQty == 0)
                                       //   Text("add_to_basket".trs(context),
@@ -325,7 +369,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                             Row(
                               children: [
                                 Text(
-                                  "${widget.fruit.price}",
+                                  '${widget.fruit.discount > 0 && widget.fruit.priceOffer > 0 ? widget.fruit.price - (widget.fruit.price * widget.fruit.discount / 100) : widget.fruit.price % 1 == 0 ? widget.fruit.price.toStringAsFixed(0) : widget.fruit.price}',
                                   style: TextStyle(
                                     color: CColors.darkOrange,
                                     fontSize: 24,
@@ -368,10 +412,10 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
                                       padding: EdgeInsets.zero,
                                       itemBuilder: (context, index) {
                                         return _BundleProduct(
-                                          title: widget
-                                              .fruit.basketItem[index].item.name,
-                                          imagePath: widget
-                                              .fruit.basketItem[index].item.image,
+                                          title: widget.fruit.basketItem[index]
+                                              .item.name,
+                                          imagePath: widget.fruit
+                                              .basketItem[index].item.image,
                                           numOfItems: widget
                                               .fruit.basketItem[index].qty
                                               .toString(),

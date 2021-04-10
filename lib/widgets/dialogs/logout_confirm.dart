@@ -54,8 +54,7 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
     prefs.remove('fcm_token');
     Navigator.popUntil(context, (route) => route.isFirst);
     Navigator.of(context, rootNavigator: true).pushReplacement(
-        platformPageRoute(
-      context: context,
+        MaterialPageRoute(
       builder: (context) => MyApp(),
     ));
     setState(() {

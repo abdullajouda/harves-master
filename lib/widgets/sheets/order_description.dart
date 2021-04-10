@@ -139,7 +139,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
             ),
           ),
           Text(
-            "${'Q.R'.trs(context)} ${cart.total}",
+            "${'Q.R'.trs(context)} ${cart.total.toStringAsFixed(2)}",
             style: TextStyle(
               fontSize: 14,
               color: CColors.headerText,
@@ -157,13 +157,13 @@ class _OrderDescriptionState extends State<OrderDescription> {
               color: CColors.headerText,
             ),
           ),
-          Text(
-            "${'Q.R'.trs(context)} $_deliveryCost",
+          _deliveryCost!= null?Text(
+            "${'Q.R'.trs(context)} ${_deliveryCost.toStringAsFixed(1)}",
             style: TextStyle(
               fontSize: 12,
               color: CColors.headerText,
             ),
-          ),
+          ):Container(),
         ],
       ),
       _buildVoucherField(context, size),
@@ -183,7 +183,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
               : Row(
                   children: [
                     Text(
-                      "${'Q.R'.trs(context)} ${cart.total.toDouble() + _deliveryCost.toDouble()}",
+                      "${'Q.R'.trs(context)} ${(cart.total.toDouble() + _deliveryCost.toDouble()).toStringAsFixed(2)}",
                       style: TextStyle(
                           fontSize: _discount != null ? 12 : 15,
                           color: _discount != null
@@ -195,7 +195,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
                     ),
                     _discount != null
                         ? Text(
-                            "${'Q.R'.trs(context)} ${(_total) - (_total * _discount / 100)}",
+                            "${'Q.R'.trs(context)} ${((_total) - (_total * _discount / 100)).toStringAsFixed(2)}",
                             style: TextStyle(
                               fontSize: 15,
                               color: CColors.headerText,

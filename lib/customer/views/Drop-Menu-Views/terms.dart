@@ -60,9 +60,9 @@ class _TermsState extends State<Terms> {
           child: Column(
             children: [
               Align(
-                alignment: Alignment.centerLeft,
+                alignment: LangProvider().getLocaleCode()=='ar'? Alignment.centerRight: Alignment.centerLeft,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
                     "terms".trs(context),
                     style: TextStyle(

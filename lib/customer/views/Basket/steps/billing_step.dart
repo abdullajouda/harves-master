@@ -125,7 +125,7 @@ class _BillingStepState extends State<BillingStep> {
                             ),
                             children: [
                               TextSpan(
-                                text: "${cart.totalPrice}",
+                                text: "${cart.totalPrice.toStringAsFixed(2)}",
                                 style: TextStyle(
                                   fontSize: 18,
                                   color: CColors.headerText,

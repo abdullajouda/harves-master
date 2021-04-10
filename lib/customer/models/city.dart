@@ -68,7 +68,7 @@ class CityOperations with ChangeNotifier {
   }
 
   void clearFav() {
-    _items = {};
+    _items.clear();
     notifyListeners();
   }
 

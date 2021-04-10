@@ -13,7 +13,7 @@ class SpecialItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Container(
         height: 150,
         width: 115,
@@ -81,7 +81,7 @@ class SpecialItem extends StatelessWidget {
                       textAlign: TextAlign.left,
                     ),
                     Text(
-                      '${fruit.price} ${'Q.R'.trs(context)}/${fruit.typeName}',
+                      '${fruit.discount > 0 && fruit.priceOffer > 0 ? fruit.price - (fruit.price * fruit.discount / 100) : fruit.price % 1 == 0 ? fruit.price.toStringAsFixed(0) : fruit.price}  ${'Q.R'.trs(context)}/${fruit.typeName}',
                       style: TextStyle(
                         fontSize: 10,
                         color: const Color(0xffffffff),

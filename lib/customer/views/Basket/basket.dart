@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/delivery-data.dart';
@@ -68,6 +69,7 @@ class _BasketState extends State<Basket> {
     });
     var response = json.decode(request.body);
     print(response);
+    Fluttertoast.showToast(msg: response['message']);
     if (response['code'] == 200) {
       Order order = Order.fromJson(response['order']);
       Navigator.push(
@@ -77,7 +79,6 @@ class _BasketState extends State<Basket> {
               order: order,
             ),
           ));
-      cart.clearAll();
     } else if (response['code'] == 204) {
       showCupertinoDialog(
         context: context,
@@ -99,6 +100,7 @@ class _BasketState extends State<Basket> {
       });
       return _jumpTo(_step);
     }
+
   }
 
   checkToken() async {
@@ -287,7 +289,8 @@ class _BasketState extends State<Basket> {
                                   ),
                                   isScrollControlled: true);
                             }
-                          } else {
+                          }
+                          else {
                             if (cart.availableDates == null ||
                                 cart.time == null) {
                               showCupertinoDialog(

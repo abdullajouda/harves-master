@@ -34,10 +34,11 @@ class _FavoriteItemState extends State<FavoriteItem> {
     setState(() {
       widget.fruit.inCart = widget.fruit.inCart + widget.fruit.unitRate;
     });
+    MyAlert.addedToCart(0, context);
     var cart = Provider.of<Cart>(context, listen: false);
     var op = Provider.of<FavoriteOperations>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
+    var request = await post(ApiHelper.api + 'addProductToCart/$id', headers: {
       'Accept': 'application/json',
       'fcmToken': prefs.getString('fcm_token'),
       'Accept-Language': LangProvider().getLocaleCode(),
@@ -45,7 +46,6 @@ class _FavoriteItemState extends State<FavoriteItem> {
     });
     var response = json.decode(request.body);
     if (response['status'] == true) {
-      MyAlert.addedToCart(0, context);
       var items = response['cart'];
       if (items != null) {
         cart.clearFav();
@@ -229,7 +229,7 @@ class _FavoriteItemState extends State<FavoriteItem> {
                   Row(
                     children: [
                       Text(
-                        '${widget.fruit.discount > 0 && widget.fruit.priceOffer > 0 ? widget.fruit.price - (widget.fruit.price * widget.fruit.discount / 100) : widget.fruit.price}  ${'Q.R'.trs(context)}/${widget.fruit.typeName}',
+                        '${widget.fruit.discount > 0 && widget.fruit.priceOffer > 0 ? widget.fruit.price - (widget.fruit.price * widget.fruit.discount / 100) : widget.fruit.price % 1 == 0 ? widget.fruit.price.toStringAsFixed(0) : widget.fruit.price}  ${'Q.R'.trs(context)}/${widget.fruit.typeName}',
                         style: TextStyle(
                           fontSize: 10,
                           color: const Color(0xff3c984f),

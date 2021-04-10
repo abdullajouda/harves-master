@@ -13,7 +13,7 @@ class BasketStepper extends StatelessWidget {
     Key key,
     this.currentStep = 0,
     this.margin = const EdgeInsets.only(top: 20),
-  })  : assert(currentStep >= 0 && currentStep < 4, "currentStep should be between 0 and 3"),
+  })  :
         super(key: key);
 
   @override
@@ -29,7 +29,7 @@ class BasketStepper extends StatelessWidget {
       Constants.stepperBasketIcon,
       Constants.stepperPlaceIcon,
       Constants.stepperDeliveryTimeIcon,
-      Constants.bankIcon,
+      'assets/images/bank.svg',
     ];
     int _totalSteps = _titles.length;
     final size = MediaQuery.of(context).size;

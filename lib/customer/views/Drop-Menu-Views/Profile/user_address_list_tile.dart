@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/models/delivery-data.dart';
@@ -99,7 +100,7 @@ class UserAddressListTile extends StatelessWidget {
             ),
           ),
           Positioned.directional(
-            textDirection: trs.textDirection,
+            textDirection: LangProvider().getLocaleCode() == 'ar'?TextDirection.rtl:TextDirection.ltr,
             end: -10,
             top: -10,
             child: GestureDetector(

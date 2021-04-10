@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/models/orders.dart';
 import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/customer/widgets/custom_main_button.dart';
@@ -16,10 +17,12 @@ class OrderDone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var cart = Provider.of<Cart>(context);
     var parsedDate = DateTime.parse(order.deliveryDate);
     var dateNow = DateTime.now();
     var finalDate = parsedDate.difference(dateNow).inDays;
     final size = MediaQuery.of(context).size;
+    cart.clearAll();
     return Scaffold(
       // backgroundColor: CColors.lightGreen,
       body: SafeArea(

@@ -14,14 +14,13 @@ class CartItem {
   String createdAt;
   Products product;
 
-  CartItem(
-      {this.id,
-      this.userId,
-      this.fcmToken,
-      this.quantity,
-      this.productId,
-      this.createdAt,
-      this.product});
+  CartItem({this.id,
+    this.userId,
+    this.fcmToken,
+    this.quantity,
+    this.productId,
+    this.createdAt,
+    this.product});
 
   CartItem.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -31,7 +30,7 @@ class CartItem {
     productId = json['product_id'];
     createdAt = json['created_at'];
     product =
-        json['product'] != null ? new Products.fromJson(json['product']) : null;
+    json['product'] != null ? new Products.fromJson(json['product']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -50,7 +49,7 @@ class CartItem {
 }
 
 class Cart with ChangeNotifier {
-  Map<String,ErrorModel> _errors = {};
+  Map<String, ErrorModel> _errors = {};
   int paymentType;
   int useWallet;
   double total;
@@ -67,6 +66,7 @@ class Cart with ChangeNotifier {
     availableDates = date;
     notifyListeners();
   }
+
   void setIsFree(bool free) {
     isFree = free;
     notifyListeners();
@@ -101,6 +101,7 @@ class Cart with ChangeNotifier {
     promo = code;
     notifyListeners();
   }
+
   void setWalletBalance(String bal) {
     walletBalance = bal;
     notifyListeners();
@@ -110,6 +111,7 @@ class Cart with ChangeNotifier {
     paymentType = type;
     notifyListeners();
   }
+
   void setUseWallet(int type) {
     useWallet = type;
     notifyListeners();
@@ -122,7 +124,7 @@ class Cart with ChangeNotifier {
     return {..._cartItems};
   }
 
-  Map<String,ErrorModel> get errors {
+  Map<String, ErrorModel> get errors {
     return _errors;
   }
 
@@ -132,12 +134,21 @@ class Cart with ChangeNotifier {
 
   void addItem(CartItem item) {
     if (_cartItems.containsKey(item.productId)) {
-      _cartItems.update(item.productId.toString(), (existing) => item);
-    } else {
-      _cartItems.putIfAbsent(item.productId.toString(), () => item);
+      _cartItems.update(item.productId.toString(), (existing) =>
+          CartItem(
+            createdAt: item.createdAt,
+              quantity: item.quantity,
+              productId: item.productId,
+              product: item.product,
+              id: item.id,
+              fcmToken: item.fcmToken,
+              userId: item.userId
+          ));
+          } else {
+          _cartItems.putIfAbsent(item.productId.toString(), () => item);
+          }
+          notifyListeners();
     }
-    notifyListeners();
-  }
 
   void addError(ErrorModel error) {
     if (_errors.containsKey(error.id)) {
@@ -158,18 +169,18 @@ class Cart with ChangeNotifier {
     _cartItems = {};
     notifyListeners();
   }
-  void clearAll(){
+
+  void clearAll() {
     _cartItems = {};
     _errors = {};
-    total =null;
-    paymentType =null;
-    totalPrice =null;
-    additionalNote =null;
-    promo =null;
-    deliveryAddresses =null;
-    availableDates =null;
-    time =null;
+    total = null;
+    paymentType = null;
+    totalPrice = null;
+    additionalNote = null;
+    promo = null;
+    deliveryAddresses = null;
+    availableDates = null;
+    time = null;
     notifyListeners();
-
   }
 }

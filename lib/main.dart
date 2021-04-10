@@ -12,6 +12,7 @@ import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/helpers/Localization/appliction.dart';
 import 'package:harvest/splash.dart';
+import 'package:harvest/widgets/auth_widgets/set_location_sheet.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'customer/models/cart_items.dart';
@@ -60,6 +61,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    if(!LangProvider().hasLocale()){
+      if(intel.Intl.systemLocale=='ar'){
+        LangProvider().setLocale(locale: Locales.ar);
+      }else{
+        LangProvider().setLocale(locale: Locales.en);
+      }
+    }
     application.onLocaleChanged = onLocaleChange;
     _newLocaleDelegate = AppTranslationsDelegate(
       newLocale: Locale('en', 'US'),

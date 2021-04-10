@@ -219,10 +219,10 @@ class _OrderDetailsPanelState extends State<OrderDetailsPanel> {
                                     image: _order
                                         .orderProduct[index].product.image,
                                     price: _order
-                                        .orderProduct[index].product.price
+                                        .orderProduct[index].price
                                         .toDouble(),
                                     pricePerKilo: _order
-                                        .orderProduct[index].product.price
+                                        .orderProduct[index].price
                                         .toDouble(),
                                   );
                                 },
