@@ -41,13 +41,16 @@ class _SplashState extends State<Splash> {
     String token = prefs.getString('userToken');
     int loginCount = prefs.getInt('loginCount');
     if (token != null) {
-      op.setUser(User(
+      op.setUser(
+        User(
           id: prefs.getInt('id'),
           name: prefs.getString('username'),
           mobile: prefs.getString('mobile'),
           email: prefs.getString('email'),
           cityId: prefs.getInt('cityId'),
-          imageProfile: prefs.getString('avatar')));
+          imageProfile: prefs.getString('avatar'),
+        ),
+      );
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -124,7 +127,9 @@ class _SplashState extends State<Splash> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SvgPicture.asset('assets/logo.svg'),
-                  SizedBox(height: 22,),
+                  SizedBox(
+                    height: 22,
+                  ),
                   Text(
                     'Freshly Picked … to Doorstep',
                     style: TextStyle(

@@ -36,9 +36,9 @@ class _OrdersTabState extends State<OrdersTab> {
           actions: [HomePopUpMenu()],
           leading: GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  CustomPageRoute(
+                Navigator.of(context,rootNavigator: true)
+                    .push(
+                  MaterialPageRoute(
                     // context: context,
                     builder: (context) => Basket(),
                   ),

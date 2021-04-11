@@ -29,9 +29,6 @@ class Constants {
   static const String billingWallet = _vectorsPath + "billing_wallet.svg";
 
   //? Common
-  static const String intro1 = _common + "Illustration_1.svg";
-  static const String intro2 = _common + "Illustration_2.svg";
-  static const String intro3 = _common + "Illustration_3.svg";
   static const String splashFooter = _common + "splash_intro_footer.svg";
   static const String facebookIcon = _common + "facebook.svg";
   static const String twitterIcon = _common + "twitter.svg";
@@ -75,7 +72,6 @@ class Constants {
   static const String stepperDeliveryTimeIcon = _basket + "time_icon.svg";
   static const String stepperBillingIcon = _basket + "billing_icon.svg";
 
-  static const String minimumChargeWarningDailog = _basket + "alert_price_icon.svg";
   static const String fullFreeDileiveryIcon = _basket + "full_free-delivery.svg";
   static const String freeDileiveryIcon = _basket + "free-delivery.svg";
 

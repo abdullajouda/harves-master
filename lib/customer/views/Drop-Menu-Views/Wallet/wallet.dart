@@ -31,7 +31,7 @@ class _WalletState extends State<Wallet> {
   bool load = false;
   bool loadConvert = false;
   String balance;
-  double points;
+  String points;
   int _selectedIndex = -1;
 
   getWallet() async {
@@ -47,7 +47,7 @@ class _WalletState extends State<Wallet> {
     var response = json.decode(request.body);
     setState(() {
       balance = response['balance'];
-      points = double.parse(response['points'].toString());
+      points = double.parse(response['points'].toString()).toStringAsFixed(3);
       load = false;
     });
   }
@@ -421,7 +421,7 @@ class _WalletState extends State<Wallet> {
               highlightColor: CColors.darkOrange,
               child: Text.rich(
                 TextSpan(
-                  text: "${points.toStringAsFixed(3) ?? 0}",
+                  text: "${points ?? 0}",
                   style: TextStyle(
                     color: CColors.darkOrange,
                     fontWeight: FontWeight.w500,

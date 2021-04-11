@@ -50,13 +50,12 @@ class _OrderDescriptionState extends State<OrderDescription> {
           'Accept-Language': '${prefs.getString('language')}',
         });
     var response = json.decode(request.body);
-    print(response);
     setState(() {
       _deliveryCost = double.parse(response.toString());
       // if(!cart.isFree){
       //   _deliveryCost = cart.deliveryAddresses.city.deliveryCost;
       // }
-      // _total = _deliveryCost + cart.total;
+      _total = _deliveryCost + cart.total;
       load = false;
     });
   }

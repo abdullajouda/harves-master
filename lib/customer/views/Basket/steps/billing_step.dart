@@ -35,7 +35,7 @@ class BillingStep extends StatefulWidget {
 class _BillingStepState extends State<BillingStep> {
   int _chosenIndex = -1;
   bool load = false;
-  int points;
+  double points;
   String balance;
 
   getWallet() async {
@@ -53,7 +53,7 @@ class _BillingStepState extends State<BillingStep> {
     setState(() {
       balance = response['balance'];
       cart.setWalletBalance(balance);
-      points = response['points'];
+      points = double.parse(response['points'].toString());
       load = false;
     });
   }
