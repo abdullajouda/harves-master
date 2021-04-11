@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:harvest/customer/models/city.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/directions.dart';
 import 'package:harvest/helpers/variables.dart';
 import 'package:harvest/widgets/Loader.dart';
 import 'package:http/http.dart';
@@ -71,152 +72,154 @@ class _CityDropDownState extends State<CityDropDown> {
     // op.items.values.toList().forEach((element) {
     //   print(element.name);
     // });
-    return Material(
-      color: Colors.transparent,
-      child: Directionality(
-        textDirection: LangProvider().getLocaleCode()=='ar'?TextDirection.rtl:TextDirection.ltr,
-        child: Container(
-          height: 300,
-          width: size.width * .7,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15.0),
-            color: const Color(0xffffffff),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0x29000000),
-                offset: Offset(0, 3),
-                blurRadius: 15,
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextFormField(
-                    controller: _search,
-                    onChanged: (value) {
-                      search();
-                    },
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: const Color(0xff525768),
-                    ),
-                    cursorColor: CColors.darkOrange,
-                    cursorWidth: 1,
-                    decoration: locationFieldDecoration('city'.trs(context))),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 15, right: 15),
-                child: load?Center(child: Loader()):Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                    border:
-                    Border.all(width: 1.0, color: const Color(0xffe3e7eb)),
-                  ),
-                  child: _search.text != ''
-                      ? ListView.separated(
-                    separatorBuilder: (context, index) => Divider(
-                      height: 0,
-                    ),
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    itemCount: _cities.length,
-                    itemBuilder: (context, index) => GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop({
-                          'city': _cities[index],
-                        });
-                      },
-                      child: Container(
-                        height: 50,
-                        width: size.width * .7,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10),
-                              child: Text(
-                                '${_cities[index].name}',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: const Color(0xff525768),
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop({
-                                  'city': _cities[index],
-                                });
-                              },
-                              child: Text(
-                                'pick'.trs(context),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: CColors.darkGreen,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-                      : ListView.separated(
-                    separatorBuilder: (context, index) => Divider(
-                      height: 0,
-                    ),
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    itemCount: cities.length,
-                    itemBuilder: (context, index) => GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop({
-                          'city': cities[index],
-                        });
-                      },
-                      child: Container(
-                        height: 50,
-                        width: size.width * .7,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10),
-                              child: Text(
-                                '${cities[index].name}',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: const Color(0xff525768),
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop({
-                                  'city': cities[index],
-                                });
-                              },
-                              child: Text(
-                                'pick'.trs(context),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: CColors.darkGreen,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
+    return Direction(
+      child: Material(
+        color: Colors.transparent,
+        child: Directionality(
+          textDirection: LangProvider().getLocaleCode()=='ar'?TextDirection.rtl:TextDirection.ltr,
+          child: Container(
+            height: 300,
+            width: size.width * .7,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15.0),
+              color: const Color(0xffffffff),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0x29000000),
+                  offset: Offset(0, 3),
+                  blurRadius: 15,
                 ),
-              )
-            ],
+              ],
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: TextFormField(
+                      controller: _search,
+                      onChanged: (value) {
+                        search();
+                      },
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: const Color(0xff525768),
+                      ),
+                      cursorColor: CColors.darkOrange,
+                      cursorWidth: 1,
+                      decoration: locationFieldDecoration('city'.trs(context))),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15, right: 15),
+                  child: load?Center(child: Loader()):Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.0),
+                      border:
+                      Border.all(width: 1.0, color: const Color(0xffe3e7eb)),
+                    ),
+                    child: _search.text != ''
+                        ? ListView.separated(
+                      separatorBuilder: (context, index) => Divider(
+                        height: 0,
+                      ),
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      itemCount: _cities.length,
+                      itemBuilder: (context, index) => GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop({
+                            'city': _cities[index],
+                          });
+                        },
+                        child: Container(
+                          height: 50,
+                          width: size.width * .7,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10),
+                                child: Text(
+                                  '${_cities[index].name}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: const Color(0xff525768),
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop({
+                                    'city': _cities[index],
+                                  });
+                                },
+                                child: Text(
+                                  'pick'.trs(context),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: CColors.darkGreen,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                        : ListView.separated(
+                      separatorBuilder: (context, index) => Divider(
+                        height: 0,
+                      ),
+                      padding: EdgeInsets.zero,
+                      shrinkWrap: true,
+                      itemCount: cities.length,
+                      itemBuilder: (context, index) => GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop({
+                            'city': cities[index],
+                          });
+                        },
+                        child: Container(
+                          height: 50,
+                          width: size.width * .7,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10),
+                                child: Text(
+                                  '${cities[index].name}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: const Color(0xff525768),
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop({
+                                    'city': cities[index],
+                                  });
+                                },
+                                child: Text(
+                                  'pick'.trs(context),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: CColors.darkGreen,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

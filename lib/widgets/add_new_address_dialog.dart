@@ -23,6 +23,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 
 import 'dialogs/city_dialog.dart';
+import 'directions.dart';
 
 class AddNewAddressDialog extends StatefulWidget {
   @override
@@ -182,10 +183,7 @@ class _AddNewAddressDialogState extends State<AddNewAddressDialog> {
     return Padding(
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Directionality(
-        textDirection: LangProvider().getLocaleCode() == 'ar'
-            ? TextDirection.rtl
-            : TextDirection.ltr,
+      child: Direction(
         child: Container(
           // width: size.width,
           decoration: BoxDecoration(

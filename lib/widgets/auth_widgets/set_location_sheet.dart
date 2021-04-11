@@ -16,6 +16,7 @@ import 'package:harvest/customer/views/root_screen.dart';
 import 'package:harvest/helpers/api.dart';
 import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
+import 'package:harvest/widgets/directions.dart';
 import 'dart:ui' as ui;
 
 import 'package:harvest/helpers/variables.dart';
@@ -199,531 +200,533 @@ class _SetLocationSheetState extends State<SetLocationSheet> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     var op = Provider.of<CityOperations>(context);
-    return Container(
-      // width: size.width,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(33.0),
-          topRight: Radius.circular(33.0),
-        ),
-        color: const Color(0xffffffff),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x1a000000),
-            offset: Offset(0, -5),
-            blurRadius: 51,
+    return Direction(
+      child: Container(
+        // width: size.width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(33.0),
+            topRight: Radius.circular(33.0),
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        // alignment: Alignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30),
-            child: Container(
-              height: size.height * .6,
-              width: size.width * .8,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                    top: 0,
-                    child: Container(
-                      height: size.height * .57,
-                      width: size.width * .8,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(13.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0x24000000),
-                            offset: Offset(0, 2),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          GoogleMap(
-                            mapType: MapType.normal,
-                            zoomControlsEnabled: false,
-                            mapToolbarEnabled: false,
-                            trafficEnabled: false,
-                            compassEnabled: false,
-                            // scrollGesturesEnabled: false,
-                            initialCameraPosition: _initialCameraPosition,
-                            markers: markers.toSet(),
-                            onMapCreated: (controller) {
-                              setState(() {
-                                _controller = controller;
-                              });
-                            },
-                            onTap: (latLng) {
-                              _controller.animateCamera(
-                                  CameraUpdate.newLatLng(latLng));
-                              addMarker(latLng.latitude, latLng.longitude);
-                            },
-                          ),
-                          _load
-                              ? Container(
-                                  color: Colors.black26,
-                                  child: SpinKitFadingCircle(
-                                    color: kPrimaryColor,
-                                    size: 25,
-                                  ),
-                                )
-                              : Container()
-                        ],
+          color: const Color(0xffffffff),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0x1a000000),
+              offset: Offset(0, -5),
+              blurRadius: 51,
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          // alignment: Alignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30),
+              child: Container(
+                height: size.height * .6,
+                width: size.width * .8,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned(
+                      top: 0,
+                      child: Container(
+                        height: size.height * .57,
+                        width: size.width * .8,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(13.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0x24000000),
+                              offset: Offset(0, 2),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            GoogleMap(
+                              mapType: MapType.normal,
+                              zoomControlsEnabled: false,
+                              mapToolbarEnabled: false,
+                              trafficEnabled: false,
+                              compassEnabled: false,
+                              // scrollGesturesEnabled: false,
+                              initialCameraPosition: _initialCameraPosition,
+                              markers: markers.toSet(),
+                              onMapCreated: (controller) {
+                                setState(() {
+                                  _controller = controller;
+                                });
+                              },
+                              onTap: (latLng) {
+                                _controller.animateCamera(
+                                    CameraUpdate.newLatLng(latLng));
+                                addMarker(latLng.latitude, latLng.longitude);
+                              },
+                            ),
+                            _load
+                                ? Container(
+                                    color: Colors.black26,
+                                    child: SpinKitFadingCircle(
+                                      color: kPrimaryColor,
+                                      size: 25,
+                                    ),
+                                  )
+                                : Container()
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    child: AnimatedOpacity(
-                        opacity: _visible ? 1.0 : 0.0,
-                        duration: Duration(milliseconds: 600),
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          height: _expand ? 400 : 64,
-                          width: 260,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(9.0),
-                            color: const Color(0xffffffff),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0x14000000),
-                                offset: Offset(0, 4),
-                                blurRadius: 12,
-                              ),
-                            ],
-                          ),
-                          child: _expand
-                              ? Form(
-                            key: _locationFormKey,
-                                child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(height: 15,),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 20),
-                                        child: Container(
-                                          child: TextFormField(
-                                              validator: (value) =>
-                                                  FieldValidator.validate(
-                                                      value, context),
-                                              style: TextStyle(
-                                                fontSize: 8,
-                                                color:
-                                                const Color(0xff525768),
-                                              ),
-                                              onTap: () {
-                                                showDialog(
-                                                  context: context,
-                                                  barrierColor:
-                                                  CColors.transparent,
-                                                  barrierDismissible: true,
-                                                  builder: (context) =>
-                                                      Center(
-                                                          child:
-                                                          CityDropDown()),
-                                                ).then((value) {
-                                                  if (value is Map<String,
-                                                      dynamic>) {
-                                                    setState(() {
-                                                      city = value['city'];
-                                                      if(city!=null){
-                                                        _city.text = city.name;
-                                                      }
-                                                    });
-                                                  }
-                                                });
-                                              },
-                                              readOnly: true,
-                                              controller: _city,
-                                              cursorColor:
-                                              CColors.darkOrange,
-                                              cursorWidth: 1,
-                                              decoration:
-                                              locationFieldDecoration(
-                                                  'city'
-                                                      .trs(context))),
+                    Positioned(
+                      bottom: 0,
+                      child: AnimatedOpacity(
+                          opacity: _visible ? 1.0 : 0.0,
+                          duration: Duration(milliseconds: 600),
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
+                            height: _expand ? 400 : 64,
+                            width: 260,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(9.0),
+                              color: const Color(0xffffffff),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0x14000000),
+                                  offset: Offset(0, 4),
+                                  blurRadius: 12,
+                                ),
+                              ],
+                            ),
+                            child: _expand
+                                ? Form(
+                              key: _locationFormKey,
+                                  child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(height: 15,),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          child: Container(
+                                            child: TextFormField(
+                                                validator: (value) =>
+                                                    FieldValidator.validate(
+                                                        value, context),
+                                                style: TextStyle(
+                                                  fontSize: 8,
+                                                  color:
+                                                  const Color(0xff525768),
+                                                ),
+                                                onTap: () {
+                                                  showDialog(
+                                                    context: context,
+                                                    barrierColor:
+                                                    CColors.transparent,
+                                                    barrierDismissible: true,
+                                                    builder: (context) =>
+                                                        Center(
+                                                            child:
+                                                            CityDropDown()),
+                                                  ).then((value) {
+                                                    if (value is Map<String,
+                                                        dynamic>) {
+                                                      setState(() {
+                                                        city = value['city'];
+                                                        if(city!=null){
+                                                          _city.text = city.name;
+                                                        }
+                                                      });
+                                                    }
+                                                  });
+                                                },
+                                                readOnly: true,
+                                                controller: _city,
+                                                cursorColor:
+                                                CColors.darkOrange,
+                                                cursorWidth: 1,
+                                                decoration:
+                                                locationFieldDecoration(
+                                                    'city'
+                                                        .trs(context))),
+                                          ),
                                         ),
-                                      ),
-                                      // Padding(
-                                      //   padding: const EdgeInsets.symmetric(
-                                      //       vertical: 15, horizontal: 20),
-                                      //   child: Stack(
-                                      //     children: [
-                                      //       GestureDetector(
-                                      //
-                                      //         child: Container(
-                                      //           height: 50,
-                                      //           decoration: BoxDecoration(
-                                      //             borderRadius:
-                                      //                 BorderRadius.circular(
-                                      //                     12.0),
-                                      //             border: Border.all(
-                                      //                 width: 1.0,
-                                      //                 color: const Color(
-                                      //                     0xffe3e7eb)),
-                                      //           ),
-                                      //           child: Padding(
-                                      //             padding: const EdgeInsets
-                                      //                     .symmetric(
-                                      //                 horizontal: 15),
-                                      //             child: Row(
-                                      //               mainAxisAlignment:
-                                      //                   MainAxisAlignment
-                                      //                       .spaceBetween,
-                                      //               children: [
-                                      //                 Text(
-                                      //                   city != null
-                                      //                       ? city.name
-                                      //                       : 'city'.trs(
-                                      //                           context),
-                                      //                   style: TextStyle(
-                                      //                     fontSize: 8,
-                                      //                     color: const Color(
-                                      //                         0xff525768),
-                                      //                   ),
-                                      //                 ),
-                                      //                 SvgPicture.asset(
-                                      //                     'assets/icons/arrow-down.svg')
-                                      //               ],
-                                      //             ),
-                                      //           ),
-                                      //         ),
-                                      //       ),
-                                      //       // Container(
-                                      //       //   height: 50,
-                                      //       //   width: size.width * .75,
-                                      //       //   child: DropdownButton<City>(
-                                      //       //     icon: Container(),
-                                      //       //     underline: Container(),
-                                      //       //     items: op.items.values
-                                      //       //         .toList()
-                                      //       //         .map((City value) {
-                                      //       //       return DropdownMenuItem<
-                                      //       //           City>(
-                                      //       //         value: value,
-                                      //       //         child: Text(
-                                      //       //           value.name,
-                                      //       //           style: TextStyle(
-                                      //       //             fontSize: 8,
-                                      //       //             color: const Color(
-                                      //       //                 0xff525768),
-                                      //       //           ),
-                                      //       //         ),
-                                      //       //       );
-                                      //       //     }).toList(),
-                                      //       //     onChanged: (value) {
-                                      //       //       setState(() {
-                                      //       //         city = value;
-                                      //       //       });
-                                      //       //     },
-                                      //       //   ),
-                                      //       // ),
-                                      //     ],
-                                      //   ),
-                                      // ),
-                                      SizedBox(height: 15,),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 20),
-                                        child: Container(
-                                          child: TextFormField(
-                                              validator: (value) =>
-                                                  FieldValidator.validate(
-                                                      value, context),
-                                              style: TextStyle(
-                                                fontSize: 8,
-                                                color: const Color(0xff525768),
-                                              ),
-                                              controller: fullAddress,
-                                              cursorColor: CColors.darkOrange,
-                                              cursorWidth: 1,
-                                              decoration: locationFieldDecoration(
-                                                  'Full address'.trs(context))),
+                                        // Padding(
+                                        //   padding: const EdgeInsets.symmetric(
+                                        //       vertical: 15, horizontal: 20),
+                                        //   child: Stack(
+                                        //     children: [
+                                        //       GestureDetector(
+                                        //
+                                        //         child: Container(
+                                        //           height: 50,
+                                        //           decoration: BoxDecoration(
+                                        //             borderRadius:
+                                        //                 BorderRadius.circular(
+                                        //                     12.0),
+                                        //             border: Border.all(
+                                        //                 width: 1.0,
+                                        //                 color: const Color(
+                                        //                     0xffe3e7eb)),
+                                        //           ),
+                                        //           child: Padding(
+                                        //             padding: const EdgeInsets
+                                        //                     .symmetric(
+                                        //                 horizontal: 15),
+                                        //             child: Row(
+                                        //               mainAxisAlignment:
+                                        //                   MainAxisAlignment
+                                        //                       .spaceBetween,
+                                        //               children: [
+                                        //                 Text(
+                                        //                   city != null
+                                        //                       ? city.name
+                                        //                       : 'city'.trs(
+                                        //                           context),
+                                        //                   style: TextStyle(
+                                        //                     fontSize: 8,
+                                        //                     color: const Color(
+                                        //                         0xff525768),
+                                        //                   ),
+                                        //                 ),
+                                        //                 SvgPicture.asset(
+                                        //                     'assets/icons/arrow-down.svg')
+                                        //               ],
+                                        //             ),
+                                        //           ),
+                                        //         ),
+                                        //       ),
+                                        //       // Container(
+                                        //       //   height: 50,
+                                        //       //   width: size.width * .75,
+                                        //       //   child: DropdownButton<City>(
+                                        //       //     icon: Container(),
+                                        //       //     underline: Container(),
+                                        //       //     items: op.items.values
+                                        //       //         .toList()
+                                        //       //         .map((City value) {
+                                        //       //       return DropdownMenuItem<
+                                        //       //           City>(
+                                        //       //         value: value,
+                                        //       //         child: Text(
+                                        //       //           value.name,
+                                        //       //           style: TextStyle(
+                                        //       //             fontSize: 8,
+                                        //       //             color: const Color(
+                                        //       //                 0xff525768),
+                                        //       //           ),
+                                        //       //         ),
+                                        //       //       );
+                                        //       //     }).toList(),
+                                        //       //     onChanged: (value) {
+                                        //       //       setState(() {
+                                        //       //         city = value;
+                                        //       //       });
+                                        //       //     },
+                                        //       //   ),
+                                        //       // ),
+                                        //     ],
+                                        //   ),
+                                        // ),
+                                        SizedBox(height: 15,),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          child: Container(
+                                            child: TextFormField(
+                                                validator: (value) =>
+                                                    FieldValidator.validate(
+                                                        value, context),
+                                                style: TextStyle(
+                                                  fontSize: 8,
+                                                  color: const Color(0xff525768),
+                                                ),
+                                                controller: fullAddress,
+                                                cursorColor: CColors.darkOrange,
+                                                cursorWidth: 1,
+                                                decoration: locationFieldDecoration(
+                                                    'Full address'.trs(context))),
+                                          ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 15),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Container(
-                                              width: size.width * .25,
-                                              child: Center(
-                                                child: TextFormField(
-                                                    style: TextStyle(
-                                                      fontSize: 8,
-                                                      color:
-                                                          const Color(0xff525768),
-                                                    ),
-                                                    controller: unitNo,
-                                                    keyboardType: TextInputType.number,
-                                                    cursorColor:
-                                                        CColors.darkOrange,
-                                                    cursorWidth: 1,
-                                                    decoration:
-                                                        locationFieldDecoration(
-                                                            'unit_no'
-                                                                .trs(context))),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 15),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Container(
+                                                width: size.width * .25,
+                                                child: Center(
+                                                  child: TextFormField(
+                                                      style: TextStyle(
+                                                        fontSize: 8,
+                                                        color:
+                                                            const Color(0xff525768),
+                                                      ),
+                                                      controller: unitNo,
+                                                      keyboardType: TextInputType.number,
+                                                      cursorColor:
+                                                          CColors.darkOrange,
+                                                      cursorWidth: 1,
+                                                      decoration:
+                                                          locationFieldDecoration(
+                                                              'unit_no'
+                                                                  .trs(context))),
+                                                ),
                                               ),
-                                            ),
-                                            Container(
-                                              width: size.width * .25,
-                                              child: Center(
-                                                child: TextFormField(
-                                                    style: TextStyle(
-                                                      fontSize: 8,
-                                                      color:
-                                                          const Color(0xff525768),
-                                                    ),
-                                                    controller: buildingNo,
-                                                    keyboardType: TextInputType.number,
+                                              Container(
+                                                width: size.width * .25,
+                                                child: Center(
+                                                  child: TextFormField(
+                                                      style: TextStyle(
+                                                        fontSize: 8,
+                                                        color:
+                                                            const Color(0xff525768),
+                                                      ),
+                                                      controller: buildingNo,
+                                                      keyboardType: TextInputType.number,
 
-                                                    cursorColor:
-                                                        CColors.darkOrange,
-                                                    cursorWidth: 1,
-                                                    decoration:
-                                                        locationFieldDecoration(
-                                                            'building_no'
-                                                                .trs(context))),
+                                                      cursorColor:
+                                                          CColors.darkOrange,
+                                                      cursorWidth: 1,
+                                                      decoration:
+                                                          locationFieldDecoration(
+                                                              'building_no'
+                                                                  .trs(context))),
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 20),
-                                        child: Container(
-                                          child: TextFormField(
-                                              style: TextStyle(
-                                                fontSize: 8,
-                                                color:
-                                                    const Color(0xff525768),
-                                              ),
-                                              validator: (value) =>
-                                                  FieldValidator.validate(
-                                                      value, context),
-                                              controller: additionalNotes,
-                                              maxLines: 5,
-                                              keyboardType: TextInputType.multiline,
-                                              cursorColor: CColors.darkOrange,
-                                              cursorWidth: 1,
-                                              decoration:
-                                                  locationFieldDecoration(
-                                                      'additional_note'
-                                                          .trs(context),),),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20),
+                                          child: Container(
+                                            child: TextFormField(
+                                                style: TextStyle(
+                                                  fontSize: 8,
+                                                  color:
+                                                      const Color(0xff525768),
+                                                ),
+                                                validator: (value) =>
+                                                    FieldValidator.validate(
+                                                        value, context),
+                                                controller: additionalNotes,
+                                                maxLines: 5,
+                                                keyboardType: TextInputType.multiline,
+                                                cursorColor: CColors.darkOrange,
+                                                cursorWidth: 1,
+                                                decoration:
+                                                    locationFieldDecoration(
+                                                        'additional_note'
+                                                            .trs(context),),),
+                                          ),
                                         ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            top: 25, right: 20),
-                                        child: Align(
-                                          alignment: Alignment.centerRight,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              if (_locationFormKey.currentState
-                                                  .validate()) {
-                                                setState(() {
-                                                  _expand = false;
-                                                });
-                                              }
-                                            },
-                                            child: Container(
-                                              height: 31,
-                                              width: 58,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(5.0),
-                                                color: const Color(0xfff88518),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  'save'.trs(context),
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color:
-                                                        const Color(0xffffffff),
-                                                    fontWeight: FontWeight.w500,
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 25, right: 20),
+                                          child: Align(
+                                            alignment: Alignment.centerRight,
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                if (_locationFormKey.currentState
+                                                    .validate()) {
+                                                  setState(() {
+                                                    _expand = false;
+                                                  });
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 31,
+                                                width: 58,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5.0),
+                                                  color: const Color(0xfff88518),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    'save'.trs(context),
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          const Color(0xffffffff),
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                    textAlign: TextAlign.left,
                                                   ),
-                                                  textAlign: TextAlign.left,
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                              )
-                              : Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _expand = true;
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 31,
-                                        width: 167,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5.0),
-                                          color: const Color(0xffe4f0e6),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            'add_extra_details'.trs(context),
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: const Color(0xff3c984f),
-                                              fontWeight: FontWeight.w500,
+                                        )
+                                      ],
+                                    ),
+                                )
+                                : Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _expand = true;
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 31,
+                                          width: 167,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                            color: const Color(0xffe4f0e6),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              'add_extra_details'.trs(context),
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: const Color(0xff3c984f),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              textAlign: TextAlign.left,
                                             ),
-                                            textAlign: TextAlign.left,
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    // GestureDetector(
-                                    //   onTap: () {
-                                    //     save();
-                                    //   },
-                                    //   child: Container(
-                                    //     width: 58,
-                                    //     height: 31,
-                                    //     decoration: BoxDecoration(
-                                    //       borderRadius:
-                                    //           BorderRadius.circular(5.0),
-                                    //       color: const Color(0xfff88518),
-                                    //     ),
-                                    //     child: Center(
-                                    //         child: Text(
-                                    //       'Done',
-                                    //       style: TextStyle(
-                                    //         fontSize: 12,
-                                    //         color: const Color(0xffffffff),
-                                    //         fontWeight: FontWeight.w500,
-                                    //       ),
-                                    //       textAlign: TextAlign.left,
-                                    //     )),
-                                    //   ),
-                                    // )
-                                  ],
-                                ),
-                        )),
-                  )
-                ],
+                                      // GestureDetector(
+                                      //   onTap: () {
+                                      //     save();
+                                      //   },
+                                      //   child: Container(
+                                      //     width: 58,
+                                      //     height: 31,
+                                      //     decoration: BoxDecoration(
+                                      //       borderRadius:
+                                      //           BorderRadius.circular(5.0),
+                                      //       color: const Color(0xfff88518),
+                                      //     ),
+                                      //     child: Center(
+                                      //         child: Text(
+                                      //       'Done',
+                                      //       style: TextStyle(
+                                      //         fontSize: 12,
+                                      //         color: const Color(0xffffffff),
+                                      //         fontWeight: FontWeight.w500,
+                                      //       ),
+                                      //       textAlign: TextAlign.left,
+                                      //     )),
+                                      //   ),
+                                      // )
+                                    ],
+                                  ),
+                          )),
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GestureDetector(
-                onTap: () => save(),
-                child: Container(
-                  height: 60,
-                  width: 260,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                    color: const Color(0x0ff3C984F),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'continue'.trs(context),
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: const Color(0xffffffff),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => save(),
+                  child: Container(
+                    height: 60,
+                    width: 260,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.0),
+                      color: const Color(0x0ff3C984F),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'continue'.trs(context),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: const Color(0xffffffff),
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 28, bottom: 50),
-                child: Container(
-                  width: size.width,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Theme(
-                            data: ThemeData(
-                                unselectedWidgetColor: Colors.grey[300]),
-                            child: Radio<int>(
-                              value: 0,
-                              groupValue: group,
-                              activeColor: CColors.darkGreen,
-                              onChanged: (value) {},
+                Padding(
+                  padding: const EdgeInsets.only(top: 28, bottom: 50),
+                  child: Container(
+                    width: size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Theme(
+                              data: ThemeData(
+                                  unselectedWidgetColor: Colors.grey[300]),
+                              child: Radio<int>(
+                                value: 0,
+                                groupValue: group,
+                                activeColor: CColors.darkGreen,
+                                onChanged: (value) {},
+                              ),
                             ),
-                          ),
-                          Text(
-                            'By Continuing you agree to our'.trs(context),
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: const Color(0xff888a8d),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  CustomPageRoute(
-                                    builder: (context) => Terms(
-                                      path: 'this',
-                                    ),
-                                  ));
-                            },
-                            child: Text(
-                              'Terms of use'.trs(context),
+                            Text(
+                              'By Continuing you agree to our'.trs(context),
                               style: TextStyle(
                                 fontSize: 10,
-                                color: const Color(0xff3c984f),
+                                color: const Color(0xff888a8d),
                               ),
                               textAlign: TextAlign.center,
                             ),
-                          ),
-                        ],
-                      ),
-                      // TextButton(
-                      //   onPressed: () {
-                      //     Navigator.push(
-                      //         context,
-                      //         CustomPageRoute(
-                      //           builder: (context) => RootScreen(),
-                      //         ));
-                      //   },
-                      //   child: Text(
-                      //     'skip'.trs(context),
-                      //     style: TextStyle(
-                      //       fontSize: 10,
-                      //       color: const Color(0xfffdaa5c),
-                      //     ),
-                      //     textAlign: TextAlign.center,
-                      //   ),
-                      // )
-                    ],
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    CustomPageRoute(
+                                      builder: (context) => Terms(
+                                        path: 'this',
+                                      ),
+                                    ));
+                              },
+                              child: Text(
+                                'Terms of use'.trs(context),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: const Color(0xff3c984f),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                        // TextButton(
+                        //   onPressed: () {
+                        //     Navigator.push(
+                        //         context,
+                        //         CustomPageRoute(
+                        //           builder: (context) => RootScreen(),
+                        //         ));
+                        //   },
+                        //   child: Text(
+                        //     'skip'.trs(context),
+                        //     style: TextStyle(
+                        //       fontSize: 10,
+                        //       color: const Color(0xfffdaa5c),
+                        //     ),
+                        //     textAlign: TextAlign.center,
+                        //   ),
+                        // )
+                      ],
+                    ),
                   ),
-                ),
-              )
-            ],
-          ),
-        ],
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

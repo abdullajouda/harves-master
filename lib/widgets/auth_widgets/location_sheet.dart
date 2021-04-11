@@ -21,6 +21,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:harvest/helpers/Localization/localization.dart';
 
+import '../directions.dart';
+
 class LocationSheet extends StatefulWidget {
   final String name;
   final String mobile;
@@ -176,266 +178,268 @@ class _LocationSheetState extends State<LocationSheet> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(33.0),
-          topRight: Radius.circular(33.0),
-        ),
-        color: const Color(0xffffffff),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x1a000000),
-            offset: Offset(0, -5),
-            blurRadius: 51,
+    return Direction(
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(33.0),
+            topRight: Radius.circular(33.0),
           ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        // alignment: Alignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30),
-            child: Container(
-              // height: 160,
-              width: 260,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(9.0),
-                color: const Color(0xffffffff),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0x14000000),
-                    offset: Offset(0, 4),
-                    blurRadius: 12,
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  city != null && (lat != null && lng != null)
-                      ? Padding(
-                          padding: const EdgeInsets.only(top: 15),
-                          child: Container(
-                            height: 68,
-                            width: 218,
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Container(
-                                  width: 200,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    color: const Color(0xfffff7ef),
-                                  ),
-                                  child: Center(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 15),
-                                          child: SvgPicture.asset(
-                                              'assets/images/Pin.svg'),
-                                        ),
-                                        Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '${city.name}, $fullAddress' ??
-                                                  '',
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: const Color(0xff3c4959),
-                                              ),
-                                              textAlign: TextAlign.left,
-                                            ),
-                                            Text(
-                                              ' $unitNo, $buildingNo',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                color: const Color(0xff888a8d),
-                                                fontWeight: FontWeight.w300,
-                                              ),
-                                              textAlign: TextAlign.left,
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: GestureDetector(
-                                    onTap: () => openMap(isEdit: true),
-                                    child: Container(
-                                      height: 18,
-                                      width: 18,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.elliptical(9999.0, 9999.0)),
-                                        color: const Color(0xfff88518),
-                                        border: Border.all(
-                                            width: 1.0,
-                                            color: const Color(0xffffffff)),
-                                      ),
-                                      child: Center(
-                                        child: SvgPicture.asset(
-                                            'assets/icons/edit.svg'),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        )
-                      : Container(),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 15),
-                    child: Text(
-                      'Add new specific address'.trs(context),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: const Color(0xff888a8d),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    child: GestureDetector(
-                      onTap: () => openMap(isEdit: false),
-                      child: Container(
-                        height: 31,
-                        width: 147,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5.0),
-                          color: const Color(0xffe4f0e6),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'add_new_adress'.trs(context),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: const Color(0xff3c984f),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.left,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
+          color: const Color(0xffffffff),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0x1a000000),
+              offset: Offset(0, -5),
+              blurRadius: 51,
             ),
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              GestureDetector(
-                onTap: () => onContinue(),
-                child: Container(
-                  height: 60,
-                  width: 260,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                    color: const Color(0x0ff3C984F),
-                  ),
-                  child: Center(
-                    child: load
-                        ? LoadingBtn()
-                        : Text(
-                            'continue'.trs(context),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: const Color(0xffffffff),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          // alignment: Alignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30),
+              child: Container(
+                // height: 160,
+                width: 260,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(9.0),
+                  color: const Color(0xffffffff),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0x14000000),
+                      offset: Offset(0, 4),
+                      blurRadius: 12,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    city != null && (lat != null && lng != null)
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 15),
+                            child: Container(
+                              height: 68,
+                              width: 218,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Container(
+                                    width: 200,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      color: const Color(0xfffff7ef),
+                                    ),
+                                    child: Center(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 15),
+                                            child: SvgPicture.asset(
+                                                'assets/images/Pin.svg'),
+                                          ),
+                                          Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${city.name}, $fullAddress' ??
+                                                    '',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: const Color(0xff3c4959),
+                                                ),
+                                                textAlign: TextAlign.left,
+                                              ),
+                                              Text(
+                                                ' $unitNo, $buildingNo',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: const Color(0xff888a8d),
+                                                  fontWeight: FontWeight.w300,
+                                                ),
+                                                textAlign: TextAlign.left,
+                                              )
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: GestureDetector(
+                                      onTap: () => openMap(isEdit: true),
+                                      child: Container(
+                                        height: 18,
+                                        width: 18,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.elliptical(9999.0, 9999.0)),
+                                          color: const Color(0xfff88518),
+                                          border: Border.all(
+                                              width: 1.0,
+                                              color: const Color(0xffffffff)),
+                                        ),
+                                        child: Center(
+                                          child: SvgPicture.asset(
+                                              'assets/icons/edit.svg'),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
-                            textAlign: TextAlign.center,
+                          )
+                        : Container(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      child: Text(
+                        'Add new specific address'.trs(context),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: const Color(0xff888a8d),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      child: GestureDetector(
+                        onTap: () => openMap(isEdit: false),
+                        child: Container(
+                          height: 31,
+                          width: 147,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5.0),
+                            color: const Color(0xffe4f0e6),
                           ),
-                  ),
+                          child: Center(
+                            child: Text(
+                              'add_new_adress'.trs(context),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: const Color(0xff3c984f),
+                                fontWeight: FontWeight.w500,
+                              ),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 28, bottom: 50),
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          Theme(
-                            data: ThemeData(
-                                unselectedWidgetColor: Colors.grey[300]),
-                            child: Radio<int>(
-                              value: 0,
-                              groupValue: group,
-                              activeColor: CColors.darkGreen,
-                              onChanged: (value) {},
-                            ),
-                          ),
-                          Text(
-                            'By Continuing you agree to our'.trs(context),
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: const Color(0xff888a8d),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  CustomPageRoute(
-                                    builder: (context) => Terms(
-                                      path: 'this',
-                                    ),
-                                  ));
-                            },
-                            child: Text(
-                              'Terms of use'.trs(context),
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GestureDetector(
+                  onTap: () => onContinue(),
+                  child: Container(
+                    height: 60,
+                    width: 260,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.0),
+                      color: const Color(0x0ff3C984F),
+                    ),
+                    child: Center(
+                      child: load
+                          ? LoadingBtn()
+                          : Text(
+                              'continue'.trs(context),
                               style: TextStyle(
-                                fontSize: 10,
-                                color: const Color(0xff3c984f),
+                                fontSize: 16,
+                                color: const Color(0xffffffff),
                               ),
                               textAlign: TextAlign.center,
                             ),
-                          ),
-                        ],
-                      ),
-                      // TextButton(
-                      //   onPressed: () {
-                      //     Navigator.push(
-                      //         context,
-                      //         CustomPageRoute(
-                      //           builder: (context) => RootScreen(),
-                      //         ));
-                      //   },
-                      //   child: Text(
-                      //     'Skip'.trs(context),
-                      //     style: TextStyle(
-                      //       fontSize: 10,
-                      //       color: const Color(0xfffdaa5c),
-                      //     ),
-                      //     textAlign: TextAlign.center,
-                      //   ),
-                      // )
-                    ],
+                    ),
                   ),
                 ),
-              )
-            ],
-          ),
-        ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 28, bottom: 50),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Theme(
+                              data: ThemeData(
+                                  unselectedWidgetColor: Colors.grey[300]),
+                              child: Radio<int>(
+                                value: 0,
+                                groupValue: group,
+                                activeColor: CColors.darkGreen,
+                                onChanged: (value) {},
+                              ),
+                            ),
+                            Text(
+                              'By Continuing you agree to our'.trs(context),
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: const Color(0xff888a8d),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    CustomPageRoute(
+                                      builder: (context) => Terms(
+                                        path: 'this',
+                                      ),
+                                    ));
+                              },
+                              child: Text(
+                                'Terms of use'.trs(context),
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: const Color(0xff3c984f),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                        // TextButton(
+                        //   onPressed: () {
+                        //     Navigator.push(
+                        //         context,
+                        //         CustomPageRoute(
+                        //           builder: (context) => RootScreen(),
+                        //         ));
+                        //   },
+                        //   child: Text(
+                        //     'Skip'.trs(context),
+                        //     style: TextStyle(
+                        //       fontSize: 10,
+                        //       color: const Color(0xfffdaa5c),
+                        //     ),
+                        //     textAlign: TextAlign.center,
+                        //   ),
+                        // )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

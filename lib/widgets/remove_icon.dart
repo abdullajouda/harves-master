@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:harvest/helpers/colors.dart';
+import 'package:harvest/widgets/directions.dart';
 
 class RemoveIconDecoration {
   final double raduis;
@@ -66,42 +67,44 @@ class RemoveIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!enabled) return child;
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        child,
-        PositionedDirectional(
-          end: -10,
-          bottom: iconAlignment.y == 1.0 ? -10 : null,
-          top: iconAlignment.y == 1.0 ? null : -10,
-          child: GestureDetector(
-            onTap: onTap,
-            child: Material(
-              elevation: deocation.elevation ?? 0.0,
-              color: CColors.transparent,
-              type: MaterialType.circle,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: deocation.backgroundColor,
-                  border: Border.all(
-                      color: deocation.borderColor,
-                      width: deocation.borderWidth),
-                  boxShadow: deocation.elevation == null ? null : shadow,
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(deocation.raduis),
-                  child: Icon(
-                    Icons.close,
-                    color: deocation.iconColor,
-                    size: deocation.iconSize,
+    return Direction(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          child,
+          PositionedDirectional(
+            end: -10,
+            bottom: iconAlignment.y == 1.0 ? -10 : null,
+            top: iconAlignment.y == 1.0 ? null : -10,
+            child: GestureDetector(
+              onTap: onTap,
+              child: Material(
+                elevation: deocation.elevation ?? 0.0,
+                color: CColors.transparent,
+                type: MaterialType.circle,
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: deocation.backgroundColor,
+                    border: Border.all(
+                        color: deocation.borderColor,
+                        width: deocation.borderWidth),
+                    boxShadow: deocation.elevation == null ? null : shadow,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(deocation.raduis),
+                    child: Icon(
+                      Icons.close,
+                      color: deocation.iconColor,
+                      size: deocation.iconSize,
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

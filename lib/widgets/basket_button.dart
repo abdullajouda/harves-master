@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/models/cart_items.dart';
 import 'package:harvest/customer/views/Basket/basket.dart';

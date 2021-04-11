@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/components/WaveAppBar/wave_appbar.dart';
 import 'package:harvest/customer/models/favorite.dart';

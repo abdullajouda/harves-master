@@ -21,6 +21,7 @@ import 'package:harvest/widgets/alerts/myAlerts.dart';
 import 'package:harvest/widgets/dialogs/alert_builder.dart';
 import 'package:harvest/widgets/dialogs/minimun_charge.dart';
 import 'package:harvest/widgets/dialogs/signup_dialog.dart';
+import 'package:harvest/widgets/directions.dart';
 import 'package:harvest/widgets/my_animation.dart';
 import 'package:harvest/widgets/no_data.dart';
 import 'package:http/http.dart';
@@ -1156,115 +1157,117 @@ class _AddressConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Dialog(
-      backgroundColor: CColors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Container(
-        decoration: BoxDecoration(
-          color: CColors.white,
-          borderRadius: BorderRadius.circular(13),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(10),
-              offset: Offset(0, 5.0),
-              spreadRadius: 1,
-              blurRadius: 10,
-            ),
-          ],
-        ),
-        padding: EdgeInsets.all(15),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "order_will_be_delivered_to".trs(context),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: CColors.headerText,
+    return Direction(
+      child: Dialog(
+        backgroundColor: CColors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: CColors.white,
+            borderRadius: BorderRadius.circular(13),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(10),
+                offset: Offset(0, 5.0),
+                spreadRadius: 1,
+                blurRadius: 10,
               ),
-            ),
-            SizedBox(height: 10),
-            Container(
-              constraints: BoxConstraints(
-                maxHeight: 150,
-                maxWidth: size.width * 0.6,
-              ),
-              decoration: BoxDecoration(
-                color: CColors.lightOrange,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.symmetric(horizontal: 15),
-                leading:
-                    SvgPicture.asset(Constants.mapPin, width: 40, height: 40),
-                title: Text(
-                  "${address.city.name}, ${address.address}",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: CColors.headerText,
-                  ),
-                ),
-                subtitle: Text(
-                  "${address.buildingNumber}, ${address.unitNumber}",
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Text(
-                "or_add_new_adress".trs(context),
+            ],
+          ),
+          padding: EdgeInsets.all(15),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "order_will_be_delivered_to".trs(context),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: CColors.grey,
-                  fontSize: 11,
+                  fontSize: 13,
+                  color: CColors.headerText,
                 ),
               ),
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    if (onTapNewOne != null) onTapNewOne();
-                  },
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    side: BorderSide(color: CColors.lightGreen, width: 2),
-                  ),
-                  color: CColors.transparent,
-                  child: Text(
-                    "new_one_address".trs(context),
+              SizedBox(height: 10),
+              Container(
+                constraints: BoxConstraints(
+                  maxHeight: 150,
+                  maxWidth: size.width * 0.6,
+                ),
+                decoration: BoxDecoration(
+                  color: CColors.lightOrange,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                  leading:
+                      SvgPicture.asset(Constants.mapPin, width: 40, height: 40),
+                  title: Text(
+                    "${address.city.name}, ${address.address}",
                     style: TextStyle(
-                      color: CColors.lightGreen,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 12,
+                      fontSize: 13,
+                      color: CColors.headerText,
+                    ),
+                  ),
+                  subtitle: Text(
+                    "${address.buildingNumber}, ${address.unitNumber}",
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
-                FlatButton(
-                  onPressed: onTapContinue,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5)),
-                  color: Colors.grey[200],
-                  child: Text(
-                    "continue".trs(context),
-                    style: TextStyle(
-                      color: CColors.lightGreen,
-                      fontWeight: FontWeight.w400,
-                      fontSize: 12,
-                    ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: Text(
+                  "or_add_new_adress".trs(context),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: CColors.grey,
+                    fontSize: 11,
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FlatButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      if (onTapNewOne != null) onTapNewOne();
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      side: BorderSide(color: CColors.lightGreen, width: 2),
+                    ),
+                    color: CColors.transparent,
+                    child: Text(
+                      "new_one_address".trs(context),
+                      style: TextStyle(
+                        color: CColors.lightGreen,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  FlatButton(
+                    onPressed: onTapContinue,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                    color: Colors.grey[200],
+                    child: Text(
+                      "continue".trs(context),
+                      style: TextStyle(
+                        color: CColors.lightGreen,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

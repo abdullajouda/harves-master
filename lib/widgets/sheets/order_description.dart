@@ -13,10 +13,15 @@ import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../directions.dart';
+
 class OrderDescription extends StatefulWidget {
   final VoidCallback onTap;
 
-  const OrderDescription({Key key, this.onTap,}) : super(key: key);
+  const OrderDescription({
+    Key key,
+    this.onTap,
+  }) : super(key: key);
 
   @override
   _OrderDescriptionState createState() => _OrderDescriptionState();
@@ -36,19 +41,22 @@ class _OrderDescriptionState extends State<OrderDescription> {
     });
     var cart = Provider.of<Cart>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // var request = await get(
-    //     ApiHelper.api + 'getDeliveryCost/${cart.deliveryAddresses.city.id}',
-    //     headers: {
-    //       'Accept': 'application/json',
-    //       'Accept-Language': '${prefs.getString('language')}',
-    //     });
-    // var response = json.decode(request.body);
+    var request = await get(
+        ApiHelper.api + 'getDeliveryCost/${cart.deliveryAddresses.id}',
+        headers: {
+          'Accept': 'application/json',
+          'fcmToken': prefs.getString('fcm_token'),
+          'Authorization': 'Bearer ${prefs.getString('userToken')}',
+          'Accept-Language': '${prefs.getString('language')}',
+        });
+    var response = json.decode(request.body);
+    print(response);
     setState(() {
-      _deliveryCost = 0;
-      if(!cart.isFree){
-        _deliveryCost = cart.deliveryAddresses.city.deliveryCost;
-      }
-      _total = _deliveryCost + cart.total;
+      _deliveryCost = double.parse(response.toString());
+      // if(!cart.isFree){
+      //   _deliveryCost = cart.deliveryAddresses.city.deliveryCost;
+      // }
+      // _total = _deliveryCost + cart.total;
       load = false;
     });
   }
@@ -139,7 +147,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
             ),
           ),
           Text(
-            "${'Q.R'.trs(context)} ${cart.total.toStringAsFixed(2)}",
+            "${cart.total.toStringAsFixed(2)} ${'Q.R'.trs(context)}",
             style: TextStyle(
               fontSize: 14,
               color: CColors.headerText,
@@ -157,13 +165,15 @@ class _OrderDescriptionState extends State<OrderDescription> {
               color: CColors.headerText,
             ),
           ),
-          _deliveryCost!= null?Text(
-            "${'Q.R'.trs(context)} ${_deliveryCost.toStringAsFixed(1)}",
-            style: TextStyle(
-              fontSize: 12,
-              color: CColors.headerText,
-            ),
-          ):Container(),
+          _deliveryCost != null
+              ? Text(
+                  "${_deliveryCost.toStringAsFixed(1)} ${'Q.R'.trs(context)}",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: CColors.headerText,
+                  ),
+                )
+              : Container(),
         ],
       ),
       _buildVoucherField(context, size),
@@ -183,7 +193,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
               : Row(
                   children: [
                     Text(
-                      "${'Q.R'.trs(context)} ${(cart.total.toDouble() + _deliveryCost.toDouble()).toStringAsFixed(2)}",
+                      "${(cart.total.toDouble() + _deliveryCost.toDouble()).toStringAsFixed(2)} ${'Q.R'.trs(context)}",
                       style: TextStyle(
                           fontSize: _discount != null ? 12 : 15,
                           color: _discount != null
@@ -195,7 +205,7 @@ class _OrderDescriptionState extends State<OrderDescription> {
                     ),
                     _discount != null
                         ? Text(
-                            "${'Q.R'.trs(context)} ${((_total) - (_total * _discount / 100)).toStringAsFixed(2)}",
+                            "${((_total) - (_total * _discount / 100)).toStringAsFixed(2)} ${'Q.R'.trs(context)}",
                             style: TextStyle(
                               fontSize: 15,
                               color: CColors.headerText,
@@ -207,83 +217,85 @@ class _OrderDescriptionState extends State<OrderDescription> {
         ],
       ),
     ];
-    return Padding(
-      padding:
-          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        width: size.width,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(32.0),
-            topRight: Radius.circular(32.0),
+    return Direction(
+      child: Padding(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          width: size.width,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(32.0),
+              topRight: Radius.circular(32.0),
+            ),
+            color: const Color(0xffffffff),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0x1c000000),
+                offset: Offset(0, -17),
+                blurRadius: 24,
+              ),
+            ],
           ),
-          color: const Color(0xffffffff),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0x1c000000),
-              offset: Offset(0, -17),
-              blurRadius: 24,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              child: Card(
-                elevation: 0.0,
-                color: Colors.grey[300],
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(99)),
-                child: SizedBox(width: size.width * 0.35, height: 6),
-              ),
-            ),
-            Text(
-              "order_description".trs(context),
-              style: TextStyle(
-                fontSize: 18,
-                color: CColors.headerText,
-              ),
-            ),
-            load
-                ? Loader()
-                : ListView.separated(
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: _options.length,
-                    shrinkWrap: true,
-                    padding: EdgeInsets.symmetric(horizontal: 35),
-                    separatorBuilder: (context, index) => Divider(),
-                    itemBuilder: (context, index) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        child: _options[index]),
-                  ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 30),
-              child: FlatButton(
-                onPressed: () {
-                  cart.setTotalPrice(_discount != null
-                      ? (_total) - (_total * _discount / 100)
-                      : _total);
-                  widget.onTap.call();
-                },
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                color: CColors.lightGreen,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child:  Text(
-                          "continue".trs(context),
-                          style: TextStyle(
-                            color: CColors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: Card(
+                  elevation: 0.0,
+                  color: Colors.grey[300],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(99)),
+                  child: SizedBox(width: size.width * 0.35, height: 6),
                 ),
               ),
-            ),
-          ],
+              Text(
+                "order_description".trs(context),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: CColors.headerText,
+                ),
+              ),
+              load
+                  ? Loader()
+                  : ListView.separated(
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: _options.length,
+                      shrinkWrap: true,
+                      padding: EdgeInsets.symmetric(horizontal: 35),
+                      separatorBuilder: (context, index) => Divider(),
+                      itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: _options[index]),
+                    ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 30),
+                child: FlatButton(
+                  onPressed: () {
+                    cart.setTotalPrice(_discount != null
+                        ? (_total) - (_total * _discount / 100)
+                        : _total);
+                    widget.onTap.call();
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5)),
+                  color: CColors.lightGreen,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: Text(
+                      "continue".trs(context),
+                      style: TextStyle(
+                        color: CColors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

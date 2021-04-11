@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:harvest/helpers/Localization/lang_provider.dart';
+import 'package:harvest/widgets/directions.dart';
 class AlertBuilder extends StatefulWidget {
 
   final String title;
@@ -20,8 +21,7 @@ class _AlertBuilderState extends State<AlertBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: LangProvider().getLocaleCode()=='ar'?TextDirection.rtl:TextDirection.ltr,
+    return Direction(
       child: Material(
         color: Colors.transparent,
         child: Align(

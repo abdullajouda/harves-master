@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/Profile/user_profile.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/Wallet/wallet.dart';
@@ -19,6 +18,8 @@ import 'package:harvest/helpers/persistent_tab_controller_provider.dart';
 import 'package:harvest/helpers/Localization/app_translations.dart';
 import 'package:harvest/customer/views/Drop-Menu-Views/find_us.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'directions.dart';
 
 class HomePopUpMenuModel {
   final String iconPath;
@@ -168,52 +169,54 @@ class _HomePopUpMenuState extends State<HomePopUpMenu> {
           },
         ),
     ];
-    return PopupMenuButton<int>(
-      icon: SvgPicture.asset(Constants.menuIcon, width: 15, height: 15),
-      padding: EdgeInsets.zero,
-      offset: Offset(-50, 10),
-      onSelected: (index) {
-        final _item = _options[index];
-        if (_item.onPressed != null)
-          _item.onPressed();
-      },
-      onCanceled: null,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      itemBuilder: (context) => List.generate(
-        _options.length,
-        (index) {
-          final _option = _options[index];
-          return PopupMenuItem(
-            height: 40,
-            value: index,
-            enabled: _option.onPressed != null,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_option.iconPath != null)
-                    Container(
-                      height: 15,
-                      width: 15,
-                      child: Center(
-                        child: SvgPicture.asset(_option.iconPath,
-                            color: Color(0x0ff525768), width: 15, height: 15),
-                      ),
-                    ),
-                  SizedBox(width: 6),
-                  Text(
-                    _option.title.trs(context),
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: CColors.headerText,
-                    ),
-                  )
-                ],
-              ),
-            ),
-          );
+    return Direction(
+      child: PopupMenuButton<int>(
+        icon: SvgPicture.asset(Constants.menuIcon, width: 15, height: 15),
+        padding: EdgeInsets.zero,
+        offset: Offset(-50, 10),
+        onSelected: (index) {
+          final _item = _options[index];
+          if (_item.onPressed != null)
+            _item.onPressed();
         },
+        onCanceled: null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        itemBuilder: (context) => List.generate(
+          _options.length,
+          (index) {
+            final _option = _options[index];
+            return PopupMenuItem(
+              height: 40,
+              value: index,
+              enabled: _option.onPressed != null,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 3),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_option.iconPath != null)
+                      Container(
+                        height: 15,
+                        width: 15,
+                        child: Center(
+                          child: SvgPicture.asset(_option.iconPath,
+                              color: Color(0x0ff525768), width: 15, height: 15),
+                        ),
+                      ),
+                    SizedBox(width: 6),
+                    Text(
+                      _option.title.trs(context),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: CColors.headerText,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

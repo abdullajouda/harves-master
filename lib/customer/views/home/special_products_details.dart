@@ -65,7 +65,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
           price: widget.fruit.price.toDouble()),
       fcmToken: prefs.getString('fcm_token'),
     ));
-    var request = await post(ApiHelper.api + 'addProductToCart/$id}', headers: {
+    var request = await post(ApiHelper.api + 'addProductToCart/$id', headers: {
       'Accept': 'application/json',
       'fcmToken': prefs.getString('fcm_token'),
       'Accept-Language': LangProvider().getLocaleCode(),

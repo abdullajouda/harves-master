@@ -8,6 +8,7 @@ import 'package:harvest/helpers/colors.dart';
 import 'package:harvest/helpers/constants.dart';
 import 'package:harvest/helpers/custom_page_transition.dart';
 import 'package:harvest/widgets/basket_button.dart';
+import 'package:harvest/widgets/directions.dart';
 import 'package:harvest/widgets/home_popUp_menu.dart';
 
 
@@ -28,31 +29,33 @@ class _OrdersTabState extends State<OrdersTab> {
       "current_order",
       "old_order",
     ];
-    return Scaffold(
-      appBar: WaveAppBar(
-        backgroundGradient: CColors.greenAppBarGradient(),
-        actions: [HomePopUpMenu()],
-        leading: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                CustomPageRoute(
-                  // context: context,
-                  builder: (context) => Basket(),
+    return Direction(
+      child: Scaffold(
+        appBar: WaveAppBar(
+          backgroundGradient: CColors.greenAppBarGradient(),
+          actions: [HomePopUpMenu()],
+          leading: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  CustomPageRoute(
+                    // context: context,
+                    builder: (context) => Basket(),
+                  ),
+                );
+              },
+              child: BasketButton()),
+        ),
+        body: Column(
+          children: [
+            _buildTopSelector(_orderTabsTitles, context),
+            Expanded(
+                  child: _ordersTab == _OrdersTabs.Current
+                      ? CurrentOrders()
+                      : OldOrders(),
                 ),
-              );
-            },
-            child: BasketButton()),
-      ),
-      body: Column(
-        children: [
-          _buildTopSelector(_orderTabsTitles, context),
-          Expanded(
-                child: _ordersTab == _OrdersTabs.Current
-                    ? CurrentOrders()
-                    : OldOrders(),
-              ),
-        ],
+          ],
+        ),
       ),
     );
   }
