@@ -413,7 +413,7 @@ class _HomeState extends State<Home> {
                             itemBuilder: (context, index) => GestureDetector(
                                 onTap: () =>
                                     Navigator.of(context, rootNavigator: true)
-                                        .push(CupertinoPageRoute(
+                                        .push(CustomPageRoute(
                                       builder: (context) => ProductBundleDetails(
                                         fruit: _featuredProducts[index],
                                       ),

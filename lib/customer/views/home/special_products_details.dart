@@ -73,6 +73,7 @@ class _ProductBundleDetailsState extends State<ProductBundleDetails> {
     });
     var response = json.decode(request.body);
     // MyAlert.addedToCart(0, context);
+    print(response);
     if (response['status'] == true) {
       var items = response['cart'];
       if (items != null) {

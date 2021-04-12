@@ -30,7 +30,16 @@ import 'package:intl/intl.dart' as intel;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PreferenceUtils.init();
-  runApp(MyApp());
+  runApp(MultiProvider(providers: [
+    Provider(create: (context) => PTVController()),
+    Provider(create: (context) => ApiHelper()),
+    ChangeNotifierProvider(create: (context) => LangProvider()),
+    ChangeNotifierProvider(create: (context) => FavoriteOperations()),
+    ChangeNotifierProvider(create: (context) => CityOperations()),
+    ChangeNotifierProvider(create: (context) => NotificationOperations()),
+    ChangeNotifierProvider(create: (context) => UserFunctions()),
+    ChangeNotifierProvider(create: (context) => Cart()),
+  ], child: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -61,11 +70,14 @@ class _MyAppState extends State<MyApp> {
     return currentBuildNumber < requiredBuildNumber;
   }
 
-
   @override
   void initState() {
-    if(!LangProvider().hasLocale()){
-      LangProvider().setLocale(locale: Locales.en);
+    if (!LangProvider().hasLocale()) {
+      if(intel.Intl.systemLocale.contains('ar')){
+        LangProvider().setLocale(locale: Locales.ar);
+      }else{
+        LangProvider().setLocale(locale: Locales.en);
+      }
     }
     application.onLocaleChanged = onLocaleChange;
     _newLocaleDelegate = AppTranslationsDelegate(
@@ -87,34 +99,23 @@ class _MyAppState extends State<MyApp> {
     bool isArabic = _newLocaleDelegate.newLocale.languageCode == 'ar';
     // final _statusBarBrightness = context.watch<StatusBarBrighness>().brightness;
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-    return MultiProvider(
-        providers: [
-          Provider(create: (context) => PTVController()),
-          Provider(create: (context) => ApiHelper()),
-          ChangeNotifierProvider(create: (context) => LangProvider()),
-          ChangeNotifierProvider(create: (context) => FavoriteOperations()),
-          ChangeNotifierProvider(create: (context) => CityOperations()),
-          ChangeNotifierProvider(create: (context) => NotificationOperations()),
-          ChangeNotifierProvider(create: (context) => UserFunctions()),
-          ChangeNotifierProvider(create: (context) => Cart()),
-        ],
-        child: MaterialApp(
-          navigatorKey: AppShared.navKey = GlobalKey(),
-          supportedLocales: application.supportedLocales(),
-          locale: _newLocaleDelegate.newLocale,
-          localizationsDelegates: [
-            GlobalCupertinoLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            _newLocaleDelegate,
-          ],
-          debugShowCheckedModeBanner: false,
-          title: appName,
-          theme: ThemeData(
-            fontFamily: 'Famtree',
-            primarySwatch: Colors.blue,
-          ),
-          home: Splash(),
-        ));
+    return MaterialApp(
+      navigatorKey: AppShared.navKey = GlobalKey(),
+      supportedLocales: application.supportedLocales(),
+      locale: Locale(LangProvider().getLocaleCode()),
+      localizationsDelegates: [
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        _newLocaleDelegate,
+      ],
+      debugShowCheckedModeBanner: false,
+      title: appName,
+      theme: ThemeData(
+        fontFamily: 'Famtree',
+        primarySwatch: Colors.blue,
+      ),
+      home: Splash(),
+    );
   }
 }
